@@ -7,9 +7,7 @@
     "start": "concurrently \"npm run start --prefix backend\" \"npm run dev --prefix PetrolBunkManagement\""
   },
   "dependencies": {
-    "concurrently": "^6.0.0",
-    "react-icons": "^5.5.0",
-    "xlsx": "^0.18.5"
+    "concurrently": "^6.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9",
