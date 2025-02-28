@@ -1,3 +1,4 @@
+// src/components/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Package, BarChart2, Users, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -34,7 +35,19 @@ const DashboardLayout = () => {
       title: 'Expense Tracking', 
       icon: DollarSign, 
       path: '/expenses' 
-    }
+    },
+    { 
+      id: 5, 
+      title: 'Reports', 
+      icon: BarChart2, 
+      path: '/reports' 
+    },
+    { 
+      id: 6, 
+      title: 'Employee Time', 
+      icon: Users, 
+      path: '/employee-timesheet' 
+    } // New Employee Time card added
   ];
 
   const toggleSidebar = () => {
@@ -43,8 +56,8 @@ const DashboardLayout = () => {
 
   return (
     <div className="flex h-screen text-gray-100 bg-gray-900">
-      <main className={`flex-1 p-12 transition-all duration-300 m-12`}>
-        <div className="grid justify-center max-w-6xl grid-cols-2 gap-8 mx-auto">
+      <main className={`flex-1 p-12 transition-all duration-300 my-12`}>
+        <div className="grid justify-center max-w-5xl grid-cols-2 gap-8 mx-auto">
           {cards.map((card) => (
             <div
               key={card.id}

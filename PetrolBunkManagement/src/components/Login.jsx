@@ -15,7 +15,8 @@ const Login = () => {
     console.log('Current state:', { alert, username, password });
 
     if (username === 'admin' && password === 'admin') {
-      setAlert({ message: 'Login successful! Redirecting...', type: 'success' });
+      setAlert({ message: String('Login successful! Redirecting...'), type: 'success' });
+
       console.log('Redirecting to dashboard...');
       console.log('Before navigation:', { alert });
 
@@ -24,7 +25,8 @@ const Login = () => {
         console.log('Navigation to dashboard executed');
       }, 2000);
     } else {
-      setAlert({ message: 'Invalid Credentials, Try again!', type: 'error' });
+      setAlert({ message: String('Invalid Credentials, Try again!'), type: 'error' });
+
       console.log('Login failed: Invalid credentials');
       console.log('Error alert set');
       setTimeout(() => setAlert({ message: '', type: '' }), 2000);

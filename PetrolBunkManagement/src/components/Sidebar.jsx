@@ -15,7 +15,9 @@ const Sidebar = () => {
     { icon: Package, label: 'Inventory', path: '/inventory' },
     { icon: BarChart2, label: 'Sales', path: '/sales' },
     { icon: Users, label: 'Employees', path: '/employees' },
-    { icon: DollarSign, label: 'Expenses', path: '/expenses' }
+    { icon: DollarSign, label: 'Expenses', path: '/expenses' },
+    { icon: BarChart2, label: 'Reports', path: '/reports' } 
+
   ];
 
   return (
