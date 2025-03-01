@@ -138,10 +138,18 @@ const ExpenseTracking = () => {
     });
   };
 
-  // Format date for display (YYYY-MM-DD)
-  const formatDateForDisplay = (dateString) => {
-    return dateString.split('T')[0];
+  // Format date for display (DD/MM/YYYY)
+  const formatDate = (dateInput) => {
+    const date = new Date(dateInput);
+    if (isNaN(date)) {
+      throw new Error("Invalid date provided!");
+    }
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
+  
 
   // Add new category
   const addNewCategory = () => {
@@ -202,7 +210,7 @@ const ExpenseTracking = () => {
     });
     setFilteredExpenses(expenses);
     setIsFilterModalOpen(false);
-  };
+    };
 
   // Export expenses to CSV
   const exportToCSV = () => {
@@ -211,7 +219,9 @@ const ExpenseTracking = () => {
     const dataRows = filteredExpenses.map(expense => [
       expense.category,
       expense.amount,
-      formatDateForDisplay(expense.date)
+      formatDate(expense.date)
+
+
     ]);
     
     // Combine headers and data
@@ -268,8 +278,7 @@ const ExpenseTracking = () => {
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 300 }}
         className="flex items-center mb-6 text-3xl font-bold text-white"
-      >
-        <span className="mr-2">💰</span> Expense Tracking
+      > Expense Tracking
       </motion.h1>
 
       {/* Expense Summary */}
@@ -333,7 +342,7 @@ const ExpenseTracking = () => {
           onClick={exportToCSV}
           className="flex items-center gap-2 px-4 py-2 text-white bg-green-600 rounded-lg shadow-md hover:bg-green-700"
         >
-          <Download size={16} /> Download CSV
+          <Download size={16} /> Export
         </motion.button>
       </motion.div>
 
@@ -461,7 +470,7 @@ const ExpenseTracking = () => {
                   >
                     <td className="p-3">{expense.category}</td>
                     <td className="p-3">₹{expense.amount.toLocaleString()}</td>
-                    <td className="p-3">{formatDateForDisplay(expense.date)}</td>
+                    <td className="p-3">{formatDate(expense.date)}</td>
                     <td className="p-3 text-center">
                       <motion.button
                         whileHover={{ scale: 1.1 }}
@@ -475,7 +484,7 @@ const ExpenseTracking = () => {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => deleteExpense(expense._id)}
-                        className="p-2 text-red-300 bg-red-900 rounded-full  ms-2 hover:bg-red-800"
+                        className="p-2 text-red-300 bg-red-900 rounded-full ms-2 hover:bg-red-800"
                       >
                         <Trash2 size={16} />
                       </motion.button>

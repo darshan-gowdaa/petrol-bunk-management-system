@@ -1,53 +1,53 @@
 // src/components/Dashboard.jsx
-import React, { useState, useEffect } from 'react';
-import { Menu, X, Package, BarChart2, Users, DollarSign } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import {
+  Package,
+  BarChart2,
+  Users,
+  DollarSign,
+  ChartArea,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = 'HP PBMS Dashboard';
+    document.title = "HP PBMS Dashboard";
   }, []);
 
   const cards = [
-    { 
-      id: 1, 
-      title: 'Inventory Management', 
-      icon: Package, 
-      path: '/inventory' 
+    {
+      id: 1,
+      title: "Inventory Management",
+      icon: Package,
+      path: "/inventory",
     },
-    { 
-      id: 2, 
-      title: 'Sales Management', 
-      icon: BarChart2, 
-      path: '/sales' 
+    {
+      id: 2,
+      title: "Sales Management",
+      icon: BarChart2,
+      path: "/sales",
     },
-    { 
-      id: 3, 
-      title: 'Employee Management', 
-      icon: Users, 
-      path: '/employees' 
+    {
+      id: 3,
+      title: "Employee Management",
+      icon: Users,
+      path: "/employees",
     },
-    { 
-      id: 4, 
-      title: 'Expense Tracking', 
-      icon: DollarSign, 
-      path: '/expenses' 
+    {
+      id: 4,
+      title: "Expense Tracking",
+      icon: DollarSign,
+      path: "/expenses",
     },
-    { 
-      id: 5, 
-      title: 'Reports', 
-      icon: BarChart2, 
-      path: '/reports' 
+    {
+      id: 5,
+      title: "Reports",
+      icon: ChartArea,
+      path: "/reports",
     },
-    { 
-      id: 6, 
-      title: 'Employee Time', 
-      icon: Users, 
-      path: '/employee-timesheet' 
-    } // New Employee Time card added
   ];
 
   const toggleSidebar = () => {
@@ -65,7 +65,9 @@ const DashboardLayout = () => {
               className="bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer min-h-[200px] flex flex-col items-center justify-center space-y-4 transform hover:scale-105"
             >
               <card.icon size={48} className="text-blue-400" />
-              <h3 className="text-xl font-semibold text-center">{card.title}</h3>
+              <h3 className="text-xl font-semibold text-center">
+                {card.title}
+              </h3>
             </div>
           ))}
         </div>
