@@ -20,6 +20,7 @@ const InventoryManagement = () => {
     stockStatus: 'all',
     dateRange: { start: '', end: '' }
   });
+  const [hoveredRow, setHoveredRow] = useState(null);
 
   useEffect(() => {
     getInventoryItems();
@@ -197,6 +198,28 @@ const InventoryManagement = () => {
     }
   };
 
+  // Get stock status badge class
+  const getStatusBadgeClass = (currentStock, reorderLevel) => {
+    if (currentStock <= reorderLevel) {
+      return 'bg-red-900 text-red-300';
+    } else if (currentStock <= reorderLevel * 1.5) { 
+      return 'bg-yellow-900 text-yellow-300'; // New "warning" level for stock that's close to reorder level
+    } else {
+      return 'bg-green-900 text-green-300';
+    }
+  };
+
+  // Get stock status text
+  const getStatusText = (currentStock, reorderLevel) => {
+    if (currentStock <= reorderLevel) {
+      return 'LOW STOCK';
+    } else if (currentStock <= reorderLevel * 1.5) {
+      return 'WARNING';
+    } else {
+      return 'SUFFICIENT';
+    }
+  };
+
   return (
     <div className="p-8 mx-auto bg-gray-900 rounded-lg shadow-xl">
       <div className="flex items-center justify-between mb-8">
@@ -352,95 +375,142 @@ const InventoryManagement = () => {
 
       {/* Form for adding or editing inventory items */}
       <motion.div
-  initial={{ opacity: 0, y: -20 }}
-  animate={{ opacity: 1, y: 0 }}
-  className="p-6 mb-8 bg-gray-800 rounded-lg shadow-lg"
->
-  <h2 className="mb-4 text-xl font-bold text-white">{editingItemId ? 'Edit Item' : 'Add New Item'}</h2>
-  <div className="grid items-end grid-cols-1 gap-4 md:grid-cols-6"> {/* Adjusted to 6 columns */}
-    {/* Item Name */}
-    <div className="md:col-span-2">
-      <input
-        type="text"
-        placeholder="Item Name"
-        value={newItem.name}
-        onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-        className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-      />
-    </div>
-
-    {/* Current Stock */}
-    <div>
-      <input
-        type="number"
-        placeholder="Current Stock"
-        value={newItem.currentStock}
-        onChange={(e) => setNewItem({ ...newItem, currentStock: Number(e.target.value) })}
-        className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-      />
-    </div>
-
-    {/* Reorder Level */}
-    <div>
-      <input
-        type="number"
-        placeholder="Reorder Level"
-        value={newItem.reorderLevel}
-        onChange={(e) => setNewItem({ ...newItem, reorderLevel: Number(e.target.value) })}
-        className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-      />
-    </div>
-
-    {/* Date */}
-    <div>
-      <div className="relative">
-        <input
-          type="date"
-          value={newItem.date}
-          onChange={(e) => setNewItem({ ...newItem, date: e.target.value })}
-          className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-        />
-        <Calendar size={18} className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
-      </div>
-    </div>
-
-    {/* Add Item / Save Changes Button */}
-    <div className="md:col-span-1">
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={editingItemId ? editInventoryItem : addInventoryItem}
-        className="w-full px-4 py-2 font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="p-6 mb-8 bg-gray-800 rounded-lg shadow-lg"
       >
-        {editingItemId ? 'Save Changes' : 'Add Item'}
-      </motion.button>
-    </div>
+        <h2 className="mb-4 text-xl font-bold text-white">
+          {editingItemId ? (
+            <span className="flex items-center">
+              <Edit size={18} className="mr-2 text-blue-400" />
+              Edit Item
+            </span>
+          ) : (
+            <span className="flex items-center">
+              <span className="flex items-center justify-center w-5 h-5 mr-2 text-sm font-bold text-white bg-indigo-600 rounded-full">+</span>
+              Add New Item
+            </span>
+          )}
+        </h2>
+        <div className="grid items-end grid-cols-1 gap-4 md:grid-cols-6">
+          {/* Item Name */}
+          <div className="md:col-span-2">
+            <label className="block mb-2 text-sm font-medium text-gray-300">Item Name</label>
+            <input
+              type="text"
+              placeholder="Item Name"
+              value={newItem.name}
+              onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+              className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+          </div>
 
-    {/* Cancel Button (only shown when editing) */}
-    {editingItemId && (
-      <div className="md:col-span-1">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={resetForm}
-          className="w-full px-4 py-2 font-bold text-white bg-gray-600 rounded-lg hover:bg-gray-700"
-        >
-          Cancel
-        </motion.button>
+          {/* Current Stock */}
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-300">Current Stock</label>
+            <input
+              type="number"
+              placeholder="Current Stock"
+              value={newItem.currentStock}
+              onChange={(e) => setNewItem({ ...newItem, currentStock: Number(e.target.value) })}
+              className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          {/* Reorder Level */}
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-300">Reorder Level</label>
+            <input
+              type="number"
+              placeholder="Reorder Level"
+              value={newItem.reorderLevel}
+              onChange={(e) => setNewItem({ ...newItem, reorderLevel: Number(e.target.value) })}
+              className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          {/* Date */}
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-300">Date</label>
+            <div className="relative">
+              <input
+                type="date"
+                value={newItem.date}
+                onChange={(e) => setNewItem({ ...newItem, date: e.target.value })}
+                className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              />
+              <Calendar size={18} className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
+            </div>
+          </div>
+
+          {/* Add Item / Save Changes Button */}
+          <div className="md:col-span-1">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={editingItemId ? editInventoryItem : addInventoryItem}
+              className="w-full px-4 py-2 font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700"
+            >
+              {editingItemId ? 'Save Changes' : 'Add Item'}
+            </motion.button>
+          </div>
+
+          {/* Cancel Button (only shown when editing) */}
+          {editingItemId && (
+            <div className="md:col-span-1">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={resetForm}
+                className="w-full px-4 py-2 font-bold text-white bg-gray-600 rounded-lg hover:bg-gray-700"
+              >
+                Cancel
+              </motion.button>
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Inventory stats cards */}
+      <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-4">
+        <div className="p-4 bg-gray-800 rounded-lg shadow">
+          <h3 className="mb-1 text-sm font-medium text-gray-400">Total Items</h3>
+          <p className="text-2xl font-bold text-white">{inventory.length}</p>
+        </div>
+        <div className="p-4 bg-gray-800 rounded-lg shadow">
+          <h3 className="mb-1 text-sm font-medium text-gray-400">Low Stock Items</h3>
+          <p className="text-2xl font-bold text-red-400">
+            {inventory.filter(item => item.currentStock <= item.reorderLevel).length}
+          </p>
+        </div>
+        <div className="p-4 bg-gray-800 rounded-lg shadow">
+          <h3 className="mb-1 text-sm font-medium text-gray-400">Warning Stock Items</h3>
+          <p className="text-2xl font-bold text-yellow-400">
+            {inventory.filter(item => 
+              item.currentStock > item.reorderLevel && 
+              item.currentStock <= item.reorderLevel * 1.5
+            ).length}
+          </p>
+        </div>
+        <div className="p-4 bg-gray-800 rounded-lg shadow">
+          <h3 className="mb-1 text-sm font-medium text-gray-400">Good Stock Items</h3>
+          <p className="text-2xl font-bold text-green-400">
+            {inventory.filter(item => item.currentStock > item.reorderLevel * 1.5).length}
+          </p>
+        </div>
       </div>
-    )}
-  </div>
-</motion.div>
 
       {/* Inventory count summary */}
       <div className="mb-4 text-gray-300">
         Showing <span className="font-bold text-white">{filteredInventory.length}</span> of <span className="font-bold text-white">{inventory.length}</span> items
-        {filters.searchTerm || filters.stockStatus !== 'all' || (filters.dateRange.start && filters.dateRange.end) ? ' (filtered)' : ''}
+        {filters.searchTerm || filters.stockStatus !== 'all' || (filters.dateRange.start && filters.dateRange.end) ? (
+          <span className="px-2 py-1 ml-2 text-xs font-medium text-indigo-300 bg-indigo-900 rounded-full">Filtered</span>
+        ) : ''}
       </div>
 
       {/* Inventory Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-white border-collapse rounded-lg shadow-md">
+      <div className="overflow-x-auto rounded-lg shadow-md">
+        <table className="w-full text-white border-collapse">
           <thead>
             <tr className="bg-gray-700">
               <th className="p-3 text-left">Item</th>
@@ -458,21 +528,25 @@ const InventoryManagement = () => {
                   key={item._id} 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="border-b border-gray-700 hover:bg-gray-800"
+                  className={`border-b border-gray-700 transition-colors duration-150 ${hoveredRow === item._id ? 'bg-gray-800' : ''}`}
+                  onMouseEnter={() => setHoveredRow(item._id)}
+                  onMouseLeave={() => setHoveredRow(null)}
                 >
                   <td className="p-3 font-medium">{item.name}</td>
-                  <td className="p-3">{item.currentStock}</td>
+                  <td className="p-3">
+                    <span className={item.currentStock <= item.reorderLevel ? 'text-red-400 font-bold' : ''}>
+                      {item.currentStock}
+                    </span>
+                  </td>
                   <td className="p-3">{item.reorderLevel}</td>
                   <td className="p-3">{new Date(item.date).toLocaleDateString()}</td>
                   <td className="p-3">
                     <span
                       className={`px-2 py-1 text-xs font-bold rounded-full ${
-                        item.currentStock <= item.reorderLevel
-                          ? 'bg-red-900 text-red-300'
-                          : 'bg-green-900 text-green-300'
+                        getStatusBadgeClass(item.currentStock, item.reorderLevel)
                       }`}
                     >
-                      {item.currentStock <= item.reorderLevel ? 'LOW STOCK' : 'SUFFICIENT'}
+                      {getStatusText(item.currentStock, item.reorderLevel)}
                     </span>
                   </td>
                   <td className="p-3 text-center">

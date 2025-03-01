@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Pencil, Trash2, Download, Filter, PlusCircle, X, Check, Calendar, DollarSign, BarChart3, Database } from 'lucide-react';
 
 const SalesManagement = () => {
   const [sales, setSales] = useState([]);
@@ -12,8 +15,6 @@ const SalesManagement = () => {
     date: format(new Date(), 'yyyy-MM-dd')
   });
   const [editingSaleId, setEditingSaleId] = useState(null);
-  const [alertMessage, setAlertMessage] = useState('');
-  const [alertVisible, setAlertVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState('');
   const [dateRange, setDateRange] = useState({ 
@@ -49,7 +50,7 @@ const SalesManagement = () => {
       setSales(sortData(salesData, sortConfig.key, sortConfig.direction));
     } catch (error) {
       console.error('Error fetching sales:', error);
-      showAlert('Failed to fetch sales records.', 'error');
+      toast.error('Failed to fetch sales records.');
     }
   };
 
@@ -61,13 +62,13 @@ const SalesManagement = () => {
         const response = await axios.post('http://localhost:5000/api/sales', saleData);
         setSales([response.data, ...sales]);
         resetForm();
-        showAlert('Sale recorded successfully!', 'success');
+        toast.success('Sale recorded successfully!');
       } catch (error) {
         console.error('Error adding sale:', error);
-        showAlert('Failed to record sale.', 'error');
+        toast.error('Failed to record sale.');
       }
     } else {
-      showAlert('Please enter valid quantity, price, and date!', 'error');
+      toast.error('Please enter valid quantity, price, and date!');
     }
   };
 
@@ -79,13 +80,13 @@ const SalesManagement = () => {
         const response = await axios.put(`http://localhost:5000/api/sales/${editingSaleId}`, saleData);
         setSales(sales.map(sale => (sale._id === editingSaleId ? response.data : sale)));
         resetForm();
-        showAlert('Sale updated successfully!', 'success');
+        toast.success('Sale updated successfully!');
       } catch (error) {
         console.error('Error updating sale:', error);
-        showAlert('Failed to update sale.', 'error');
+        toast.error('Failed to update sale.');
       }
     } else {
-      showAlert('Please enter valid quantity, price, and date!', 'error');
+      toast.error('Please enter valid quantity, price, and date!');
     }
   };
 
@@ -93,10 +94,10 @@ const SalesManagement = () => {
     try {
       await axios.delete(`http://localhost:5000/api/sales/${id}`);
       setSales(sales.filter(sale => sale._id !== id));
-      showAlert('Sale deleted successfully!', 'success');
+      toast.success('Sale deleted successfully!');
     } catch (error) {
       console.error('Error deleting sale:', error);
-      showAlert('Failed to delete sale.', 'error');
+      toast.error('Failed to delete sale.');
     }
   };
 
@@ -118,12 +119,6 @@ const SalesManagement = () => {
       date: format(new Date(sale.date || Date.now()), 'yyyy-MM-dd')
     });
     setEditingSaleId(sale._id);
-  };
-
-  const showAlert = (message, type) => {
-    setAlertMessage(message);
-    setAlertVisible(true);
-    setTimeout(() => setAlertVisible(false), 3000);
   };
 
   const sortData = (data, key, direction) => {
@@ -236,30 +231,27 @@ const SalesManagement = () => {
 
   return (
     <div className="p-6 mx-auto bg-gray-900 rounded-lg shadow-lg">
+      <ToastContainer 
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+
       <motion.h1 
-        className="mb-6 text-3xl font-bold text-white"
+        className="flex items-center mb-6 text-3xl font-bold text-white"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        Sales Management
+        <Database className="mr-2" size={28} /> Sales Management
       </motion.h1>
-
-      {/* Alert message */}
-      <AnimatePresence>
-        {alertVisible && (
-          <motion.div 
-            className="fixed z-50 p-4 text-center text-white transform -translate-x-1/2 rounded-lg shadow-lg bottom-4 left-1/2"
-            style={{ backgroundColor: alertMessage.includes('Failed') ? '#e53e3e' : '#38a169' }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {alertMessage}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Form for adding or editing sales */}
       <motion.div 
@@ -305,20 +297,31 @@ const SalesManagement = () => {
           
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-300">Date</label>
-            <input 
-              type="date" 
-              value={newSale.date} 
-              onChange={(e) => setNewSale({...newSale, date: e.target.value})} 
-              className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
-            />
+            <div className="relative">
+              <input 
+                type="date" 
+                value={newSale.date} 
+                onChange={(e) => setNewSale({...newSale, date: e.target.value})} 
+                className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+              />
+              <Calendar className="absolute text-gray-400 top-3 right-3" size={18} />
+            </div>
           </div>
           
           <div className="flex items-end">
             <button 
               onClick={editingSaleId ? editSale : addSale} 
-              className="w-full p-3 font-bold text-white transition duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-400"
+              className="flex items-center justify-center w-full p-3 font-medium text-white transition duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-400"
             >
-              {editingSaleId ? 'Update Sale' : 'Record Sale'}
+              {editingSaleId ? (
+                <>
+                  <Check className="mr-2" size={18} /> Update Sale
+                </>
+              ) : (
+                <>
+                  <PlusCircle className="mr-2" size={18} /> Record Sale
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -360,39 +363,45 @@ const SalesManagement = () => {
           
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-300">Start Date</label>
-            <input 
-              type="date" 
-              value={dateRange.startDate} 
-              onChange={(e) => setDateRange({...dateRange, startDate: e.target.value})} 
-              className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
-            />
+            <div className="relative">
+              <input 
+                type="date" 
+                value={dateRange.startDate} 
+                onChange={(e) => setDateRange({...dateRange, startDate: e.target.value})} 
+                className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+              />
+              <Calendar className="absolute text-gray-400 top-3 right-3" size={18} />
+            </div>
           </div>
           
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-300">End Date</label>
-            <input 
-              type="date" 
-              value={dateRange.endDate} 
-              onChange={(e) => setDateRange({...dateRange, endDate: e.target.value})} 
-              className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
-            />
+            <div className="relative">
+              <input 
+                type="date" 
+                value={dateRange.endDate} 
+                onChange={(e) => setDateRange({...dateRange, endDate: e.target.value})} 
+                className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+              />
+              <Calendar className="absolute text-gray-400 top-3 right-3" size={18} />
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-2">
             <div className="flex items-end">
               <button 
                 onClick={filterAndGroupSales} 
-                className="w-full p-3 font-bold text-white transition duration-200 bg-green-600 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-400"
+                className="flex items-center justify-center w-full p-3 font-medium text-white transition duration-200 bg-green-600 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-400"
               >
-                Filter
+                <Filter className="mr-2" size={18} /> Filter
               </button>
             </div>
             <div className="flex items-end">
               <button 
                 onClick={() => downloadCSV(sales)} 
-                className="w-full p-3 font-bold text-white transition duration-200 bg-purple-600 rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-400"
+                className="flex items-center justify-center w-full p-3 font-medium text-white transition duration-200 bg-purple-600 rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-400"
               >
-                Export
+                <Download className="mr-2" size={18} /> Export
               </button>
             </div>
           </div>
@@ -406,22 +415,28 @@ const SalesManagement = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        <h2 className="mb-4 text-xl font-bold text-white">Sales Summary</h2>
+        <h2 className="flex items-center mb-4 text-xl font-bold text-white">
+          <BarChart3 className="mr-2" size={22} /> Sales Summary
+        </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="p-4 bg-gray-700 rounded-lg shadow-inner">
+          <div className="p-4 transition-all bg-gray-700 rounded-lg shadow-inner hover:bg-gray-600">
             <h3 className="text-sm font-medium text-gray-300">Total Sales</h3>
             <p className="text-2xl font-bold text-white">{getTotalSales()}</p>
           </div>
-          <div className="p-4 bg-gray-700 rounded-lg shadow-inner">
+          <div className="p-4 transition-all bg-gray-700 rounded-lg shadow-inner hover:bg-gray-600">
             <h3 className="text-sm font-medium text-gray-300">Total Quantity</h3>
             <p className="text-2xl font-bold text-white">{getTotalQuantity()} L</p>
           </div>
-          <div className="p-4 bg-gray-700 rounded-lg shadow-inner">
-            <h3 className="text-sm font-medium text-gray-300">Total Revenue</h3>
+          <div className="p-4 transition-all bg-gray-700 rounded-lg shadow-inner hover:bg-gray-600">
+            <h3 className="flex items-center text-sm font-medium text-gray-300">
+              <DollarSign size={14} className="mr-1" /> Total Revenue
+            </h3>
             <p className="text-2xl font-bold text-white">₹{getTotalRevenue()}</p>
           </div>
-          <div className="p-4 bg-gray-700 rounded-lg shadow-inner">
-            <h3 className="text-sm font-medium text-gray-300">Avg. Sale Value</h3>
+          <div className="p-4 transition-all bg-gray-700 rounded-lg shadow-inner hover:bg-gray-600">
+            <h3 className="flex items-center text-sm font-medium text-gray-300">
+              <DollarSign size={14} className="mr-1" /> Avg. Sale Value
+            </h3>
             <p className="text-2xl font-bold text-white">₹{getAvgSaleValue()}</p>
           </div>
         </div>
@@ -478,18 +493,22 @@ const SalesManagement = () => {
                   <td className="p-3">₹{sale.total.toFixed(2)}</td>
                   <td className="p-3">{new Date(sale.date || Date.now()).toLocaleDateString()}</td>
                   <td className="p-3 text-center">
-                    <button 
-                      onClick={() => handleEditClick(sale)} 
-                      className="px-3 py-2 mr-2 text-sm font-bold text-gray-800 transition duration-200 bg-yellow-400 rounded-lg hover:bg-yellow-500"
-                    >
-                      ✏️ Edit
-                    </button>
-                    <button 
-                      onClick={() => deleteSale(sale._id)} 
-                      className="px-3 py-2 text-sm font-bold text-white transition duration-200 bg-red-600 rounded-lg hover:bg-red-700"
-                    >
-                      🗑 Delete
-                    </button>
+                    <div className="flex justify-center space-x-2">
+                      <button 
+                        onClick={() => handleEditClick(sale)} 
+                        className="p-2 text-blue-300 bg-blue-900 rounded-full hover:bg-blue-800"
+                        title="Edit Sale"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                      <button 
+                        onClick={() => deleteSale(sale._id)} 
+                        className="p-2 text-red-300 bg-red-900 rounded-full hover:bg-red-800"
+                        title="Delete Sale"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </td>
                 </motion.tr>
               ))}
@@ -521,15 +540,15 @@ const SalesManagement = () => {
                 <div className="flex space-x-2">
                   <button
                     onClick={() => downloadCSV(filteredResults)}
-                    className="px-4 py-2 font-bold text-white transition duration-200 bg-purple-600 rounded-lg hover:bg-purple-700"
+                    className="flex items-center px-4 py-2 font-medium text-white transition duration-200 bg-purple-600 rounded-lg hover:bg-purple-700"
                   >
-                    Export
+                    <Download size={18} className="mr-2" /> Export
                   </button>
                   <button
                     onClick={() => setShowFilteredPopup(false)}
-                    className="px-4 py-2 font-bold text-white transition duration-200 bg-gray-700 rounded-lg hover:bg-gray-600"
+                    className="flex items-center px-4 py-2 font-medium text-white transition duration-200 bg-gray-700 rounded-lg hover:bg-gray-600"
                   >
-                    Close
+                    <X size={18} className="mr-2" /> Close
                   </button>
                 </div>
               </div>

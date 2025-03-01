@@ -70,7 +70,7 @@ const Alert = ({ message, type = 'success', onClose }) => {
   const styles = getStyles();
 
   return (
-    <div className="fixed top-4 right-4 z-50 transform transition-all duration-300 ease-out animate-popup">
+    <div className="fixed z-50 transition-all duration-300 ease-out transform top-4 right-4 animate-popup">
       <div className={`flex items-center p-4 rounded-lg ${styles.background} ${styles.text} ${styles.border} border shadow-md ${styles.shadow} max-w-md`}>
         <div className="mr-3">
           {styles.icon}

@@ -31,12 +31,12 @@ const EmployeeManagement = () => {
     visible: (i) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05 } }),
     exit: { opacity: 0, height: 0 }
   };
-  
+
   const buttonVariants = {
     hover: { scale: 1.05 },
     tap: { scale: 0.95 }
   };
-  
+
   // Fetch and filter data
   useEffect(() => {
     getEmployees();
@@ -102,21 +102,21 @@ const EmployeeManagement = () => {
       const grouped = {};
       results.forEach(emp => {
         let key = emp[groupBy];
-        
+
         if (groupBy === 'dateAdded' && key) {
           key = new Date(key).toLocaleDateString();
         }
-        
+
         const groupKey = key || 'Unspecified';
         if (!grouped[groupKey]) grouped[groupKey] = [];
         grouped[groupKey].push(emp);
       });
-      
+
       const groupedResults = [];
       Object.entries(grouped).forEach(([group, emps]) => {
-        emps.forEach(emp => groupedResults.push({...emp, groupHeader: group}));
+        emps.forEach(emp => groupedResults.push({ ...emp, groupHeader: group }));
       });
-      
+
       setFilteredEmployees(groupedResults);
     } else {
       setFilteredEmployees(results);
@@ -131,15 +131,15 @@ const EmployeeManagement = () => {
           ...newEmployee,
           dateAdded: newEmployee.dateAdded || formatDate(new Date())
         };
-        
+
         const response = await fetch('http://localhost:5000/api/employees', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(employeeData),
         });
         const data = await response.json();
-        
-        setEmployees([...employees, {...data, dateAdded: formatDate(data.dateAdded || data.createdAt)}]);
+
+        setEmployees([...employees, { ...data, dateAdded: formatDate(data.dateAdded || data.createdAt) }]);
         resetForm();
         showAlert('Employee added successfully!');
       } catch (error) {
@@ -158,17 +158,17 @@ const EmployeeManagement = () => {
           ...newEmployee,
           dateAdded: newEmployee.dateAdded || formatDate(new Date())
         };
-        
+
         const response = await fetch(`http://localhost:5000/api/employees/${editingEmployeeId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedData),
         });
         const data = await response.json();
-        
+
         setEmployees(
-          employees.map((emp) => emp._id === editingEmployeeId ? 
-            {...data, dateAdded: formatDate(data.dateAdded || data.createdAt)} : emp
+          employees.map((emp) => emp._id === editingEmployeeId ?
+            { ...data, dateAdded: formatDate(data.dateAdded || data.createdAt) } : emp
           )
         );
         resetForm();
@@ -193,19 +193,19 @@ const EmployeeManagement = () => {
 
   // UI helper functions
   const resetForm = () => {
-    setNewEmployee({ 
-      name: '', 
-      position: '', 
-      salary: '', 
+    setNewEmployee({
+      name: '',
+      position: '',
+      salary: '',
       dateAdded: formatDate(new Date())
     });
     setEditingEmployeeId(null);
   };
 
   const handleEditClick = (employee) => {
-    setNewEmployee({ 
-      name: employee.name, 
-      position: employee.position, 
+    setNewEmployee({
+      name: employee.name,
+      position: employee.position,
       salary: employee.salary,
       dateAdded: formatDate(employee.dateAdded || employee.createdAt)
     });
@@ -224,7 +224,7 @@ const EmployeeManagement = () => {
         csv += `"${emp.name}","${emp.position}",${emp.salary},"${emp.dateAdded}"\n`;
       }
     });
-    
+
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -253,7 +253,7 @@ const EmployeeManagement = () => {
     let currentGroup = null;
     return filteredEmployees.map((employee, index) => {
       const rows = [];
-      
+
       if (groupBy !== 'none' && employee.groupHeader !== currentGroup) {
         currentGroup = employee.groupHeader;
         rows.push(
@@ -264,7 +264,7 @@ const EmployeeManagement = () => {
           </tr>
         );
       }
-      
+
       rows.push(
         <motion.tr
           key={employee._id}
@@ -281,21 +281,21 @@ const EmployeeManagement = () => {
           <td className="p-3">{new Date(employee.dateAdded).toLocaleDateString()}</td>
           <td className="p-3 text-center">
             <div className="flex justify-center space-x-2">
-              <motion.button 
+              <motion.button
                 variants={buttonVariants}
                 whileHover="hover"
                 whileTap="tap"
-                onClick={() => handleEditClick(employee)} 
-                className="p-2 text-gray-800 transition-colors bg-yellow-400 rounded-full hover:bg-yellow-500"
+                onClick={() => handleEditClick(employee)}
+                className="p-2 text-blue-300 bg-blue-900 rounded-full hover:bg-blue-800"
                 aria-label="Edit employee"
               >
                 <Edit size={16} />
               </motion.button>
-              <motion.button 
+              <motion.button
                 variants={buttonVariants}
                 whileHover="hover"
                 whileTap="tap"
-                onClick={() => deleteEmployee(employee._id)} 
+                onClick={() => deleteEmployee(employee._id)}
                 className="p-2 text-white transition-colors bg-red-600 rounded-full hover:bg-red-700"
                 aria-label="Delete employee"
               >
@@ -305,24 +305,24 @@ const EmployeeManagement = () => {
           </td>
         </motion.tr>
       );
-      
+
       return rows;
     }).flat();
   };
 
   return (
     <div className="max-w-6xl p-6 mx-auto rounded-lg shadow-xl bg-gradient-to-b from-gray-900 to-gray-800">
-      <motion.h1 
+      <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8 text-3xl font-bold text-center text-transparent text-white bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500"
+        className="mb-8 text-3xl font-bold text-white bg-clip-text "
       >
         Employee Management
       </motion.h1>
 
       <AnimatePresence>
         {alert.visible && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
@@ -333,43 +333,43 @@ const EmployeeManagement = () => {
         )}
       </AnimatePresence>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, height: 0 }}
         animate={{ opacity: 1, height: "auto" }}
         className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-2 lg:grid-cols-5"
       >
-        <input 
-          type="text" 
-          placeholder="Name" 
-          value={newEmployee.name} 
-          onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })} 
-          className="p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+        <input
+          type="text"
+          placeholder="Name"
+          value={newEmployee.name}
+          onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })}
+          className="p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
-        <input 
-          type="text" 
-          placeholder="Position" 
-          value={newEmployee.position} 
-          onChange={(e) => setNewEmployee({ ...newEmployee, position: e.target.value })} 
-          className="p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+        <input
+          type="text"
+          placeholder="Position"
+          value={newEmployee.position}
+          onChange={(e) => setNewEmployee({ ...newEmployee, position: e.target.value })}
+          className="p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
-        <input 
-          type="number" 
-          placeholder="Salary" 
-          value={newEmployee.salary} 
-          onChange={(e) => setNewEmployee({ ...newEmployee, salary: Number(e.target.value) })} 
-          className="p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+        <input
+          type="number"
+          placeholder="Salary"
+          value={newEmployee.salary}
+          onChange={(e) => setNewEmployee({ ...newEmployee, salary: Number(e.target.value) })}
+          className="p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
-        <input 
-          type="date" 
-          value={newEmployee.dateAdded} 
-          onChange={(e) => setNewEmployee({ ...newEmployee, dateAdded: e.target.value })} 
-          className="p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+        <input
+          type="date"
+          value={newEmployee.dateAdded}
+          onChange={(e) => setNewEmployee({ ...newEmployee, dateAdded: e.target.value })}
+          className="p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
-        <motion.button 
+        <motion.button
           variants={buttonVariants}
           whileHover="hover"
           whileTap="tap"
-          onClick={editingEmployeeId ? editEmployee : addEmployee} 
+          onClick={editingEmployeeId ? editEmployee : addEmployee}
           className="flex items-center justify-center gap-2 p-3 font-bold text-white rounded-lg bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"
         >
           {editingEmployeeId ? <><RefreshCw size={16} /> Update</> : <><Plus size={16} /> Add</>}
@@ -387,7 +387,7 @@ const EmployeeManagement = () => {
           >
             {showFilters ? <><X size={16} /> Hide Filters</> : <><Filter size={16} /> Filters</>}
           </motion.button>
-          
+
           {filteredEmployees.length > 0 && (
             <motion.button
               variants={buttonVariants}
@@ -400,7 +400,7 @@ const EmployeeManagement = () => {
             </motion.button>
           )}
         </div>
-        
+
         <div className="px-3 py-1 text-sm text-white bg-gray-700 rounded-full">
           {filteredEmployees.length} of {employees.length} employees
         </div>

@@ -467,7 +467,7 @@ const ExpenseTracking = () => {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => handleEditClick(expense)}
-                        className="px-3 py-2 mr-2 text-sm font-bold text-gray-800 bg-yellow-400 rounded-lg shadow hover:bg-yellow-500"
+                        className="p-2 text-blue-300 bg-blue-900 rounded-full hover:bg-blue-800"
                       >
                         <Edit size={16} />
                       </motion.button>
@@ -475,7 +475,7 @@ const ExpenseTracking = () => {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => deleteExpense(expense._id)}
-                        className="px-3 py-2 text-sm font-bold text-white bg-red-600 rounded-lg shadow hover:bg-red-700"
+                        className="p-2 text-red-300 bg-red-900 rounded-full  ms-2 hover:bg-red-800"
                       >
                         <Trash2 size={16} />
                       </motion.button>

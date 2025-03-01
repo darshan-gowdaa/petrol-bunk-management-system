@@ -5,7 +5,8 @@ import {
   Package, 
   BarChart2, 
   Users, 
-  DollarSign 
+  DollarSign ,
+  ChartArea
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -16,8 +17,7 @@ const Sidebar = () => {
     { icon: BarChart2, label: 'Sales', path: '/sales' },
     { icon: Users, label: 'Employees', path: '/employees' },
     { icon: DollarSign, label: 'Expenses', path: '/expenses' },
-    { icon: BarChart2, label: 'Reports', path: '/reports' } 
-
+    { icon: ChartArea, label: 'Reports', path: '/reports' }
   ];
 
   return (
