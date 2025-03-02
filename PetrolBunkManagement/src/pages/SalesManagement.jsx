@@ -258,31 +258,40 @@ const SalesManagement = () => {
         theme="dark"
       />
 
-      <h1 className="flex items-center mb-6 text-3xl font-bold text-white">
-        <Database className="mr-2" size={28} /> Sales Management
-      </h1>
+{/* Header with Buttons in the Same Line */}
+<div className="flex flex-wrap items-center justify-between mb-6">
+  <h1 className="flex items-center text-3xl font-bold text-white">
+    <Database className="mr-2" size={28} /> Sales Management
+  </h1>
 
-      {/* Top Action Buttons */}
-      <div className="flex justify-end mb-6 space-x-4">
-        <button 
-          onClick={toggleNewSaleForm} 
-          className="flex items-center justify-center px-4 py-2 font-medium text-white transition duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-400"
-        >
-          <PlusCircle className="mr-2" size={18} /> New Sale
-        </button>
-        <button 
-          onClick={toggleFilterForm} 
-          className="flex items-center justify-center px-4 py-2 font-medium text-white transition duration-200 bg-green-600 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-400"
-        >
-          <Filter className="mr-2" size={18} /> Filter
-        </button>
-        <button 
-          onClick={() => downloadCSV(sales)} 
-          className="flex items-center justify-center px-4 py-2 font-medium text-white transition duration-200 bg-purple-600 rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-400"
-        >
-          <Download className="mr-2" size={18} /> Export
-        </button>
-      </div>
+<div className="flex flex-wrap items-center justify-between mb-6">
+  {/* Action Buttons */}
+  <div className="flex items-center gap-3">
+    <button 
+      onClick={toggleNewSaleForm} 
+      className="flex items-center gap-2 px-4 py-2 text-white bg-green-700 rounded-lg shadow-md hover:bg-green-800"
+    >
+      <PlusCircle size={18} /> New Sale
+    </button>
+
+    <button 
+      onClick={toggleFilterForm} 
+      className="flex items-center gap-2 px-4 py-2 text-white bg-purple-700 rounded-lg shadow-md hover:bg-purple-800"
+    >
+      <Filter size={18} /> Filter
+    </button>
+
+    <button 
+      onClick={() => downloadCSV(sales)} 
+      className="flex items-center gap-2 px-4 py-2 text-white bg-blue-700 rounded-lg shadow-md hover:bg-blue-800"
+    >
+      <Download size={18} /> Export
+    </button>
+  </div>
+</div>
+
+</div>
+
 
       {/* Form for adding or editing sales */}
       {showAddSaleForm && (

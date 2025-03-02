@@ -14,9 +14,13 @@ const DataTable = ({
   renderEditForm = null
 }) => {
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow">
+<div className="overflow-x-auto bg-white rounded-lg shadow">
+
+
       <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+<thead className="bg-gray-50">
+
+
           <tr>
             {columns.map((column) => (
               <th 
@@ -31,7 +35,9 @@ const DataTable = ({
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+<tbody className="bg-white divide-y divide-gray-200">
+
+
           <AnimatePresence>
             {data.map((item, index) => (
               <motion.tr 
@@ -48,7 +54,9 @@ const DataTable = ({
                 ) : (
                   <>
                     {columns.map((column) => (
-                      <td key={column.key} className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+<td key={column.key} className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+
+
                         {column.render ? column.render(item) : item[column.key]}
                       </td>
                     ))}
