@@ -1,174 +1,193 @@
+// src/pages/InventoryManagement.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Calendar, Filter, Download, Edit, Trash2, X, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Edit, Trash2, Download, Filter, X, Plus, RefreshCw, AlertTriangle } from 'lucide-react';
+import axios from 'axios';
 
 const InventoryManagement = () => {
+  // State management
   const [inventory, setInventory] = useState([]);
   const [filteredInventory, setFilteredInventory] = useState([]);
-  const [newItem, setNewItem] = useState({ 
-    name: '', 
-    currentStock: '', 
-    reorderLevel: '', 
-    date: new Date().toISOString().split('T')[0] 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [currentItem, setCurrentItem] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  // New inventory item form state
+  const [newItem, setNewItem] = useState({
+    name: '',
+    currentStock: '',
+    reorderLevel: '',
+    date: new Date().toISOString().split('T')[0],
   });
-  const [editingItemId, setEditingItemId] = useState(null);
-  const [notification, setNotification] = useState({ message: '', type: '', visible: false });
-  const [filterPopupOpen, setFilterPopupOpen] = useState(false);
+
+  // Filter state
   const [filters, setFilters] = useState({
-    searchTerm: '',
-    stockStatus: 'all',
-    dateRange: { start: '', end: '' }
+    name: '',
+    stockMin: '',
+    stockMax: '',
+    reorderMin: '',
+    reorderMax: '',
+    dateFrom: '',
+    dateTo: '',
   });
-  const [hoveredRow, setHoveredRow] = useState(null);
 
-  useEffect(() => {
-    getInventoryItems();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [inventory, filters]);
-
-  // Get all inventory items
-  const getInventoryItems = async () => {
+  // Fetch inventory from API
+  const fetchInventory = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const response = await axios.get('http://localhost:5000/api/inventory');
       setInventory(response.data);
       setFilteredInventory(response.data);
-    } catch (error) {
-      console.error('Error fetching inventory:', error);
-      showNotification('Failed to fetch inventory items.', 'error');
+    } catch (err) {
+      setError('Failed to fetch inventory. Please try again.');
+      console.error('Error fetching inventory:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchInventory();
+  }, []);
+
+  // Handle filter changes
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
+  };
+
+  // Apply filters
+  const applyFilters = async () => {
+    setLoading(true);
+    try {
+      // Build query params
+      const params = new URLSearchParams();
+      if (filters.name) params.append('name', filters.name);
+      if (filters.stockMin) params.append('stockMin', filters.stockMin);
+      if (filters.stockMax) params.append('stockMax', filters.stockMax);
+      if (filters.reorderMin) params.append('reorderMin', filters.reorderMin);
+      if (filters.reorderMax) params.append('reorderMax', filters.reorderMax);
+      if (filters.dateFrom) params.append('dateFrom', filters.dateFrom);
+      if (filters.dateTo) params.append('dateTo', filters.dateTo);
+      
+      const response = await axios.get(`http://localhost:5000/api/inventory?${params}`);
+      setFilteredInventory(response.data);
+    } catch (err) {
+      setError('Failed to filter inventory. Please try again.');
+      console.error('Error filtering inventory:', err);
+    } finally {
+      setLoading(false);
+      setShowFilters(false);
+    }
+  };
+
+  // Reset filters
+  const resetFilters = () => {
+    setFilters({
+      name: '',
+      stockMin: '',
+      stockMax: '',
+      reorderMin: '',
+      reorderMax: '',
+      dateFrom: '',
+      dateTo: '',
+    });
+    setFilteredInventory(inventory);
+    setShowFilters(false);
+  };
+
+  // Handle form input changes for new/edit item
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (showEditModal && currentItem) {
+      setCurrentItem({ ...currentItem, [name]: value });
+    } else {
+      setNewItem({ ...newItem, [name]: value });
     }
   };
 
   // Add new inventory item
-  const addInventoryItem = async () => {
-    if (newItem.name && newItem.currentStock > 0 && newItem.reorderLevel > 0 && newItem.date) {
-      try {
-        const response = await axios.post('http://localhost:5000/api/inventory', newItem);
-        setInventory([...inventory, response.data]);
-        resetForm();
-        showNotification('Item added successfully!', 'success');
-      } catch (error) {
-        console.error('Error adding inventory item:', error);
-        showNotification('Failed to add item.', 'error');
-      }
-    } else {
-      showNotification('Please fill all fields with valid data!', 'error');
-    }
-  };
-
-  // Edit an existing inventory item
-  const editInventoryItem = async () => {
-    if (editingItemId && newItem.name && newItem.currentStock > 0 && newItem.reorderLevel > 0 && newItem.date) {
-      try {
-        const response = await axios.put(
-          `http://localhost:5000/api/inventory/${editingItemId}`,
-          newItem
-        );
-        setInventory(
-          inventory.map((item) =>
-            item._id === editingItemId ? response.data : item
-          )
-        );
-        resetForm();
-        showNotification('Item updated successfully!', 'success');
-      } catch (error) {
-        console.error('Error updating inventory item:', error);
-        showNotification('Failed to update item.', 'error');
-      }
-    } else {
-      showNotification('Please fill all fields with valid data!', 'error');
-    }
-  };
-
-  // Delete an inventory item
-  const deleteInventoryItem = async (id) => {
+  const addInventoryItem = async (e) => {
+    e.preventDefault();
+    setLoading(true);
     try {
-      await axios.delete(`http://localhost:5000/api/inventory/${id}`);
-      setInventory(inventory.filter((item) => item._id !== id));
-      showNotification('Item deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error deleting inventory item:', error);
-      showNotification('Failed to delete item.', 'error');
-    }
-  };
-
-  // Reset form to initial state
-  const resetForm = () => {
-    setNewItem({ 
-      name: '', 
-      currentStock: '', 
-      reorderLevel: '', 
-      date: new Date().toISOString().split('T')[0] 
-    });
-    setEditingItemId(null);
-  };
-
-  // Handle edit button click
-  const handleEditClick = (item) => {
-    setNewItem({
-      name: item.name,
-      currentStock: item.currentStock,
-      reorderLevel: item.reorderLevel,
-      date: new Date(item.date).toISOString().split('T')[0]
-    });
-    setEditingItemId(item._id);
-  };
-
-  // Show notification with fade effect
-  const showNotification = (message, type) => {
-    setNotification({ message, type, visible: true });
-    setTimeout(() => {
-      setNotification({ ...notification, visible: false });
-    }, 3000);
-  };
-
-  // Apply filters to inventory
-  const applyFilters = () => {
-    let results = [...inventory];
-    
-    // Apply search term filter
-    if (filters.searchTerm) {
-      results = results.filter(item => 
-        item.name.toLowerCase().includes(filters.searchTerm.toLowerCase())
-      );
-    }
-    
-    // Apply stock status filter
-    if (filters.stockStatus !== 'all') {
-      if (filters.stockStatus === 'low') {
-        results = results.filter(item => item.currentStock <= item.reorderLevel);
-      } else if (filters.stockStatus === 'sufficient') {
-        results = results.filter(item => item.currentStock > item.reorderLevel);
-      }
-    }
-    
-    // Apply date range filter
-    if (filters.dateRange.start && filters.dateRange.end) {
-      const startDate = new Date(filters.dateRange.start);
-      const endDate = new Date(filters.dateRange.end);
-      
-      results = results.filter(item => {
-        const itemDate = new Date(item.date);
-        return itemDate >= startDate && itemDate <= endDate;
+      const response = await axios.post('http://localhost:5000/api/inventory', newItem);
+      setInventory([...inventory, response.data]);
+      setFilteredInventory([...filteredInventory, response.data]);
+      setNewItem({
+        name: '',
+        currentStock: '',
+        reorderLevel: '',
+        date: new Date().toISOString().split('T')[0],
       });
+      setShowAddModal(false);
+      setSuccessMessage('Inventory item added successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      setError('Failed to add inventory item. Please try again.');
+      console.error('Error adding inventory item:', err);
+    } finally {
+      setLoading(false);
     }
-    
-    setFilteredInventory(results);
   };
 
-  // Export inventory to CSV
+  // Edit inventory item
+  const editInventoryItem = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const response = await axios.put(`http://localhost:5000/api/inventory/${currentItem._id}`, currentItem);
+      const updatedInventory = inventory.map(item => 
+        item._id === currentItem._id ? response.data : item
+      );
+      setInventory(updatedInventory);
+      setFilteredInventory(updatedInventory);
+      setShowEditModal(false);
+      setSuccessMessage('Inventory item updated successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      setError('Failed to update inventory item. Please try again.');
+      console.error('Error updating inventory item:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete inventory item
+  const deleteInventoryItem = async () => {
+    setLoading(true);
+    try {
+      await axios.delete(`http://localhost:5000/api/inventory/${currentItem._id}`);
+      const updatedInventory = inventory.filter(item => item._id !== currentItem._id);
+      setInventory(updatedInventory);
+      setFilteredInventory(updatedInventory);
+      setShowDeleteModal(false);
+      setSuccessMessage('Inventory item deleted successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      setError('Failed to delete inventory item. Please try again.');
+      console.error('Error deleting inventory item:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Export inventory data to CSV
   const exportToCSV = () => {
-    const headers = ['Name', 'Current Stock', 'Reorder Level', 'Date', 'Status'];
-    
-    const csvData = filteredInventory.map(item => {
-      const status = item.currentStock <= item.reorderLevel ? 'Low Stock' : 'Sufficient';
-      const date = new Date(item.date).toLocaleDateString();
-      
-      return [item.name, item.currentStock, item.reorderLevel, date, status];
-    });
+    const headers = ['Name', 'Current Stock', 'Reorder Level', 'Date'];
+    const csvData = filteredInventory.map(item => [
+      item.name,
+      item.currentStock,
+      item.reorderLevel,
+      new Date(item.date).toLocaleDateString()
+    ]);
     
     const csvContent = [
       headers.join(','),
@@ -179,410 +198,466 @@ const InventoryManagement = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `inventory_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', 'inventory.csv');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // Get notification styles based on type
-  const getNotificationStyles = () => {
-    switch (notification.type) {
-      case 'success':
-        return 'bg-green-500';
-      case 'error':
-        return 'bg-red-500';
-      default:
-        return 'bg-blue-500';
-    }
-  };
-
-  // Get stock status badge class
-  const getStatusBadgeClass = (currentStock, reorderLevel) => {
-    if (currentStock <= reorderLevel) {
-      return 'bg-red-900 text-red-300';
-    } else if (currentStock <= reorderLevel * 1.5) { 
-      return 'bg-yellow-900 text-yellow-300'; // New "warning" level for stock that's close to reorder level
-    } else {
-      return 'bg-green-900 text-green-300';
-    }
-  };
-
-  // Get stock status text
-  const getStatusText = (currentStock, reorderLevel) => {
-    if (currentStock <= reorderLevel) {
-      return 'LOW STOCK';
-    } else if (currentStock <= reorderLevel * 1.5) {
-      return 'WARNING';
-    } else {
-      return 'SUFFICIENT';
-    }
-  };
-
   return (
-    <div className="p-8 mx-auto bg-gray-900 rounded-lg shadow-xl">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-white">Inventory Management</h1>
-        <div className="flex space-x-4">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setFilterPopupOpen(true)}
-            className="flex items-center px-4 py-2 text-white bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700"
+    <div className="container px-4 py-8 mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Inventory Management</h1>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center px-3 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
           >
-            <Filter size={18} className="mr-2" />
-            Filters
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            <Filter size={16} className="mr-1" />
+            Filter
+          </button>
+          <button
             onClick={exportToCSV}
-            className="flex items-center px-4 py-2 text-white bg-green-600 rounded-lg shadow-md hover:bg-green-700"
+            className="flex items-center px-3 py-2 text-white bg-green-600 rounded hover:bg-green-700"
           >
-            <Download size={18} className="mr-2" />
-            Export CSV
-          </motion.button>
+            <Download size={16} className="mr-1" />
+            Export
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center px-3 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+          >
+            <Plus size={16} className="mr-1" />
+            Add Item
+          </button>
         </div>
       </div>
 
-      {/* Notification */}
+      {/* Success Message */}
       <AnimatePresence>
-        {notification.visible && (
+        {successMessage && (
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className={`fixed z-50 p-4 text-center text-white rounded-lg shadow-lg bottom-4 right-4 ${getNotificationStyles()}`}
+            exit={{ opacity: 0 }}
+            className="p-3 mb-4 text-green-700 bg-green-100 rounded"
           >
-            {notification.message}
+            {successMessage}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Filter Popup */}
+      {/* Error Message */}
       <AnimatePresence>
-        {filterPopupOpen && (
+        {error && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50"
+            className="p-3 mb-4 text-red-700 bg-red-100 rounded"
           >
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl"
+            {error}
+            <button
+              onClick={() => setError(null)}
+              className="float-right"
             >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-white">Filter Inventory</h2>
-                <button
-                  onClick={() => setFilterPopupOpen(false)}
-                  className="p-1 text-gray-400 rounded-full hover:text-white hover:bg-gray-700"
-                >
-                  <X size={20} />
-                </button>
+              <X size={16} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Filter Panel */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="p-4 mb-6 rounded shadow bg-gray-50"
+          >
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Item Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={filters.name}
+                  onChange={handleFilterChange}
+                  className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                />
               </div>
-              
-              <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-300">Search</label>
+                  <label className="block text-sm font-medium text-gray-700">Min Stock</label>
                   <input
-                    type="text"
-                    placeholder="Search by name..."
-                    value={filters.searchTerm}
-                    onChange={(e) => setFilters({ ...filters, searchTerm: e.target.value })}
-                    className="w-full p-3 text-white bg-gray-700 rounded-lg"
+                    type="number"
+                    name="stockMin"
+                    value={filters.stockMin}
+                    onChange={handleFilterChange}
+                    className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
                   />
                 </div>
-                
                 <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-300">Stock Status</label>
-                  <select
-                    value={filters.stockStatus}
-                    onChange={(e) => setFilters({ ...filters, stockStatus: e.target.value })}
-                    className="w-full p-3 text-white bg-gray-700 rounded-lg"
-                  >
-                    <option value="all">All Items</option>
-                    <option value="low">Low Stock</option>
-                    <option value="sufficient">Sufficient Stock</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-300">Date Range</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block mb-1 text-xs text-gray-400">Start Date</label>
-                      <input
-                        type="date"
-                        value={filters.dateRange.start}
-                        onChange={(e) => setFilters({
-                          ...filters,
-                          dateRange: { ...filters.dateRange, start: e.target.value }
-                        })}
-                        className="w-full p-3 text-white bg-gray-700 rounded-lg"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-1 text-xs text-gray-400">End Date</label>
-                      <input
-                        type="date"
-                        value={filters.dateRange.end}
-                        onChange={(e) => setFilters({
-                          ...filters,
-                          dateRange: { ...filters.dateRange, end: e.target.value }
-                        })}
-                        className="w-full p-3 text-white bg-gray-700 rounded-lg"
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-end mt-6 space-x-2">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      setFilters({
-                        searchTerm: '',
-                        stockStatus: 'all',
-                        dateRange: { start: '', end: '' }
-                      });
-                    }}
-                    className="px-4 py-2 text-gray-300 bg-gray-700 rounded-lg hover:bg-gray-600"
-                  >
-                    Reset
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      applyFilters();
-                      setFilterPopupOpen(false);
-                    }}
-                    className="px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700"
-                  >
-                    Apply Filters
-                  </motion.button>
+                  <label className="block text-sm font-medium text-gray-700">Max Stock</label>
+                  <input
+                    type="number"
+                    name="stockMax"
+                    value={filters.stockMax}
+                    onChange={handleFilterChange}
+                    className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  />
                 </div>
               </div>
-            </motion.div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Min Reorder Level</label>
+                  <input
+                    type="number"
+                    name="reorderMin"
+                    value={filters.reorderMin}
+                    onChange={handleFilterChange}
+                    className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Max Reorder Level</label>
+                  <input
+                    type="number"
+                    name="reorderMax"
+                    value={filters.reorderMax}
+                    onChange={handleFilterChange}
+                    className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">From Date</label>
+                <input
+                  type="date"
+                  name="dateFrom"
+                  value={filters.dateFrom}
+                  onChange={handleFilterChange}
+                  className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">To Date</label>
+                <input
+                  type="date"
+                  name="dateTo"
+                  value={filters.dateTo}
+                  onChange={handleFilterChange}
+                  className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end mt-4 space-x-2">
+              <button
+                onClick={resetFilters}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
+              >
+                Reset
+              </button>
+              <button
+                onClick={applyFilters}
+                className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+              >
+                Apply Filters
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Form for adding or editing inventory items */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="p-6 mb-8 bg-gray-800 rounded-lg shadow-lg"
-      >
-        <h2 className="mb-4 text-xl font-bold text-white">
-          {editingItemId ? (
-            <span className="flex items-center">
-              <Edit size={18} className="mr-2 text-blue-400" />
-              Edit Item
-            </span>
-          ) : (
-            <span className="flex items-center">
-              <span className="flex items-center justify-center w-5 h-5 mr-2 text-sm font-bold text-white bg-indigo-600 rounded-full">+</span>
-              Add New Item
-            </span>
-          )}
-        </h2>
-        <div className="grid items-end grid-cols-1 gap-4 md:grid-cols-6">
-          {/* Item Name */}
-          <div className="md:col-span-2">
-            <label className="block mb-2 text-sm font-medium text-gray-300">Item Name</label>
-            <input
-              type="text"
-              placeholder="Item Name"
-              value={newItem.name}
-              onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-              className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            />
-          </div>
-
-          {/* Current Stock */}
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-300">Current Stock</label>
-            <input
-              type="number"
-              placeholder="Current Stock"
-              value={newItem.currentStock}
-              onChange={(e) => setNewItem({ ...newItem, currentStock: Number(e.target.value) })}
-              className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            />
-          </div>
-
-          {/* Reorder Level */}
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-300">Reorder Level</label>
-            <input
-              type="number"
-              placeholder="Reorder Level"
-              value={newItem.reorderLevel}
-              onChange={(e) => setNewItem({ ...newItem, reorderLevel: Number(e.target.value) })}
-              className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            />
-          </div>
-
-          {/* Date */}
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-300">Date</label>
-            <div className="relative">
-              <input
-                type="date"
-                value={newItem.date}
-                onChange={(e) => setNewItem({ ...newItem, date: e.target.value })}
-                className="w-full p-3 text-white bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              />
-              <Calendar size={18} className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
-            </div>
-          </div>
-
-          {/* Add Item / Save Changes Button */}
-          <div className="md:col-span-1">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={editingItemId ? editInventoryItem : addInventoryItem}
-              className="w-full px-4 py-2 font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700"
-            >
-              {editingItemId ? 'Save Changes' : 'Add Item'}
-            </motion.button>
-          </div>
-
-          {/* Cancel Button (only shown when editing) */}
-          {editingItemId && (
-            <div className="md:col-span-1">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={resetForm}
-                className="w-full px-4 py-2 font-bold text-white bg-gray-600 rounded-lg hover:bg-gray-700"
-              >
-                Cancel
-              </motion.button>
-            </div>
-          )}
-        </div>
-      </motion.div>
-
-      {/* Inventory stats cards */}
-      <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-4">
-        <div className="p-4 bg-gray-800 rounded-lg shadow">
-          <h3 className="mb-1 text-sm font-medium text-gray-400">Total Items</h3>
-          <p className="text-2xl font-bold text-white">{inventory.length}</p>
-        </div>
-        <div className="p-4 bg-gray-800 rounded-lg shadow">
-          <h3 className="mb-1 text-sm font-medium text-gray-400">Low Stock Items</h3>
-          <p className="text-2xl font-bold text-red-400">
-            {inventory.filter(item => item.currentStock <= item.reorderLevel).length}
-          </p>
-        </div>
-        <div className="p-4 bg-gray-800 rounded-lg shadow">
-          <h3 className="mb-1 text-sm font-medium text-gray-400">Warning Stock Items</h3>
-          <p className="text-2xl font-bold text-yellow-400">
-            {inventory.filter(item => 
-              item.currentStock > item.reorderLevel && 
-              item.currentStock <= item.reorderLevel * 1.5
-            ).length}
-          </p>
-        </div>
-        <div className="p-4 bg-gray-800 rounded-lg shadow">
-          <h3 className="mb-1 text-sm font-medium text-gray-400">Good Stock Items</h3>
-          <p className="text-2xl font-bold text-green-400">
-            {inventory.filter(item => item.currentStock > item.reorderLevel * 1.5).length}
-          </p>
-        </div>
-      </div>
-
-      {/* Inventory count summary */}
-      <div className="mb-4 text-gray-300">
-        Showing <span className="font-bold text-white">{filteredInventory.length}</span> of <span className="font-bold text-white">{inventory.length}</span> items
-        {filters.searchTerm || filters.stockStatus !== 'all' || (filters.dateRange.start && filters.dateRange.end) ? (
-          <span className="px-2 py-1 ml-2 text-xs font-medium text-indigo-300 bg-indigo-900 rounded-full">Filtered</span>
-        ) : ''}
-      </div>
-
       {/* Inventory Table */}
-      <div className="overflow-x-auto rounded-lg shadow-md">
-        <table className="w-full text-white border-collapse">
-          <thead>
-            <tr className="bg-gray-700">
-              <th className="p-3 text-left">Item</th>
-              <th className="p-3 text-left">Current Stock</th>
-              <th className="p-3 text-left">Reorder Level</th>
-              <th className="p-3 text-left">Date Added</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-center">Actions</th>
+      <div className="overflow-x-auto bg-white rounded shadow">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Item Name</th>
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Current Stock</th>
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Reorder Level</th>
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Date</th>
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
             </tr>
           </thead>
-          <tbody>
-            {filteredInventory.length > 0 ? (
-              filteredInventory.map((item) => (
-                <motion.tr 
-                  key={item._id} 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className={`border-b border-gray-700 transition-colors duration-150 ${hoveredRow === item._id ? 'bg-gray-800' : ''}`}
-                  onMouseEnter={() => setHoveredRow(item._id)}
-                  onMouseLeave={() => setHoveredRow(null)}
-                >
-                  <td className="p-3 font-medium">{item.name}</td>
-                  <td className="p-3">
-                    <span className={item.currentStock <= item.reorderLevel ? 'text-red-400 font-bold' : ''}>
-                      {item.currentStock}
-                    </span>
-                  </td>
-                  <td className="p-3">{item.reorderLevel}</td>
-                  <td className="p-3">{new Date(item.date).toLocaleDateString()}</td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-1 text-xs font-bold rounded-full ${
-                        getStatusBadgeClass(item.currentStock, item.reorderLevel)
-                      }`}
-                    >
-                      {getStatusText(item.currentStock, item.reorderLevel)}
-                    </span>
-                  </td>
-                  <td className="p-3 text-center">
-                    <div className="flex justify-center space-x-2">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleEditClick(item)}
-                        className="p-2 text-blue-300 bg-blue-900 rounded-full hover:bg-blue-800"
-                        title="Edit"
-                      >
-                        <Edit size={16} />
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => deleteInventoryItem(item._id)}
-                        className="p-2 text-red-300 bg-red-900 rounded-full hover:bg-red-800"
-                        title="Delete"
-                      >
-                        <Trash2 size={16} />
-                      </motion.button>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))
-            ) : (
+          <tbody className="bg-white divide-y divide-gray-200">
+            {loading ? (
               <tr>
-                <td colSpan="6" className="p-6 text-center text-gray-400">
-                  No inventory items found.
+                <td colSpan="6" className="px-6 py-4 text-center">
+                  <div className="flex items-center justify-center">
+                    <RefreshCw size={20} className="mr-2 animate-spin" />
+                    Loading...
+                  </div>
                 </td>
               </tr>
+            ) : filteredInventory.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                  No inventory items found. Add a new item to get started.
+                </td>
+              </tr>
+            ) : (
+              filteredInventory.map((item) => (
+                <tr key={item._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">{item.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{item.currentStock}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{item.reorderLevel}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {item.currentStock <= item.reorderLevel ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <AlertTriangle size={12} className="mr-1" />
+                        Reorder
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        In Stock
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {new Date(item.date).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          setCurrentItem(item);
+                          setShowEditModal(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCurrentItem(item);
+                          setShowDeleteModal(true);
+                        }}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>
       </div>
+
+      {/* Add Inventory Item Modal */}
+      <AnimatePresence>
+        {showAddModal && (
+          <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">Add New Inventory Item</h2>
+                <button onClick={() => setShowAddModal(false)} className="text-gray-500 hover:text-gray-700">
+                  <X size={20} />
+                </button>
+              </div>
+              <form onSubmit={addInventoryItem}>
+                <div className="mb-4">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Item Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={newItem.name}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Current Stock</label>
+                  <input
+                    type="number"
+                    name="currentStock"
+                    value={newItem.currentStock}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Reorder Level</label>
+                  <input
+                    type="number"
+                    name="reorderLevel"
+                    value={newItem.reorderLevel}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  />
+                </div>
+                <div className="mb-6">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Date</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={newItem.date}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddModal(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex items-center px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+                  >
+                    {loading && <RefreshCw size={16} className="mr-2 animate-spin" />}
+                    Add Item
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Inventory Item Modal */}
+      <AnimatePresence>
+        {showEditModal && currentItem && (
+          <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">Edit Inventory Item</h2>
+                <button onClick={() => setShowEditModal(false)} className="text-gray-500 hover:text-gray-700">
+                  <X size={20} />
+                </button>
+              </div>
+              <form onSubmit={editInventoryItem}>
+                <div className="mb-4">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Item Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={currentItem.name}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Current Stock</label>
+                  <input
+                    type="number"
+                    name="currentStock"
+                    value={currentItem.currentStock}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Reorder Level</label>
+                  <input
+                    type="number"
+                    name="reorderLevel"
+                    value={currentItem.reorderLevel}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  />
+                </div>
+                <div className="mb-6">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">Date</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={currentItem.date ? currentItem.date.split('T')[0] : ''}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditModal(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex items-center px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+                  >
+                    {loading && <RefreshCw size={16} className="mr-2 animate-spin" />}
+                    Update Item
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteModal && currentItem && (
+          <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">Delete Inventory Item</h2>
+                <button onClick={() => setShowDeleteModal(false)} className="text-gray-500 hover:text-gray-700">
+                  <X size={20} />
+                </button>
+              </div>
+              <p className="mb-6">
+                Are you sure you want to delete {currentItem.name}? This action cannot be undone.
+              </p>
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={deleteInventoryItem}
+                  disabled={loading}
+                  className="flex items-center px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
+                >
+                  {loading && <RefreshCw size={16} className="mr-2 animate-spin" />}
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
