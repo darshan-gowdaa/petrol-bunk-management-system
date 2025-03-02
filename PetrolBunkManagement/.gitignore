@@ -17,7 +17,7 @@ coverage/
 *.css.map
 *.js.map
 build/
-
+package-lock.json
 
 # Editor directories and files
 .vscode/*
