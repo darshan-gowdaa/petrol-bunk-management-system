@@ -17,15 +17,15 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const ExpenseTracking = () => {
-  // Define categories array that was missing in the original code
-  const categories = [
+  // Initial categories list
+  const [categories, setCategories] = useState([
     "Electricity",
     "Water",
     "Maintenance",
     "Vehicle Fuel",
     "Office Supplies",
     "Miscellaneous"
-  ];
+  ]);
 
   // State management
   const [expenses, setExpenses] = useState([]);
@@ -37,6 +37,8 @@ const ExpenseTracking = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [currentExpense, setCurrentExpense] = useState(null);
+  const [newCategory, setNewCategory] = useState("");
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
 
   // New expense form state
   const [newExpense, setNewExpense] = useState({
@@ -126,6 +128,53 @@ const ExpenseTracking = () => {
       setCurrentExpense({ ...currentExpense, [name]: value });
     } else {
       setNewExpense({ ...newExpense, [name]: value });
+    }
+  };
+
+  // Handle new category input change
+  const handleNewCategoryChange = (e) => {
+    setNewCategory(e.target.value);
+  };
+
+  // Add a new category
+  const addNewCategory = () => {
+    if (newCategory.trim() === "") {
+      toast.error("Category name cannot be empty");
+      return;
+    }
+
+    if (categories.includes(newCategory.trim())) {
+      toast.error("This category already exists");
+      return;
+    }
+
+    const updatedCategories = [...categories, newCategory.trim()];
+    setCategories(updatedCategories);
+    
+    // Set the newly added category as the selected one
+    if (showEditModal && currentExpense) {
+      setCurrentExpense({ ...currentExpense, category: newCategory.trim() });
+    } else {
+      setNewExpense({ ...newExpense, category: newCategory.trim() });
+    }
+    
+    setNewCategory("");
+    setShowNewCategoryInput(false);
+    toast.success("New category added!");
+  };
+
+  // Handle category selection
+  const handleCategorySelect = (e) => {
+    const value = e.target.value;
+    
+    if (value === "add_new") {
+      setShowNewCategoryInput(true);
+    } else {
+      if (showEditModal && currentExpense) {
+        setCurrentExpense({ ...currentExpense, category: value });
+      } else {
+        setNewExpense({ ...newExpense, category: value });
+      }
     }
   };
 
@@ -446,6 +495,7 @@ const ExpenseTracking = () => {
                         onClick={() => {
                           setCurrentExpense(expense);
                           setShowEditModal(true);
+                          setShowNewCategoryInput(false);
                         }}
                         className="p-2 text-blue-300 bg-blue-900 rounded-full hover:bg-blue-800"
                       >
@@ -469,155 +519,203 @@ const ExpenseTracking = () => {
         </table>
       </div>
 
-  {showAddModal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
-      <h2 className="mb-4 text-xl font-bold text-white">Add New Expense</h2>
-      <form onSubmit={addExpense}>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Category</label>
-          <select
-            name="category"
-            value={newExpense.category}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            {categories.map((category) => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
+      {/* Add Expense Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
+            <h2 className="mb-4 text-xl font-bold text-white">Add New Expense</h2>
+            <form onSubmit={addExpense}>
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">Category</label>
+                {!showNewCategoryInput ? (
+                  <select
+                    name="category"
+                    value={newExpense.category}
+                    onChange={handleCategorySelect}
+                    className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    {categories.map((category) => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                    <option value="add_new">+ Add New Category</option>
+                  </select>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={newCategory}
+                      onChange={handleNewCategoryChange}
+                      placeholder="Enter new category name"
+                      className="flex-1 p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={addNewCategory}
+                      className="p-2 text-white bg-green-600 rounded hover:bg-green-700"
+                    >
+                      <Plus size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewCategoryInput(false)}
+                      className="p-2 text-white bg-gray-600 rounded hover:bg-gray-700"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">Amount (₹)</label>
+                <input
+                  type="number"
+                  name="amount"
+                  value={newExpense.amount}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                  step="0.01"
+                  min="0"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">Date</label>
+                <input
+                  type="date"
+                  name="date"
+                  value={newExpense.date}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+                  disabled={loading || showNewCategoryInput}
+                >
+                  {loading ? (
+                    <span className="flex items-center">
+                      <RefreshCw size={16} className="mr-2 animate-spin" />
+                      Saving...
+                    </span>
+                  ) : (
+                    "Add Expense"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Amount (₹)</label>
-          <input
-            type="number"
-            name="amount"
-            value={newExpense.amount}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-            step="0.01"
-            min="0"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Date</label>
-          <input
-            type="date"
-            name="date"
-            value={newExpense.date}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="flex justify-end space-x-2">
-          <button
-            type="button"
-            onClick={() => setShowAddModal(false)}
-            className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-            disabled={loading}
-          >
-            {loading ? (
-              <span className="flex items-center">
-                <RefreshCw size={16} className="mr-2 animate-spin" />
-                Saving...
-              </span>
-            ) : (
-              "Add Expense"
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+      )}
 
       {/* Edit Expense Modal */}
-      {showEditModal && currentItem && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
-      <h2 className="mb-4 text-xl font-bold text-white">Edit Expense</h2>
-      <form onSubmit={editExpense}>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Expense Name</label>
-          <input
-            type="text"
-            name="name"
-            value={currentItem.name}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+      {showEditModal && currentExpense && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
+            <h2 className="mb-4 text-xl font-bold text-white">Edit Expense</h2>
+            <form onSubmit={editExpense}>
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">Category</label>
+                {!showNewCategoryInput ? (
+                  <select
+                    name="category"
+                    value={currentExpense.category || ""}
+                    onChange={handleCategorySelect}
+                    className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    {categories.map((category) => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                    <option value="add_new">+ Add New Category</option>
+                  </select>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={newCategory}
+                      onChange={handleNewCategoryChange}
+                      placeholder="Enter new category name"
+                      className="flex-1 p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={addNewCategory}
+                      className="p-2 text-white bg-green-600 rounded hover:bg-green-700"
+                    >
+                      <Plus size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewCategoryInput(false)}
+                      className="p-2 text-white bg-gray-600 rounded hover:bg-gray-700"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">Amount (₹)</label>
+                <input
+                  type="number"
+                  name="amount"
+                  value={currentExpense.amount || ""}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                  step="0.01"
+                  min="0"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">Date</label>
+                <input
+                  type="date"
+                  name="date"
+                  value={currentExpense.date ? new Date(currentExpense.date).toISOString().split("T")[0] : ""}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
+                  disabled={loading || showNewCategoryInput}
+                >
+                  {loading ? (
+                    <span className="flex items-center">
+                      <RefreshCw size={16} className="mr-2 animate-spin" />
+                      Updating...
+                    </span>
+                  ) : (
+                    "Update Expense"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Amount</label>
-          <input
-            type="number"
-            name="amount"
-            value={currentItem.amount}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Category</label>
-          <input
-            type="text"
-            name="category"
-            value={currentItem.category}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Date</label>
-          <input
-            type="date"
-            name="date"
-            value={currentItem.date ? currentItem.date.split("T")[0] : ""}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="flex justify-end space-x-2">
-          <button
-            type="button"
-            onClick={() => setShowEditModal(false)}
-            className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
-            disabled={loading}
-          >
-            {loading ? (
-              <span className="flex items-center">
-                <RefreshCw size={16} className="mr-2 animate-spin" />
-                Updating...
-              </span>
-            ) : (
-              "Update Expense"
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
-
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && currentExpense && (

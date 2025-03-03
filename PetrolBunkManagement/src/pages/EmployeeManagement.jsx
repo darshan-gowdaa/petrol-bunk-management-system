@@ -618,55 +618,66 @@ const EmployeeManagement = () => {
 )}
 
       {/* Edit Employee Modal */}
-      {showEditModal && currentItem && (
+      {/* Edit Employee Modal */}
+{showEditModal && currentEmployee && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
     <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
       <h2 className="mb-4 text-xl font-bold text-white">Edit Employee</h2>
       <form onSubmit={editEmployee}>
+        {/* Employee Name */}
         <div className="mb-4">
           <label className="block mb-1 text-sm font-medium text-gray-300">Employee Name</label>
           <input
             type="text"
             name="name"
-            value={currentItem.name}
+            value={currentEmployee.name}
             onChange={handleInputChange}
             className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
+
+        {/* Position */}
         <div className="mb-4">
           <label className="block mb-1 text-sm font-medium text-gray-300">Position</label>
           <input
             type="text"
             name="position"
-            value={currentItem.position}
+            value={currentEmployee.position}
             onChange={handleInputChange}
             className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
+
+        {/* Salary */}
         <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Department</label>
+          <label className="block mb-1 text-sm font-medium text-gray-300">Salary</label>
           <input
-            type="text"
-            name="department"
-            value={currentItem.department}
+            type="number"
+            name="salary"
+            value={currentEmployee.salary}
             onChange={handleInputChange}
             className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
+
+        {/* Date Added */}
         <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={currentItem.email}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+          <label className="block mb-1 text-sm font-medium text-gray-300">Date Added</label>
+        <input
+  type="date"
+  name="dateAdded"
+  value={currentEmployee.dateAdded ? new Date(currentEmployee.dateAdded).toISOString().split("T")[0] : ""}
+  onChange={handleInputChange}
+  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+  required
+/>
+</div>
+
+
+        {/* Buttons */}
         <div className="flex justify-end space-x-2">
           <button
             type="button"
@@ -694,6 +705,7 @@ const EmployeeManagement = () => {
     </div>
   </div>
 )}
+
 
 
       {/* Delete Confirmation Modal */}
