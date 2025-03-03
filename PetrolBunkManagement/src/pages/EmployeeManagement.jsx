@@ -1,6 +1,5 @@
 // src/pages/EmployeeManagement.jsx
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Edit,
   Trash2,
@@ -9,8 +8,15 @@ import {
   X,
   Plus,
   RefreshCw,
+  Users,
+  DollarSign,
+  Award,
+  Calendar
 } from "lucide-react";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import HeaderWithActions from "../components/HeaderWithActions";
 
 const EmployeeManagement = () => {
   // State management
@@ -23,7 +29,6 @@ const EmployeeManagement = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [currentEmployee, setCurrentEmployee] = useState(null);
-  const [successMessage, setSuccessMessage] = useState("");
 
   // New employee form state
   const [newEmployee, setNewEmployee] = useState({
@@ -43,6 +48,14 @@ const EmployeeManagement = () => {
     dateTo: "",
   });
 
+  // Stats
+  const [stats, setStats] = useState({
+    totalEmployees: 0,
+    averageSalary: 0,
+    topPosition: "",
+    newestEmployee: ""
+  });
+
   // Fetch employees from API
   const fetchEmployees = async () => {
     setLoading(true);
@@ -51,12 +64,53 @@ const EmployeeManagement = () => {
       const response = await axios.get("http://localhost:5000/api/employees");
       setEmployees(response.data);
       setFilteredEmployees(response.data);
+      calculateStats(response.data);
     } catch (err) {
       setError("Failed to fetch employees. Please try again.");
+      toast.error("Failed to fetch employees. Please try again.");
       console.error("Error fetching employees:", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Calculate stats
+  const calculateStats = (employeeData) => {
+    if (!employeeData.length) return;
+
+    // Total employees
+    const total = employeeData.length;
+    
+    // Average salary
+    const totalSalary = employeeData.reduce((sum, emp) => sum + Number(emp.salary), 0);
+    const average = totalSalary / total;
+    
+    // Most common position
+    const positions = {};
+    employeeData.forEach(emp => {
+      positions[emp.position] = (positions[emp.position] || 0) + 1;
+    });
+    let topPosition = "";
+    let maxCount = 0;
+    Object.entries(positions).forEach(([position, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        topPosition = position;
+      }
+    });
+    
+    // Newest employee
+    const sortedByDate = [...employeeData].sort((a, b) => 
+      new Date(b.dateAdded) - new Date(a.dateAdded)
+    );
+    const newest = sortedByDate.length ? sortedByDate[0].name : "";
+    
+    setStats({
+      totalEmployees: total,
+      averageSalary: average.toFixed(0),
+      topPosition,
+      newestEmployee: newest
+    });
   };
 
   // Initial data fetch
@@ -89,6 +143,7 @@ const EmployeeManagement = () => {
       setFilteredEmployees(response.data);
     } catch (err) {
       setError("Failed to filter employees. Please try again.");
+      toast.error("Failed to filter employees. Please try again.");
       console.error("Error filtering employees:", err);
     } finally {
       setLoading(false);
@@ -138,10 +193,11 @@ const EmployeeManagement = () => {
         dateAdded: new Date().toISOString().split("T")[0],
       });
       setShowAddModal(false);
-      setSuccessMessage("Employee added successfully!");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      toast.success("Employee added successfully!");
+      calculateStats([...employees, response.data]);
     } catch (err) {
       setError("Failed to add employee. Please try again.");
+      toast.error("Failed to add employee. Please try again.");
       console.error("Error adding employee:", err);
     } finally {
       setLoading(false);
@@ -163,10 +219,11 @@ const EmployeeManagement = () => {
       setEmployees(updatedEmployees);
       setFilteredEmployees(updatedEmployees);
       setShowEditModal(false);
-      setSuccessMessage("Employee updated successfully!");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      toast.success("Employee updated successfully!");
+      calculateStats(updatedEmployees);
     } catch (err) {
       setError("Failed to update employee. Please try again.");
+      toast.error("Failed to update employee. Please try again.");
       console.error("Error updating employee:", err);
     } finally {
       setLoading(false);
@@ -186,10 +243,11 @@ const EmployeeManagement = () => {
       setEmployees(updatedEmployees);
       setFilteredEmployees(updatedEmployees);
       setShowDeleteModal(false);
-      setSuccessMessage("Employee deleted successfully!");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      toast.success("Employee deleted successfully!");
+      calculateStats(updatedEmployees);
     } catch (err) {
       setError("Failed to delete employee. Please try again.");
+      toast.error("Failed to delete employee. Please try again.");
       console.error("Error deleting employee:", err);
     } finally {
       setLoading(false);
@@ -224,204 +282,201 @@ const EmployeeManagement = () => {
 
   return (
     <div className="container px-4 py-8 mx-auto">
-      {/* Header */}
-{/* Header with Buttons in the Same Line */}
-<div className="flex flex-wrap items-center justify-between mb-6">
-  <h1 className="text-3xl font-bold text-white">Employee Management</h1>
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
 
-  {/* Action Buttons */}
-  <div className="flex items-center gap-3">
-    <button
-      onClick={() => setShowAddModal(true)}
-      className="flex items-center gap-2 px-4 py-2 text-white bg-green-700 rounded-lg shadow-md hover:bg-green-800"
-    >
-      <Plus size={16} /> Add Employee
-    </button>
+      <HeaderWithActions
+        title="Employee Management"
+        onAdd={() => setShowAddModal(true)}
+        onFilter={() => setShowFilters(!showFilters)}
+        onExport={exportToCSV}
+        addLabel="Add Employee"
+      />
 
-    <button
-      onClick={() => setShowFilters(!showFilters)}
-      className="flex items-center gap-2 px-4 py-2 text-white bg-purple-700 rounded-lg shadow-md hover:bg-purple-800"
-    >
-      <Filter size={16} /> Filter
-    </button>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-2 lg:grid-cols-4">
+        {/* Total Employees Card */}
+        <div className="p-4 transition-all duration-300 bg-gray-800 rounded-lg shadow-md hover:bg-gray-700">
+          <div className="flex items-center">
+            <div className="p-3 mr-4 text-blue-300 bg-blue-900 rounded-full">
+              <Users size={24} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-400">Total Employees</p>
+              <p className="text-2xl font-semibold text-white">{stats.totalEmployees}</p>
+            </div>
+          </div>
+        </div>
 
-    <button
-      onClick={exportToCSV}
-      className="flex items-center gap-2 px-4 py-2 text-white bg-blue-700 rounded-lg shadow-md hover:bg-blue-800"
-    >
-      <Download size={16} /> Export
-    </button>
-  </div>
-</div>
+        {/* Average Salary Card */}
+        <div className="p-4 transition-all duration-300 bg-gray-800 rounded-lg shadow-md hover:bg-gray-700">
+          <div className="flex items-center">
+            <div className="p-3 mr-4 text-green-300 bg-green-900 rounded-full">
+              <DollarSign size={24} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-400">Average Salary</p>
+              <p className="text-2xl font-semibold text-white">₹{parseInt(stats.averageSalary).toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
 
+        {/* Top Position Card */}
+        <div className="p-4 transition-all duration-300 bg-gray-800 rounded-lg shadow-md hover:bg-gray-700">
+          <div className="flex items-center">
+            <div className="p-3 mr-4 text-purple-300 bg-purple-900 rounded-full">
+              <Award size={24} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-400">Top Position</p>
+              <p className="text-2xl font-semibold text-white">{stats.topPosition || "N/A"}</p>
+            </div>
+          </div>
+        </div>
 
-      {/* Success Message */}
-      <AnimatePresence>
-        {successMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="p-3 mb-4 text-green-700 bg-green-100 rounded"
-          >
-            {successMessage}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Error Message */}
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="p-3 mb-4 text-red-700 bg-red-100 rounded"
-          >
-            {error}
-            <button onClick={() => setError(null)} className="float-right">
-              <X size={16} />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        {/* Newest Employee Card */}
+        <div className="p-4 transition-all duration-300 bg-gray-800 rounded-lg shadow-md hover:bg-gray-700">
+          <div className="flex items-center">
+            <div className="p-3 mr-4 text-red-300 bg-red-900 rounded-full">
+              <Calendar size={24} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-400">Newest Employee</p>
+              <p className="text-2xl font-semibold text-white">{stats.newestEmployee || "N/A"}</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Filter Panel */}
-      <AnimatePresence>
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="p-4 mb-6 rounded shadow bg-gray-50"
-          >
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      {showFilters && (
+        <div className="p-4 mb-6 text-white bg-gray-800 rounded shadow">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div>
+              <label className="block text-sm font-medium">
+                Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={filters.name}
+                onChange={handleFilterChange}
+                className="block w-full mt-1 text-gray-900 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">
+                Position
+              </label>
+              <input
+                type="text"
+                name="position"
+                value={filters.position}
+                onChange={handleFilterChange}
+                className="block w-full mt-1 text-gray-900 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Name
+                <label className="block text-sm font-medium">
+                  Min Salary
                 </label>
                 <input
-                  type="text"
-                  name="name"
-                  value={filters.name}
+                  type="number"
+                  name="salaryMin"
+                  value={filters.salaryMin}
                   onChange={handleFilterChange}
-                  className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  className="block w-full mt-1 text-gray-900 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Position
+                <label className="block text-sm font-medium">
+                  Max Salary
                 </label>
                 <input
-                  type="text"
-                  name="position"
-                  value={filters.position}
+                  type="number"
+                  name="salaryMax"
+                  value={filters.salaryMax}
                   onChange={handleFilterChange}
-                  className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Min Salary
-                  </label>
-                  <input
-                    type="number"
-                    name="salaryMin"
-                    value={filters.salaryMin}
-                    onChange={handleFilterChange}
-                    className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Max Salary
-                  </label>
-                  <input
-                    type="number"
-                    name="salaryMax"
-                    value={filters.salaryMax}
-                    onChange={handleFilterChange}
-                    className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  From Date
-                </label>
-                <input
-                  type="date"
-                  name="dateFrom"
-                  value={filters.dateFrom}
-                  onChange={handleFilterChange}
-                  className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  To Date
-                </label>
-                <input
-                  type="date"
-                  name="dateTo"
-                  value={filters.dateTo}
-                  onChange={handleFilterChange}
-                  className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  className="block w-full mt-1 text-gray-900 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
                 />
               </div>
             </div>
-            <div className="flex justify-end mt-4 space-x-2">
-              <button
-                onClick={resetFilters}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
-              >
-                Reset
-              </button>
-              <button
-                onClick={applyFilters}
-                className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-              >
-                Apply Filters
-              </button>
+            <div>
+              <label className="block text-sm font-medium">
+                From Date
+              </label>
+              <input
+                type="date"
+                name="dateFrom"
+                value={filters.dateFrom}
+                onChange={handleFilterChange}
+                className="block w-full mt-1 text-gray-900 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              />
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div>
+              <label className="block text-sm font-medium">
+                To Date
+              </label>
+              <input
+                type="date"
+                name="dateTo"
+                value={filters.dateTo}
+                onChange={handleFilterChange}
+                className="block w-full mt-1 text-gray-900 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end mt-4 space-x-2">
+            <button
+              onClick={resetFilters}
+              className="px-4 py-2 text-gray-200 bg-gray-700 rounded hover:bg-gray-600"
+            >
+              Reset
+            </button>
+            <button
+              onClick={applyFilters}
+              className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+            >
+              Apply Filters
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Employees Table */}
-      <div className="overflow-x-auto bg-white rounded shadow dark:bg-gray-800">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-900">
+      <div className="overflow-x-auto bg-gray-800 rounded shadow">
+        <table className="min-w-full divide-y divide-gray-700">
+          <thead className="bg-gray-900">
             <tr>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
                 Name
               </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
                 Position
               </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
                 Salary
               </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
                 Date Added
               </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+          <tbody className="bg-gray-800 divide-y divide-gray-700">
             {loading ? (
               <tr>
                 <td
                   colSpan="5"
-                  className="px-6 py-4 text-center text-gray-500 dark:text-gray-400"
+                  className="px-6 py-4 text-center text-gray-400"
                 >
                   <div className="flex items-center justify-center">
                     <RefreshCw
                       size={20}
-                      className="mr-2 animate-spin dark:text-gray-300"
+                      className="mr-2 text-gray-300 animate-spin"
                     />
                     Loading...
                   </div>
@@ -431,7 +486,7 @@ const EmployeeManagement = () => {
               <tr>
                 <td
                   colSpan="5"
-                  className="px-6 py-4 text-center text-gray-500 dark:text-gray-400"
+                  className="px-6 py-4 text-center text-gray-400"
                 >
                   No employees found. Add a new employee to get started.
                 </td>
@@ -440,18 +495,18 @@ const EmployeeManagement = () => {
               filteredEmployees.map((employee) => (
                 <tr
                   key={employee._id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="hover:bg-gray-700"
                 >
-                  <td className="px-6 py-4 text-gray-700 whitespace-nowrap dark:text-gray-300">
+                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
                     {employee.name}
                   </td>
-                  <td className="px-6 py-4 text-gray-700 whitespace-nowrap dark:text-gray-300">
+                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
                     {employee.position}
                   </td>
-                  <td className="px-6 py-4 text-gray-700 whitespace-nowrap dark:text-gray-300">
-                    ₹{employee.salary.toLocaleString()}
+                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
+                    ₹{parseInt(employee.salary).toLocaleString()}
                   </td>
-                  <td className="px-6 py-4 text-gray-700 whitespace-nowrap dark:text-gray-300">
+                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
                     {new Date(employee.dateAdded).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -483,255 +538,204 @@ const EmployeeManagement = () => {
         </table>
       </div>
 
-      {/* Add Employee Modal */}
-      <AnimatePresence>
-        {showAddModal && (
-          <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Add New Employee
-                </h2>
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <form onSubmit={addEmployee}>
-                <div className="mb-4">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={newEmployee.name}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Position
-                  </label>
-                  <input
-                    type="text"
-                    name="position"
-                    value={newEmployee.position}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Salary
-                  </label>
-                  <input
-                    type="number"
-                    name="salary"
-                    value={newEmployee.salary}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="mb-6">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Date Added
-                  </label>
-                  <input
-                    type="date"
-                    name="dateAdded"
-                    value={newEmployee.dateAdded}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddModal(false)}
-                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex items-center px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-                  >
-                    {loading && (
-                      <RefreshCw size={16} className="mr-2 animate-spin" />
-                    )}
-                    Add Employee
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {showAddModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
+      <h2 className="mb-4 text-xl font-bold text-white">Add New Employee</h2>
+      <form onSubmit={addEmployee}>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Name</label>
+          <input
+            type="text"
+            name="name"
+            value={newEmployee.name}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Position</label>
+          <input
+            type="text"
+            name="position"
+            value={newEmployee.position}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Salary (₹)</label>
+          <input
+            type="number"
+            name="salary"
+            value={newEmployee.salary}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+            step="0.01"
+            min="0"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Date Added</label>
+          <input
+            type="date"
+            name="dateAdded"
+            value={newEmployee.dateAdded}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="flex justify-end space-x-2">
+          <button
+            type="button"
+            onClick={() => setShowAddModal(false)}
+            className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="flex items-center">
+                <RefreshCw size={16} className="mr-2 animate-spin" />
+                Saving...
+              </span>
+            ) : (
+              "Add Employee"
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
 
       {/* Edit Employee Modal */}
-      <AnimatePresence>
-        {showEditModal && currentEmployee && (
-          <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Edit Employee
-                </h2>
-                <button
-                  onClick={() => setShowEditModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <form onSubmit={editEmployee}>
-                <div className="mb-4">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={currentEmployee.name}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Position
-                  </label>
-                  <input
-                    type="text"
-                    name="position"
-                    value={currentEmployee.position}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Salary
-                  </label>
-                  <input
-                    type="number"
-                    name="salary"
-                    value={currentEmployee.salary}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="mb-6">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Date Added
-                  </label>
-                  <input
-                    type="date"
-                    name="dateAdded"
-                    value={
-                      currentEmployee.dateAdded
-                        ? currentEmployee.dateAdded.split("T")[0]
-                        : ""
-                    }
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowEditModal(false)}
-                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex items-center px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-                  >
-                    {loading && (
-                      <RefreshCw size={16} className="mr-2 animate-spin" />
-                    )}
-                    Update Employee
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {showEditModal && currentItem && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
+      <h2 className="mb-4 text-xl font-bold text-white">Edit Employee</h2>
+      <form onSubmit={editEmployee}>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Employee Name</label>
+          <input
+            type="text"
+            name="name"
+            value={currentItem.name}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Position</label>
+          <input
+            type="text"
+            name="position"
+            value={currentItem.position}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Department</label>
+          <input
+            type="text"
+            name="department"
+            value={currentItem.department}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Email</label>
+          <input
+            type="email"
+            name="email"
+            value={currentItem.email}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="flex justify-end space-x-2">
+          <button
+            type="button"
+            onClick={() => setShowEditModal(false)}
+            className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="flex items-center">
+                <RefreshCw size={16} className="mr-2 animate-spin" />
+                Updating...
+              </span>
+            ) : (
+              "Update Employee"
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
 
       {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {showDeleteModal && currentEmployee && (
-          <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Delete Employee
-                </h2>
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <p className="mb-6">
-                Are you sure you want to delete {currentEmployee.name}? This
-                action cannot be undone.
-              </p>
-              <div className="flex justify-end space-x-2">
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={deleteEmployee}
-                  disabled={loading}
-                  className="flex items-center px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
-                >
-                  {loading && (
-                    <RefreshCw size={16} className="mr-2 animate-spin" />
-                  )}
-                  Delete
-                </button>
-              </div>
-            </motion.div>
+      {showDeleteModal && currentEmployee && (
+        <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-white">
+                Delete Employee
+              </h2>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="text-gray-400 hover:text-gray-200"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p className="mb-6 text-gray-300">
+              Are you sure you want to delete {currentEmployee.name}? This
+              action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-gray-300 bg-gray-700 rounded hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteEmployee}
+                disabled={loading}
+                className="flex items-center px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
+              >
+                {loading && (
+                  <RefreshCw size={16} className="mr-2 animate-spin" />
+                )}
+                Delete
+              </button>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };

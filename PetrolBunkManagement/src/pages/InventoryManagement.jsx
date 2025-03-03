@@ -1,6 +1,5 @@
 // src/pages/InventoryManagement.jsx
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Edit,
   Trash2,
@@ -10,8 +9,14 @@ import {
   Plus,
   RefreshCw,
   AlertTriangle,
+  Package,
+  AlertCircle,
+  CheckCircle,
 } from "lucide-react";
 import axios from "axios";
+import HeaderWithActions from "../components/HeaderWithActions";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const InventoryManagement = () => {
   // State management
@@ -24,7 +29,6 @@ const InventoryManagement = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [currentItem, setCurrentItem] = useState(null);
-  const [successMessage, setSuccessMessage] = useState("");
 
   // New inventory item form state
   const [newItem, setNewItem] = useState({
@@ -48,13 +52,12 @@ const InventoryManagement = () => {
   // Fetch inventory from API
   const fetchInventory = async () => {
     setLoading(true);
-    setError(null);
     try {
       const response = await axios.get("http://localhost:5000/api/inventory");
       setInventory(response.data);
       setFilteredInventory(response.data);
     } catch (err) {
-      setError("Failed to fetch inventory. Please try again.");
+      toast.error("Failed to fetch inventory. Please try again.");
       console.error("Error fetching inventory:", err);
     } finally {
       setLoading(false);
@@ -91,7 +94,7 @@ const InventoryManagement = () => {
       );
       setFilteredInventory(response.data);
     } catch (err) {
-      setError("Failed to filter inventory. Please try again.");
+      toast.error("Failed to filter inventory. Please try again.");
       console.error("Error filtering inventory:", err);
     } finally {
       setLoading(false);
@@ -112,6 +115,7 @@ const InventoryManagement = () => {
     });
     setFilteredInventory(inventory);
     setShowFilters(false);
+    toast.info("Filters have been reset");
   };
 
   // Handle form input changes for new/edit item
@@ -142,10 +146,9 @@ const InventoryManagement = () => {
         date: new Date().toISOString().split("T")[0],
       });
       setShowAddModal(false);
-      setSuccessMessage("Inventory item added successfully!");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      toast.success("Inventory item added successfully!");
     } catch (err) {
-      setError("Failed to add inventory item. Please try again.");
+      toast.error("Failed to add inventory item. Please try again.");
       console.error("Error adding inventory item:", err);
     } finally {
       setLoading(false);
@@ -167,10 +170,9 @@ const InventoryManagement = () => {
       setInventory(updatedInventory);
       setFilteredInventory(updatedInventory);
       setShowEditModal(false);
-      setSuccessMessage("Inventory item updated successfully!");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      toast.success("Inventory item updated successfully!");
     } catch (err) {
-      setError("Failed to update inventory item. Please try again.");
+      toast.error("Failed to update inventory item. Please try again.");
       console.error("Error updating inventory item:", err);
     } finally {
       setLoading(false);
@@ -190,10 +192,9 @@ const InventoryManagement = () => {
       setInventory(updatedInventory);
       setFilteredInventory(updatedInventory);
       setShowDeleteModal(false);
-      setSuccessMessage("Inventory item deleted successfully!");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      toast.success("Inventory item deleted successfully!");
     } catch (err) {
-      setError("Failed to delete inventory item. Please try again.");
+      toast.error("Failed to delete inventory item. Please try again.");
       console.error("Error deleting inventory item:", err);
     } finally {
       setLoading(false);
@@ -224,224 +225,229 @@ const InventoryManagement = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    toast.info("Inventory data exported to CSV");
   };
+
+  // Calculate inventory metrics
+  const totalItems = filteredInventory.length;
+  const itemsToReorder = filteredInventory.filter(
+    (item) => item.currentStock <= item.reorderLevel
+  ).length;
+  const inStockItems = totalItems - itemsToReorder;
 
   return (
     <div className="container px-4 py-8 mx-auto">
       {/* Header */}
-{/* Header with Buttons in the Same Line */}
-<div className="flex flex-wrap items-center justify-between mb-6">
-  <h1 className="text-3xl font-bold text-white">Inventory Management</h1>
+      <HeaderWithActions
+        title="Inventory Management"
+        onAdd={() => setShowAddModal(true)}
+        onFilter={() => setShowFilters(!showFilters)}
+        onExport={exportToCSV}
+        addLabel="Add Item"
+      />
 
-  {/* Action Buttons */}
-  <div className="flex items-center gap-3">
-    <button
-      onClick={() => setShowAddModal(true)}
-      className="flex items-center gap-2 px-4 py-2 text-white bg-green-700 rounded-lg shadow-md hover:bg-green-800"
-    >
-      <Plus size={16} /> Add Item
-    </button>
-
-    <button
-      onClick={() => setShowFilters(!showFilters)}
-      className="flex items-center gap-2 px-4 py-2 text-white bg-purple-700 rounded-lg shadow-md hover:bg-purple-800"
-    >
-      <Filter size={16} /> Filter
-    </button>
-
-    <button
-      onClick={exportToCSV}
-      className="flex items-center gap-2 px-4 py-2 text-white bg-blue-700 rounded-lg shadow-md hover:bg-blue-800"
-    >
-      <Download size={16} /> Export
-    </button>
-  </div>
-</div>
-
-      {/* Success Message */}
-      <AnimatePresence>
-        {successMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="p-3 mb-4 text-green-700 bg-green-100 rounded"
-          >
-            {successMessage}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Error Message */}
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="p-3 mb-4 text-red-700 bg-red-100 rounded"
-          >
-            {error}
-            <button onClick={() => setError(null)} className="float-right">
-              <X size={16} />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Toast Container */}
+      <ToastContainer 
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
 
       {/* Filter Panel */}
-      <AnimatePresence>
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="p-4 mb-6 rounded shadow bg-gray-50"
-          >
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      {showFilters && (
+        <div className="p-4 mb-6 text-white bg-gray-800 rounded shadow">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div>
+              <label className="block text-sm font-medium">
+                Item Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={filters.name}
+                onChange={handleFilterChange}
+                className="block w-full mt-1 text-white bg-gray-700 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Item Name
+                <label className="block text-sm font-medium">
+                  Min Stock
                 </label>
                 <input
-                  type="text"
-                  name="name"
-                  value={filters.name}
+                  type="number"
+                  name="stockMin"
+                  value={filters.stockMin}
                   onChange={handleFilterChange}
-                  className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Min Stock
-                  </label>
-                  <input
-                    type="number"
-                    name="stockMin"
-                    value={filters.stockMin}
-                    onChange={handleFilterChange}
-                    className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Max Stock
-                  </label>
-                  <input
-                    type="number"
-                    name="stockMax"
-                    value={filters.stockMax}
-                    onChange={handleFilterChange}
-                    className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Min Reorder Level
-                  </label>
-                  <input
-                    type="number"
-                    name="reorderMin"
-                    value={filters.reorderMin}
-                    onChange={handleFilterChange}
-                    className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Max Reorder Level
-                  </label>
-                  <input
-                    type="number"
-                    name="reorderMax"
-                    value={filters.reorderMax}
-                    onChange={handleFilterChange}
-                    className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  From Date
-                </label>
-                <input
-                  type="date"
-                  name="dateFrom"
-                  value={filters.dateFrom}
-                  onChange={handleFilterChange}
-                  className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  className="block w-full mt-1 text-white bg-gray-700 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  To Date
+                <label className="block text-sm font-medium">
+                  Max Stock
                 </label>
                 <input
-                  type="date"
-                  name="dateTo"
-                  value={filters.dateTo}
+                  type="number"
+                  name="stockMax"
+                  value={filters.stockMax}
                   onChange={handleFilterChange}
-                  className="block w-full mt-1 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                  className="block w-full mt-1 text-white bg-gray-700 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
                 />
               </div>
             </div>
-            <div className="flex justify-end mt-4 space-x-2">
-              <button
-                onClick={resetFilters}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
-              >
-                Reset
-              </button>
-              <button
-                onClick={applyFilters}
-                className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-              >
-                Apply Filters
-              </button>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-sm font-medium">
+                  Min Reorder Level
+                </label>
+                <input
+                  type="number"
+                  name="reorderMin"
+                  value={filters.reorderMin}
+                  onChange={handleFilterChange}
+                  className="block w-full mt-1 text-white bg-gray-700 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Max Reorder Level
+                </label>
+                <input
+                  type="number"
+                  name="reorderMax"
+                  value={filters.reorderMax}
+                  onChange={handleFilterChange}
+                  className="block w-full mt-1 text-white bg-gray-700 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+                />
+              </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div>
+              <label className="block text-sm font-medium">
+                From Date
+              </label>
+              <input
+                type="date"
+                name="dateFrom"
+                value={filters.dateFrom}
+                onChange={handleFilterChange}
+                className="block w-full mt-1 text-white bg-gray-700 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">
+                To Date
+              </label>
+              <input
+                type="date"
+                name="dateTo"
+                value={filters.dateTo}
+                onChange={handleFilterChange}
+                className="block w-full mt-1 text-white bg-gray-700 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end mt-4 space-x-2">
+            <button
+              onClick={resetFilters}
+              className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
+            >
+              Reset
+            </button>
+            <button
+              onClick={applyFilters}
+              className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+            >
+              Apply Filters
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Cards */}
+      <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
+        {/* Total Items Card */}
+        <div className="p-6 transition-colors bg-gray-800 rounded-lg shadow-lg cursor-pointer hover:bg-gray-700">
+          <div className="flex items-center">
+            <div className="p-3 mr-4 text-indigo-300 bg-indigo-900 rounded-full">
+              <Package size={24} />
+            </div>
+            <div>
+              <p className="mb-2 text-sm font-medium text-gray-400">Total Items</p>
+              <p className="text-3xl font-bold text-white">{totalItems}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Items to Reorder Card */}
+        <div className="p-6 transition-colors bg-gray-800 rounded-lg shadow-lg cursor-pointer hover:bg-gray-700">
+          <div className="flex items-center">
+            <div className="p-3 mr-4 text-red-300 bg-red-900 rounded-full">
+              <AlertCircle size={24} />
+            </div>
+            <div>
+              <p className="mb-2 text-sm font-medium text-gray-400">Need to Reorder</p>
+              <p className="text-3xl font-bold text-white">{itemsToReorder}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* In Stock Items Card */}
+        <div className="p-6 transition-colors bg-gray-800 rounded-lg shadow-lg cursor-pointer hover:bg-gray-700">
+          <div className="flex items-center">
+            <div className="p-3 mr-4 text-green-300 bg-green-900 rounded-full">
+              <CheckCircle size={24} />
+            </div>
+            <div>
+              <p className="mb-2 text-sm font-medium text-gray-400">In Stock</p>
+              <p className="text-3xl font-bold text-white">{inStockItems}</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Inventory Table */}
-      <div className="overflow-x-auto bg-white rounded shadow dark:bg-gray-800">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-900">
+      <div className="overflow-x-auto bg-gray-800 rounded shadow">
+        <table className="min-w-full divide-y divide-gray-700">
+          <thead className="bg-gray-900">
             <tr>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
                 Item Name
               </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
                 Current Stock
               </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
                 Reorder Level
               </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
                 Status
               </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
                 Date
               </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-300">
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+          <tbody className="bg-gray-800 divide-y divide-gray-700">
             {loading ? (
               <tr>
                 <td
                   colSpan="6"
-                  className="px-6 py-4 text-center text-gray-500 dark:text-gray-400"
+                  className="px-6 py-4 text-center text-gray-400"
                 >
                   <div className="flex items-center justify-center">
                     <RefreshCw
                       size={20}
-                      className="mr-2 animate-spin dark:text-gray-300"
+                      className="mr-2 text-gray-300 animate-spin"
                     />
                     Loading...
                   </div>
@@ -451,7 +457,7 @@ const InventoryManagement = () => {
               <tr>
                 <td
                   colSpan="6"
-                  className="px-6 py-4 text-center text-gray-500 dark:text-gray-400"
+                  className="px-6 py-4 text-center text-gray-400"
                 >
                   No inventory items found. Add a new item to get started.
                 </td>
@@ -460,30 +466,30 @@ const InventoryManagement = () => {
               filteredInventory.map((item) => (
                 <tr
                   key={item._id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="hover:bg-gray-700"
                 >
-                  <td className="px-6 py-4 text-gray-700 whitespace-nowrap dark:text-gray-300">
+                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
                     {item.name}
                   </td>
-                  <td className="px-6 py-4 text-gray-700 whitespace-nowrap dark:text-gray-300">
+                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
                     {item.currentStock}
                   </td>
-                  <td className="px-6 py-4 text-gray-700 whitespace-nowrap dark:text-gray-300">
+                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
                     {item.reorderLevel}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {item.currentStock <= item.reorderLevel ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900 text-red-200">
                         <AlertTriangle size={12} className="mr-1" />
                         Reorder
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900 text-green-200">
                         In Stock
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-gray-700 whitespace-nowrap dark:text-gray-300">
+                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
                     {new Date(item.date).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -515,253 +521,201 @@ const InventoryManagement = () => {
         </table>
       </div>
 
-      {/* Add Inventory Item Modal */}
-      <AnimatePresence>
-        {showAddModal && (
-          <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Add New Inventory Item
-                </h2>
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <form onSubmit={addInventoryItem}>
-                <div className="mb-4">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Item Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={newItem.name}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Current Stock
-                  </label>
-                  <input
-                    type="number"
-                    name="currentStock"
-                    value={newItem.currentStock}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Reorder Level
-                  </label>
-                  <input
-                    type="number"
-                    name="reorderLevel"
-                    value={newItem.reorderLevel}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="mb-6">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    name="date"
-                    value={newItem.date}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddModal(false)}
-                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex items-center px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-                  >
-                    {loading && (
-                      <RefreshCw size={16} className="mr-2 animate-spin" />
-                    )}
-                    Add Item
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {showAddModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
+      <h2 className="mb-4 text-xl font-bold text-white">Add New Inventory Item</h2>
+      <form onSubmit={addInventoryItem}>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Item Name</label>
+          <input
+            type="text"
+            name="name"
+            value={newItem.name}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Current Stock</label>
+          <input
+            type="number"
+            name="currentStock"
+            value={newItem.currentStock}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Reorder Level</label>
+          <input
+            type="number"
+            name="reorderLevel"
+            value={newItem.reorderLevel}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Date</label>
+          <input
+            type="date"
+            name="date"
+            value={newItem.date}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="flex justify-end space-x-2">
+          <button
+            type="button"
+            onClick={() => setShowAddModal(false)}
+            className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="flex items-center">
+                <RefreshCw size={16} className="mr-2 animate-spin" />
+                Saving...
+              </span>
+            ) : (
+              "Add Item"
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
 
       {/* Edit Inventory Item Modal */}
-      <AnimatePresence>
-        {showEditModal && currentItem && (
-          <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Edit Inventory Item
-                </h2>
-                <button
-                  onClick={() => setShowEditModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <form onSubmit={editInventoryItem}>
-                <div className="mb-4">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Item Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={currentItem.name}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Current Stock
-                  </label>
-                  <input
-                    type="number"
-                    name="currentStock"
-                    value={currentItem.currentStock}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Reorder Level
-                  </label>
-                  <input
-                    type="number"
-                    name="reorderLevel"
-                    value={currentItem.reorderLevel}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="mb-6">
-                  <label className="block mb-1 text-sm font-medium text-gray-700">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    name="date"
-                    value={
-                      currentItem.date ? currentItem.date.split("T")[0] : ""
-                    }
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowEditModal(false)}
-                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex items-center px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-                  >
-                    {loading && (
-                      <RefreshCw size={16} className="mr-2 animate-spin" />
-                    )}
-                    Update Item
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {showEditModal && currentItem && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
+      <h2 className="mb-4 text-xl font-bold text-white">Edit Inventory Item</h2>
+      <form onSubmit={editInventoryItem}>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Item Name</label>
+          <input
+            type="text"
+            name="name"
+            value={currentItem.name}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Current Stock</label>
+          <input
+            type="number"
+            name="currentStock"
+            value={currentItem.currentStock}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Reorder Level</label>
+          <input
+            type="number"
+            name="reorderLevel"
+            value={currentItem.reorderLevel}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium text-gray-300">Date</label>
+          <input
+            type="date"
+            name="date"
+            value={currentItem.date ? currentItem.date.split("T")[0] : ""}
+            onChange={handleInputChange}
+            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="flex justify-end space-x-2">
+          <button
+            type="button"
+            onClick={() => setShowEditModal(false)}
+            className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="flex items-center">
+                <RefreshCw size={16} className="mr-2 animate-spin" />
+                Updating...
+              </span>
+            ) : (
+              "Update Item"
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
 
       {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {showDeleteModal && currentItem && (
-          <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="w-full max-w-md p-6 bg-white rounded-lg shadow-xl"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Delete Inventory Item
-                </h2>
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <p className="mb-6">
-                Are you sure you want to delete {currentItem.name}? This action
-                cannot be undone.
-              </p>
-              <div className="flex justify-end space-x-2">
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={deleteInventoryItem}
-                  disabled={loading}
-                  className="flex items-center px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
-                >
-                  {loading && (
-                    <RefreshCw size={16} className="mr-2 animate-spin" />
-                  )}
-                  Delete
-                </button>
-              </div>
-            </motion.div>
+      {showDeleteModal && currentItem && (
+        <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="w-full max-w-md p-6 text-white bg-gray-800 rounded-lg shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">
+                Delete Inventory Item
+              </h2>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="text-gray-400 hover:text-gray-200"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p className="mb-6">
+              Are you sure you want to delete {currentItem.name}? This action
+              cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteInventoryItem}
+                disabled={loading}
+                className="flex items-center px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
+              >
+                {loading && (
+                  <RefreshCw size={16} className="mr-2 animate-spin" />
+                )}
+                Delete
+              </button>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 };
