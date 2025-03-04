@@ -1,49 +1,34 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Alert from './Alert';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import bgImage from '../assets/bg_image.jpeg';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [alert, setAlert] = useState({ message: '', type: '' });
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
     console.log('Login attempt:', { username, password });
-    console.log('Current state:', { alert, username, password });
 
     if (username === 'admin' && password === 'admin') {
-      setAlert({ message: String('Login successful! Redirecting...'), type: 'success' });
-
+      toast.success('Login successful! Redirecting...');
       console.log('Redirecting to dashboard...');
-      console.log('Before navigation:', { alert });
 
       setTimeout(() => {
         navigate('/dashboard');
         console.log('Navigation to dashboard executed');
       }, 2000);
     } else {
-      setAlert({ message: String('Invalid Credentials, Try again!'), type: 'error' });
-
+      toast.error('Invalid Credentials, Try again!');
       console.log('Login failed: Invalid credentials');
-      console.log('Error alert set');
-      setTimeout(() => setAlert({ message: '', type: '' }), 2000);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#000] bg-opacity-75 bg-cover bg-center">
-      {alert.message && (
-        <div className="fixed top-0 left-0 z-50 w-full">
-          <Alert
-            message={alert.message}
-            type={alert.type}
-            onClose={() => setAlert({ message: '', type: '' })}
-          />
-        </div>
-      )}
       <div
         className="fixed inset-0 bg-center bg-cover"
         style={{ backgroundImage: `url(${bgImage})`, filter: 'brightness(35%)' }}
@@ -84,6 +69,20 @@ const Login = () => {
           </a>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </div>
   );
 };
