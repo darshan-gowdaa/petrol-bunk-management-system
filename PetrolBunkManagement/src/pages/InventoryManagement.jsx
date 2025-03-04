@@ -17,6 +17,7 @@ import axios from "axios";
 import HeaderWithActions from "../components/HeaderWithActions";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AddModalForm from "../PagesModals/AddModalForm";
 
 const InventoryManagement = () => {
   // State management
@@ -38,6 +39,13 @@ const InventoryManagement = () => {
     date: new Date().toISOString().split("T")[0],
   });
 
+  const inventoryFields = [
+    { name: "name", label: "Item Name", type: "text" },
+    { name: "currentStock", label: "Current Stock", type: "number", min: "0" },
+    { name: "reorderLevel", label: "Reorder Level", type: "number", min: "0" },
+    { name: "date", label: "Date", type: "date" }
+  ];
+  
   // Filter state
   const [filters, setFilters] = useState({
     name: "",
@@ -247,7 +255,7 @@ const InventoryManagement = () => {
       />
 
       {/* Toast Container */}
-      <ToastContainer 
+      <ToastContainer
         position="bottom-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -265,9 +273,7 @@ const InventoryManagement = () => {
         <div className="p-4 mb-6 text-white bg-gray-800 rounded shadow">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
-              <label className="block text-sm font-medium">
-                Item Name
-              </label>
+              <label className="block text-sm font-medium">Item Name</label>
               <input
                 type="text"
                 name="name"
@@ -278,9 +284,7 @@ const InventoryManagement = () => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-sm font-medium">
-                  Min Stock
-                </label>
+                <label className="block text-sm font-medium">Min Stock</label>
                 <input
                   type="number"
                   name="stockMin"
@@ -290,9 +294,7 @@ const InventoryManagement = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium">
-                  Max Stock
-                </label>
+                <label className="block text-sm font-medium">Max Stock</label>
                 <input
                   type="number"
                   name="stockMax"
@@ -329,9 +331,7 @@ const InventoryManagement = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium">
-                From Date
-              </label>
+              <label className="block text-sm font-medium">From Date</label>
               <input
                 type="date"
                 name="dateFrom"
@@ -341,9 +341,7 @@ const InventoryManagement = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">
-                To Date
-              </label>
+              <label className="block text-sm font-medium">To Date</label>
               <input
                 type="date"
                 name="dateTo"
@@ -379,7 +377,9 @@ const InventoryManagement = () => {
               <Package size={24} />
             </div>
             <div>
-              <p className="mb-2 text-sm font-medium text-gray-400">Total Items</p>
+              <p className="mb-2 text-sm font-medium text-gray-400">
+                Total Items
+              </p>
               <p className="text-3xl font-bold text-white">{totalItems}</p>
             </div>
           </div>
@@ -392,7 +392,9 @@ const InventoryManagement = () => {
               <AlertCircle size={24} />
             </div>
             <div>
-              <p className="mb-2 text-sm font-medium text-gray-400">Need to Reorder</p>
+              <p className="mb-2 text-sm font-medium text-gray-400">
+                Need to Reorder
+              </p>
               <p className="text-3xl font-bold text-white">{itemsToReorder}</p>
             </div>
           </div>
@@ -440,10 +442,7 @@ const InventoryManagement = () => {
           <tbody className="bg-gray-800 divide-y divide-gray-700">
             {loading ? (
               <tr>
-                <td
-                  colSpan="6"
-                  className="px-6 py-4 text-center text-gray-400"
-                >
+                <td colSpan="6" className="px-6 py-4 text-center text-gray-400">
                   <div className="flex items-center justify-center">
                     <RefreshCw
                       size={20}
@@ -455,19 +454,13 @@ const InventoryManagement = () => {
               </tr>
             ) : filteredInventory.length === 0 ? (
               <tr>
-                <td
-                  colSpan="6"
-                  className="px-6 py-4 text-center text-gray-400"
-                >
+                <td colSpan="6" className="px-6 py-4 text-center text-gray-400">
                   No inventory items found. Add a new item to get started.
                 </td>
               </tr>
             ) : (
               filteredInventory.map((item) => (
-                <tr
-                  key={item._id}
-                  className="hover:bg-gray-700"
-                >
+                <tr key={item._id} className="hover:bg-gray-700">
                   <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
                     {item.name}
                   </td>
@@ -521,169 +514,111 @@ const InventoryManagement = () => {
         </table>
       </div>
 
-      {showAddModal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
-      <h2 className="mb-4 text-xl font-bold text-white">Add New Inventory Item</h2>
-      <form onSubmit={addInventoryItem}>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Item Name</label>
-          <input
-            type="text"
-            name="name"
-            value={newItem.name}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Current Stock</label>
-          <input
-            type="number"
-            name="currentStock"
-            value={newItem.currentStock}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Reorder Level</label>
-          <input
-            type="number"
-            name="reorderLevel"
-            value={newItem.reorderLevel}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Date</label>
-          <input
-            type="date"
-            name="date"
-            value={newItem.date}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="flex justify-end space-x-2">
-          <button
-            type="button"
-            onClick={() => setShowAddModal(false)}
-            className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-            disabled={loading}
-          >
-            {loading ? (
-              <span className="flex items-center">
-                <RefreshCw size={16} className="mr-2 animate-spin" />
-                Saving...
-              </span>
-            ) : (
-              "Add Item"
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+      <AddModalForm
+        show={showAddModal}
+        title="Add New Inventory Item"
+        fields={inventoryFields}
+        formData={newItem}
+        onChange={handleInputChange}
+        onSubmit={addInventoryItem}
+        onCancel={() => setShowAddModal(false)}
+        loading={loading}
+      />
 
       {/* Edit Inventory Item Modal */}
       {showEditModal && currentItem && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
-      <h2 className="mb-4 text-xl font-bold text-white">Edit Inventory Item</h2>
-      <form onSubmit={editInventoryItem}>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Item Name</label>
-          <input
-            type="text"
-            name="name"
-            value={currentItem.name}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
+            <h2 className="mb-4 text-xl font-bold text-white">
+              Edit Inventory Item
+            </h2>
+            <form onSubmit={editInventoryItem}>
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">
+                  Item Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={currentItem.name}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">
+                  Current Stock
+                </label>
+                <input
+                  type="number"
+                  name="currentStock"
+                  value={currentItem.currentStock}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">
+                  Reorder Level
+                </label>
+                <input
+                  type="number"
+                  name="reorderLevel"
+                  value={currentItem.reorderLevel}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  name="date"
+                  value={currentItem.date ? currentItem.date.split("T")[0] : ""}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center">
+                      <RefreshCw size={16} className="mr-2 animate-spin" />
+                      Updating...
+                    </span>
+                  ) : (
+                    "Update Item"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Current Stock</label>
-          <input
-            type="number"
-            name="currentStock"
-            value={currentItem.currentStock}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Reorder Level</label>
-          <input
-            type="number"
-            name="reorderLevel"
-            value={currentItem.reorderLevel}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Date</label>
-          <input
-            type="date"
-            name="date"
-            value={currentItem.date ? currentItem.date.split("T")[0] : ""}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="flex justify-end space-x-2">
-          <button
-            type="button"
-            onClick={() => setShowEditModal(false)}
-            className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
-            disabled={loading}
-          >
-            {loading ? (
-              <span className="flex items-center">
-                <RefreshCw size={16} className="mr-2 animate-spin" />
-                Updating...
-              </span>
-            ) : (
-              "Update Item"
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && currentItem && (
         <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
           <div className="w-full max-w-md p-6 text-white bg-gray-800 rounded-lg shadow-xl">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">
-                Delete Inventory Item
-              </h2>
+              <h2 className="text-xl font-semibold">Delete Inventory Item</h2>
               <button
                 onClick={() => setShowDeleteModal(false)}
                 className="text-gray-400 hover:text-gray-200"

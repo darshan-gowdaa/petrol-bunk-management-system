@@ -17,6 +17,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HeaderWithActions from "../components/HeaderWithActions";
+import AddModalForm from "../PagesModals/AddModalForm";
 
 const EmployeeManagement = () => {
   // State management
@@ -30,6 +31,13 @@ const EmployeeManagement = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [currentEmployee, setCurrentEmployee] = useState(null);
 
+  const employeeFields = [
+    { name: "name", label: "Name", type: "text" },
+    { name: "position", label: "Position", type: "text" },
+    { name: "salary", label: "Salary (₹)", type: "number", step: "0.01", min: "0" },
+    { name: "dateAdded", label: "Date Added", type: "date" },
+  ];
+  
   // New employee form state
   const [newEmployee, setNewEmployee] = useState({
     name: "",
@@ -280,10 +288,24 @@ const EmployeeManagement = () => {
     document.body.removeChild(link);
   };
 
+
+
   return (
     <div className="container px-4 py-8 mx-auto">
       {/* Toast Container */}
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
 
       <HeaderWithActions
         title="Employee Management"
@@ -302,8 +324,12 @@ const EmployeeManagement = () => {
               <Users size={24} />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-400">Total Employees</p>
-              <p className="text-2xl font-semibold text-white">{stats.totalEmployees}</p>
+              <p className="text-sm font-medium text-gray-400">
+                Total Employees
+              </p>
+              <p className="text-2xl font-semibold text-white">
+                {stats.totalEmployees}
+              </p>
             </div>
           </div>
         </div>
@@ -315,8 +341,12 @@ const EmployeeManagement = () => {
               <DollarSign size={24} />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-400">Average Salary</p>
-              <p className="text-2xl font-semibold text-white">₹{parseInt(stats.averageSalary).toLocaleString()}</p>
+              <p className="text-sm font-medium text-gray-400">
+                Average Salary
+              </p>
+              <p className="text-2xl font-semibold text-white">
+                ₹{parseInt(stats.averageSalary).toLocaleString()}
+              </p>
             </div>
           </div>
         </div>
@@ -329,7 +359,9 @@ const EmployeeManagement = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-400">Top Position</p>
-              <p className="text-2xl font-semibold text-white">{stats.topPosition || "N/A"}</p>
+              <p className="text-2xl font-semibold text-white">
+                {stats.topPosition || "N/A"}
+              </p>
             </div>
           </div>
         </div>
@@ -341,8 +373,12 @@ const EmployeeManagement = () => {
               <Calendar size={24} />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-400">Newest Employee</p>
-              <p className="text-2xl font-semibold text-white">{stats.newestEmployee || "N/A"}</p>
+              <p className="text-sm font-medium text-gray-400">
+                Newest Employee
+              </p>
+              <p className="text-2xl font-semibold text-white">
+                {stats.newestEmployee || "N/A"}
+              </p>
             </div>
           </div>
         </div>
@@ -353,9 +389,7 @@ const EmployeeManagement = () => {
         <div className="p-4 mb-6 text-white bg-gray-800 rounded shadow">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
-              <label className="block text-sm font-medium">
-                Name
-              </label>
+              <label className="block text-sm font-medium">Name</label>
               <input
                 type="text"
                 name="name"
@@ -365,9 +399,7 @@ const EmployeeManagement = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">
-                Position
-              </label>
+              <label className="block text-sm font-medium">Position</label>
               <input
                 type="text"
                 name="position"
@@ -378,9 +410,7 @@ const EmployeeManagement = () => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-sm font-medium">
-                  Min Salary
-                </label>
+                <label className="block text-sm font-medium">Min Salary</label>
                 <input
                   type="number"
                   name="salaryMin"
@@ -390,9 +420,7 @@ const EmployeeManagement = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium">
-                  Max Salary
-                </label>
+                <label className="block text-sm font-medium">Max Salary</label>
                 <input
                   type="number"
                   name="salaryMax"
@@ -403,9 +431,7 @@ const EmployeeManagement = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium">
-                From Date
-              </label>
+              <label className="block text-sm font-medium">From Date</label>
               <input
                 type="date"
                 name="dateFrom"
@@ -415,9 +441,7 @@ const EmployeeManagement = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">
-                To Date
-              </label>
+              <label className="block text-sm font-medium">To Date</label>
               <input
                 type="date"
                 name="dateTo"
@@ -469,10 +493,7 @@ const EmployeeManagement = () => {
           <tbody className="bg-gray-800 divide-y divide-gray-700">
             {loading ? (
               <tr>
-                <td
-                  colSpan="5"
-                  className="px-6 py-4 text-center text-gray-400"
-                >
+                <td colSpan="5" className="px-6 py-4 text-center text-gray-400">
                   <div className="flex items-center justify-center">
                     <RefreshCw
                       size={20}
@@ -484,19 +505,13 @@ const EmployeeManagement = () => {
               </tr>
             ) : filteredEmployees.length === 0 ? (
               <tr>
-                <td
-                  colSpan="5"
-                  className="px-6 py-4 text-center text-gray-400"
-                >
+                <td colSpan="5" className="px-6 py-4 text-center text-gray-400">
                   No employees found. Add a new employee to get started.
                 </td>
               </tr>
             ) : (
               filteredEmployees.map((employee) => (
-                <tr
-                  key={employee._id}
-                  className="hover:bg-gray-700"
-                >
+                <tr key={employee._id} className="hover:bg-gray-700">
                   <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
                     {employee.name}
                   </td>
@@ -538,175 +553,117 @@ const EmployeeManagement = () => {
         </table>
       </div>
 
-      {showAddModal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
-      <h2 className="mb-4 text-xl font-bold text-white">Add New Employee</h2>
-      <form onSubmit={addEmployee}>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Name</label>
-          <input
-            type="text"
-            name="name"
-            value={newEmployee.name}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Position</label>
-          <input
-            type="text"
-            name="position"
-            value={newEmployee.position}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Salary (₹)</label>
-          <input
-            type="number"
-            name="salary"
-            value={newEmployee.salary}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-            step="0.01"
-            min="0"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Date Added</label>
-          <input
-            type="date"
-            name="dateAdded"
-            value={newEmployee.dateAdded}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div className="flex justify-end space-x-2">
-          <button
-            type="button"
-            onClick={() => setShowAddModal(false)}
-            className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-            disabled={loading}
-          >
-            {loading ? (
-              <span className="flex items-center">
-                <RefreshCw size={16} className="mr-2 animate-spin" />
-                Saving...
-              </span>
-            ) : (
-              "Add Employee"
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+      <AddModalForm
+        show={showAddModal}
+        title="Add New Employee"
+        fields={employeeFields}
+        formData={newEmployee}
+        onChange={handleInputChange}
+        onSubmit={addEmployee}
+        onCancel={() => setShowAddModal(false)}
+        loading={loading}
+      />
 
       {/* Edit Employee Modal */}
-      {/* Edit Employee Modal */}
-{showEditModal && currentEmployee && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
-      <h2 className="mb-4 text-xl font-bold text-white">Edit Employee</h2>
-      <form onSubmit={editEmployee}>
-        {/* Employee Name */}
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Employee Name</label>
-          <input
-            type="text"
-            name="name"
-            value={currentEmployee.name}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+      {showEditModal && currentEmployee && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
+            <h2 className="mb-4 text-xl font-bold text-white">Edit Employee</h2>
+            <form onSubmit={editEmployee}>
+              {/* Employee Name */}
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">
+                  Employee Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={currentEmployee.name}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              {/* Position */}
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">
+                  Position
+                </label>
+                <input
+                  type="text"
+                  name="position"
+                  value={currentEmployee.position}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              {/* Salary */}
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">
+                  Salary
+                </label>
+                <input
+                  type="number"
+                  name="salary"
+                  value={currentEmployee.salary}
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              {/* Date Added */}
+              <div className="mb-4">
+                <label className="block mb-1 text-sm font-medium text-gray-300">
+                  Date Added
+                </label>
+                <input
+                  type="date"
+                  name="dateAdded"
+                  value={
+                    currentEmployee.dateAdded
+                      ? new Date(currentEmployee.dateAdded)
+                          .toISOString()
+                          .split("T")[0]
+                      : ""
+                  }
+                  onChange={handleInputChange}
+                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center">
+                      <RefreshCw size={16} className="mr-2 animate-spin" />
+                      Updating...
+                    </span>
+                  ) : (
+                    "Update Employee"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-
-        {/* Position */}
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Position</label>
-          <input
-            type="text"
-            name="position"
-            value={currentEmployee.position}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-
-        {/* Salary */}
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Salary</label>
-          <input
-            type="number"
-            name="salary"
-            value={currentEmployee.salary}
-            onChange={handleInputChange}
-            className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-
-        {/* Date Added */}
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium text-gray-300">Date Added</label>
-        <input
-  type="date"
-  name="dateAdded"
-  value={currentEmployee.dateAdded ? new Date(currentEmployee.dateAdded).toISOString().split("T")[0] : ""}
-  onChange={handleInputChange}
-  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-  required
-/>
-</div>
-
-
-        {/* Buttons */}
-        <div className="flex justify-end space-x-2">
-          <button
-            type="button"
-            onClick={() => setShowEditModal(false)}
-            className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
-            disabled={loading}
-          >
-            {loading ? (
-              <span className="flex items-center">
-                <RefreshCw size={16} className="mr-2 animate-spin" />
-                Updating...
-              </span>
-            ) : (
-              "Update Employee"
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
-
-
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && currentEmployee && (

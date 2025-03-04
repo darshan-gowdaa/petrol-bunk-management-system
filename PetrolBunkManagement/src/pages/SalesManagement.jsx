@@ -18,6 +18,7 @@ import axios from "axios";
 import HeaderWithActions from "../components/HeaderWithActions";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AddModalForm from "../PagesModals/AddModalForm";
 
 const SalesManagement = () => {
   // State management
@@ -44,6 +45,13 @@ const SalesManagement = () => {
     date: new Date().toISOString().split("T")[0],
   });
 
+  const salesFields = [
+    { name: "product", label: "Product", type: "select", options: ["Petrol", "Diesel"] },
+    { name: "quantity", label: "Quantity (L)", type: "number", step: "0.01", min: "0" },
+    { name: "price", label: "Price per Liter (₹)", type: "number", step: "0.01", min: "0" },
+    { name: "date", label: "Date", type: "date" }
+  ];
+  
   // Filter state
   const [filters, setFilters] = useState({
     product: "",
@@ -565,99 +573,16 @@ const SalesManagement = () => {
       </div>
 
       {/* Add Sale Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
-            <h2 className="mb-4 text-xl font-bold text-white">Add New Sale</h2>
-            <form onSubmit={addSale}>
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Product
-                </label>
-                <select
-                  name="product"
-                  value={newSale.product}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="Petrol">Petrol</option>
-                  <option value="Diesel">Diesel</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Quantity (L)
-                </label>
-                <input
-                  type="number"
-                  name="quantity"
-                  value={newSale.quantity}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                  step="0.01"
-                  min="0"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Price per Liter (₹)
-                </label>
-                <input
-                  type="number"
-                  name="price"
-                  value={newSale.price}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                  step="0.01"
-                  min="0"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  value={newSale.date}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <span className="flex items-center">
-                      <RefreshCw
-                        size={16}
-                        className="mr-2 animate-spin"
-                      />
-                      Saving...
-                    </span>
-                  ) : (
-                    "Add Sale"
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <AddModalForm
+  show={showAddModal}
+  title="Add New Sale"
+  fields={salesFields}
+  formData={newSale}
+  onChange={handleInputChange}
+  onSubmit={addSale}
+  onCancel={() => setShowAddModal(false)}
+  loading={loading}
+/>
 
       {/* Edit Sale Modal */}
       {showEditModal && currentSale && (
