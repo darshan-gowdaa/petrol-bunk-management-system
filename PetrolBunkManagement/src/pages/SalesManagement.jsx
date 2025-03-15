@@ -1,12 +1,13 @@
 // src/pages/SalesManagement.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { toWords } from 'number-to-words';
+import { toWords } from "number-to-words";
 import {
   Edit,
   Trash2,
   Download,
   Filter,
-  X,  Plus,
+  X,
+  Plus,
   RefreshCw,
   AlertTriangle,
   DollarSign,
@@ -16,8 +17,8 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import HeaderWithActions from "../components/HeaderWithActions";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import AddModalForm from "../PagesModals/AddModalForm";
 
 const SalesManagement = () => {
@@ -46,12 +47,29 @@ const SalesManagement = () => {
   });
 
   const salesFields = [
-    { name: "product", label: "Product", type: "select", options: ["Petrol", "Diesel"] },
-    { name: "quantity", label: "Quantity (L)", type: "number", step: "0.01", min: "0" },
-    { name: "price", label: "Price per Liter (₹)", type: "number", step: "0.01", min: "0" },
-    { name: "date", label: "Date", type: "date" }
+    {
+      name: "product",
+      label: "Product",
+      type: "select",
+      options: ["Petrol", "Diesel"],
+    },
+    {
+      name: "quantity",
+      label: "Quantity (L)",
+      type: "number",
+      step: "0.01",
+      min: "0",
+    },
+    {
+      name: "price",
+      label: "Price per Liter (₹)",
+      type: "number",
+      step: "0.01",
+      min: "0",
+    },
+    { name: "date", label: "Date", type: "date" },
   ];
-  
+
   // Filter state
   const [filters, setFilters] = useState({
     product: "",
@@ -65,8 +83,8 @@ const SalesManagement = () => {
 
   const getTotalSalesInWords = (totalSales) => {
     return toWords(totalSales);
-};
-  
+  };
+
   // Fetch sales from API
   const fetchSales = async () => {
     setLoading(true);
@@ -100,8 +118,10 @@ const SalesManagement = () => {
       // Build query params
       const params = new URLSearchParams();
       if (filters.product) params.append("product", filters.product);
-      if (filters.quantityMin) params.append("quantityMin", filters.quantityMin);
-      if (filters.quantityMax) params.append("quantityMax", filters.quantityMax);
+      if (filters.quantityMin)
+        params.append("quantityMin", filters.quantityMin);
+      if (filters.quantityMax)
+        params.append("quantityMax", filters.quantityMax);
       if (filters.priceMin) params.append("priceMin", filters.priceMin);
       if (filters.priceMax) params.append("priceMax", filters.priceMax);
       if (filters.dateFrom) params.append("dateFrom", filters.dateFrom);
@@ -217,12 +237,8 @@ const SalesManagement = () => {
   const deleteSale = async () => {
     setLoading(true);
     try {
-      await axios.delete(
-        `http://localhost:5000/api/sales/${currentSale._id}`
-      );
-      const updatedSales = sales.filter(
-        (sale) => sale._id !== currentSale._id
-      );
+      await axios.delete(`http://localhost:5000/api/sales/${currentSale._id}`);
+      const updatedSales = sales.filter((sale) => sale._id !== currentSale._id);
       setSales(updatedSales);
       setFilteredSales(updatedSales);
       setShowDeleteModal(false);
@@ -296,7 +312,10 @@ const SalesManagement = () => {
   const totalSalesInWords = getTotalSalesInWords(totalSales);
   const totalRevenue = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
   const totalRevenueInWords = toWords(totalRevenue);
-  const totalQuantity = filteredSales.reduce((sum, sale) => sum + sale.quantity, 0);
+  const totalQuantity = filteredSales.reduce(
+    (sum, sale) => sum + sale.quantity,
+    0
+  );
 
   return (
     <div className="container px-4 py-8 mx-auto">
@@ -454,8 +473,8 @@ const SalesManagement = () => {
                 Total Revenue
               </p>
               <p className="text-3xl font-bold text-white">
-  ₹{new Intl.NumberFormat("en-IN").format(totalRevenue)}
-</p>
+                ₹{new Intl.NumberFormat("en-IN").format(totalRevenue)}
+              </p>
             </div>
           </div>
         </div>
@@ -471,9 +490,12 @@ const SalesManagement = () => {
                 Total Quantity
               </p>
               <p className="text-3xl font-bold text-white">
-  {new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(totalQuantity)} L
-</p>
-
+                {new Intl.NumberFormat("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }).format(totalQuantity)}{" "}
+                L
+              </p>
             </div>
           </div>
         </div>
