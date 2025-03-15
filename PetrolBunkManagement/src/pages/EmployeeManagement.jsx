@@ -18,6 +18,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HeaderWithActions from "../components/HeaderWithActions";
+import Filters from "../PagesModals/Filters";
 import Table from "../PagesModals/Tables";
 import AddModalForm from "../PagesModals/AddModalForm";
 import EditModalForm from "../PagesModals/EditModalForm";
@@ -397,88 +398,23 @@ const EmployeeManagement = () => {
       </div>
 
       {/* Filter Panel */}
-      {showFilters && (
-        <div className="p-4 mb-6 text-white bg-gray-800 rounded shadow">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div>
-              <label className="block text-sm font-medium">Name</label>
-              <input
-                type="text"
-                name="name"
-                value={filters.name}
-                onChange={handleFilterChange}
-                className="block w-full mt-1 text-gray-900 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Position</label>
-              <input
-                type="text"
-                name="position"
-                value={filters.position}
-                onChange={handleFilterChange}
-                className="block w-full mt-1 text-gray-900 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-sm font-medium">Min Salary</label>
-                <input
-                  type="number"
-                  name="salaryMin"
-                  value={filters.salaryMin}
-                  onChange={handleFilterChange}
-                  className="block w-full mt-1 text-gray-900 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Max Salary</label>
-                <input
-                  type="number"
-                  name="salaryMax"
-                  value={filters.salaryMax}
-                  onChange={handleFilterChange}
-                  className="block w-full mt-1 text-gray-900 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium">From Date</label>
-              <input
-                type="date"
-                name="dateFrom"
-                value={filters.dateFrom}
-                onChange={handleFilterChange}
-                className="block w-full mt-1 text-gray-900 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">To Date</label>
-              <input
-                type="date"
-                name="dateTo"
-                value={filters.dateTo}
-                onChange={handleFilterChange}
-                className="block w-full mt-1 text-gray-900 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div className="flex justify-end mt-4 space-x-2">
-            <button
-              onClick={resetFilters}
-              className="px-4 py-2 text-gray-200 bg-gray-700 rounded hover:bg-gray-600"
-            >
-              Reset
-            </button>
-            <button
-              onClick={applyFilters}
-              className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-            >
-              Apply Filters
-            </button>
-          </div>
-        </div>
-      )}
+      <Filters
+      showFilters={showFilters}
+      setShowFilters={setShowFilters}
+      filters={filters}
+      handleFilterChange={handleFilterChange}
+      resetFilters={resetFilters}
+      applyFilters={applyFilters}
+      fields={[
+        { name: "name", label: "Name", type: "text", placeholder: "Filter by name" },
+        { name: "position", label: "Position", type: "text", placeholder: "Filter by position" },
+        { name: "salaryMin", label: "Min Salary", type: "number", placeholder: "Min Salary" },
+        { name: "salaryMax", label: "Max Salary", type: "number", placeholder: "Max Salary" },
+        { name: "dateFrom", label: "Joining From", type: "date" },
+        { name: "dateTo", label: "Joining To", type: "date" },
+      ]}
+    />
+
 
       {/* Employees Table */}
       <Table
