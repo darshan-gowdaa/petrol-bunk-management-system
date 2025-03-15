@@ -1,6 +1,5 @@
 // src/pages/SalesManagement.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { toWords } from "number-to-words";
 import {
   Edit,
   Trash2,
@@ -20,6 +19,8 @@ import HeaderWithActions from "../components/HeaderWithActions";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AddModalForm from "../PagesModals/AddModalForm";
+import EditModalForm from "../PagesModals/EditModalForm";
+import DeleteRow from "../PagesModals/DeleteRow";
 
 const SalesManagement = () => {
   // State management
@@ -80,10 +81,6 @@ const SalesManagement = () => {
     dateFrom: "",
     dateTo: "",
   });
-
-  const getTotalSalesInWords = (totalSales) => {
-    return toWords(totalSales);
-  };
 
   // Fetch sales from API
   const fetchSales = async () => {
@@ -309,9 +306,9 @@ const SalesManagement = () => {
 
   // Calculate sales metrics
   const totalSales = filteredSales.length;
-  const totalSalesInWords = getTotalSalesInWords(totalSales);
+  
   const totalRevenue = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
-  const totalRevenueInWords = toWords(totalRevenue);
+
   const totalQuantity = filteredSales.reduce(
     (sum, sale) => sum + sale.quantity,
     0
@@ -605,137 +602,27 @@ const SalesManagement = () => {
       />
 
       {/* Edit Sale Modal */}
-      {showEditModal && currentSale && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
-            <h2 className="mb-4 text-xl font-bold text-white">Edit Sale</h2>
-            <form onSubmit={editSale}>
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Product
-                </label>
-                <select
-                  name="product"
-                  value={currentSale.product}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="Petrol">Petrol</option>
-                  <option value="Diesel">Diesel</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Quantity (L)
-                </label>
-                <input
-                  type="number"
-                  name="quantity"
-                  value={currentSale.quantity}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                  step="0.01"
-                  min="0"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Price per Liter (₹)
-                </label>
-                <input
-                  type="number"
-                  name="price"
-                  value={currentSale.price}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                  step="0.01"
-                  min="0"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  value={currentSale.date ? currentSale.date.split("T")[0] : ""}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <span className="flex items-center">
-                      <RefreshCw size={16} className="mr-2 animate-spin" />
-                      Updating...
-                    </span>
-                  ) : (
-                    "Update Sale"
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <EditModalForm
+        showEditModal={showEditModal}
+        currentData={currentSale}
+        setShowEditModal={setShowEditModal}
+        handleInputChange={handleInputChange}
+        loading={loading}
+        editFunction={editSale}
+        entityType="Sales"
+      />
 
       {/* Delete Confirmation Modal */}
 
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md p-6 bg-gray-900 rounded-lg shadow-xl">
-            <div className="flex items-center justify-center mb-4 text-red-500">
-              <AlertTriangle size={48} />
-            </div>
-            <h3 className="mb-4 text-xl font-bold text-center text-white">
-              Confirm Delete
-            </h3>
-            <p className="mb-6 text-center text-gray-300">
-              Are you sure you want to delete this {currentSale?.product} sale?
-              This action cannot be undone.
-            </p>
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 font-medium text-white transition duration-200 bg-gray-700 rounded-lg hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={deleteSale}
-                className="px-4 py-2 font-medium text-white transition duration-200 bg-red-600 rounded-lg hover:bg-red-700"
-                disabled={loading}
-              >
-                {loading ? (
-                  <div className="flex items-center">
-                    <RefreshCw size={18} className="mr-2 animate-spin" />
-                    Deleting...
-                  </div>
-                ) : (
-                  "Delete"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteRow
+        show={showDeleteModal}
+        item={currentSale}
+        itemType="Sale"
+        itemName={currentSale?.product}
+        onCancel={() => setShowDeleteModal(false)}
+        onDelete={deleteSale}
+        loading={loading}
+      />
     </div>
   );
 };

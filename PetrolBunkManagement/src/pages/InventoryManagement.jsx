@@ -15,9 +15,11 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import HeaderWithActions from "../components/HeaderWithActions";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import AddModalForm from "../PagesModals/AddModalForm";
+import EditModalForm from "../PagesModals/EditModalForm";
+import DeleteRow from "../PagesModals/DeleteRow";
 
 const InventoryManagement = () => {
   // State management
@@ -43,9 +45,9 @@ const InventoryManagement = () => {
     { name: "name", label: "Item Name", type: "text" },
     { name: "currentStock", label: "Current Stock", type: "number", min: "0" },
     { name: "reorderLevel", label: "Reorder Level", type: "number", min: "0" },
-    { name: "date", label: "Date", type: "date" }
+    { name: "date", label: "Date", type: "date" },
   ];
-  
+
   // Filter state
   const [filters, setFilters] = useState({
     name: "",
@@ -526,131 +528,26 @@ const InventoryManagement = () => {
       />
 
       {/* Edit Inventory Item Modal */}
-      {showEditModal && currentItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
-            <h2 className="mb-4 text-xl font-bold text-white">
-              Edit Inventory Item
-            </h2>
-            <form onSubmit={editInventoryItem}>
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Item Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={currentItem.name}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Current Stock
-                </label>
-                <input
-                  type="number"
-                  name="currentStock"
-                  value={currentItem.currentStock}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Reorder Level
-                </label>
-                <input
-                  type="number"
-                  name="reorderLevel"
-                  value={currentItem.reorderLevel}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  value={currentItem.date ? currentItem.date.split("T")[0] : ""}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <span className="flex items-center">
-                      <RefreshCw size={16} className="mr-2 animate-spin" />
-                      Updating...
-                    </span>
-                  ) : (
-                    "Update Item"
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <EditModalForm
+        showEditModal={showEditModal}
+        currentData={currentItem}
+        setShowEditModal={setShowEditModal}
+        handleInputChange={handleInputChange}
+        loading={loading}
+        editFunction={editInventoryItem}
+        entityType="Inventory"
+      />
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && currentItem && (
-        <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="w-full max-w-md p-6 text-white bg-gray-800 rounded-lg shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Delete Inventory Item</h2>
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="text-gray-400 hover:text-gray-200"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <p className="mb-6">
-              Are you sure you want to delete {currentItem.name}? This action
-              cannot be undone.
-            </p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={deleteInventoryItem}
-                disabled={loading}
-                className="flex items-center px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
-              >
-                {loading && (
-                  <RefreshCw size={16} className="mr-2 animate-spin" />
-                )}
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteRow
+        show={showDeleteModal}
+        item={currentItem}
+        itemType="Inventory Item"
+        itemName={currentItem?.name}
+        onCancel={() => setShowDeleteModal(false)}
+        onDelete={deleteInventoryItem}
+        loading={loading}
+      />
     </div>
   );
 };

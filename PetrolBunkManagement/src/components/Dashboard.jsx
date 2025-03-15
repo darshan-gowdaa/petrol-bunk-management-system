@@ -32,7 +32,7 @@ const DashboardLayout = () => {
     {
       id: 2,
       title: "Sales Management",
-      description: "Monitor sales and customer orders",
+      description: "Monitor sales of Petrol and Diesel",
       icon: BarChart2,
       path: "/sales",
       color: "green",
@@ -40,7 +40,7 @@ const DashboardLayout = () => {
     {
       id: 3,
       title: "Employee Management",
-      description: "Manage staff and schedules",
+      description: "Manage staff salary distribution",
       icon: Users,
       path: "/employees",
       color: "purple",
@@ -64,7 +64,7 @@ const DashboardLayout = () => {
     {
       id: 6,
       title: "Logout",
-      description: "Exit the dashboard",
+      description: "Exit - Petrol Bunk Management System?",
       icon: LogOut,
       path: "/",
       color: "red",

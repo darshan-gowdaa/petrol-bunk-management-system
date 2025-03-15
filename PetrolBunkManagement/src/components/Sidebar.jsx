@@ -52,13 +52,17 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
         isCollapsed ? 'w-16' : 'w-64'
       }`}
     >
-      <div className={`p-4 border-b border-gray-700 flex items-center transition-all duration-500 ease-in-out ${
-        isCollapsed ? 'justify-center' : 'justify-between'
-      }`}>
-        {!isCollapsed && <h2 className="text-xl font-bold text-white transition-opacity duration-500 opacity-100">Petrol Bunk Management</h2>}
+      <div className="flex items-center justify-between p-4 border-b border-gray-700">
+        <div className={`overflow-hidden whitespace-nowrap transition-all duration-500 ease-in-out ${
+          isCollapsed ? 'w-0 opacity-0' : 'w-40 opacity-100'
+        }`}>
+          <h2 className="text-xl font-bold text-white">Petrol Bunk MS</h2>
+        </div>
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)} 
-          className="text-gray-300 transition-all duration-500 hover:text-white"
+          className={`text-gray-300 hover:text-white transition-transform duration-500 ${
+            isCollapsed ? 'transform rotate-180' : ''
+          }`}
         >
           {isCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
         </button>
@@ -72,15 +76,22 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             <Link
               key={index}
               to={item.path}
-              className={`flex items-center px-4 py-3 text-gray-300 transition-all duration-500 ease-in-out hover:bg-gray-700 hover:text-white ${
+              className={`flex items-center px-4 py-3 text-gray-300 transition-all duration-500 ease-in-out hover:bg-gray-700 hover:text-white group ${
                 isActive ? 'bg-gray-700 text-white border-l-4 border-blue-500' : ''
-              } ${isCollapsed ? 'justify-center' : ''}`}
+              }`}
               title={isCollapsed ? item.label : ''}
             >
-              <item.icon className={`transition-transform duration-500 ${getColorClass(item.color)} ${isCollapsed ? 'scale-110' : 'mr-3'}`} size={20} />
-              <span className={`transition-opacity duration-500 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}`}>
+              <item.icon 
+                className={`transition-all duration-500 ${getColorClass(item.color)} ${
+                  isCollapsed ? 'mx-auto' : 'mr-3'
+                }`} 
+                size={20} 
+              />
+              <div className={`overflow-hidden whitespace-nowrap transition-all duration-500 ease-in-out ${
+                isCollapsed ? 'w-0 opacity-0' : 'w-32 opacity-100'
+              }`}>
                 {item.label}
-              </span>
+              </div>
             </Link>
           );
         })}

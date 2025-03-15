@@ -1,4 +1,3 @@
-
 // src/pages/EmployeeManagement.jsx
 import React, { useState, useEffect } from "react";
 import {
@@ -12,13 +11,16 @@ import {
   Users,
   DollarSign,
   Award,
-  Calendar
+  Calendar,
+  AlertTriangle,
 } from "lucide-react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HeaderWithActions from "../components/HeaderWithActions";
 import AddModalForm from "../PagesModals/AddModalForm";
+import EditModalForm from "../PagesModals/EditModalForm";
+import DeleteRow from "../PagesModals/DeleteRow";
 
 const EmployeeManagement = () => {
   // State management
@@ -35,10 +37,16 @@ const EmployeeManagement = () => {
   const employeeFields = [
     { name: "name", label: "Name", type: "text" },
     { name: "position", label: "Position", type: "text" },
-    { name: "salary", label: "Salary (₹)", type: "number", step: "0.01", min: "0" },
+    {
+      name: "salary",
+      label: "Salary (₹)",
+      type: "number",
+      step: "0.01",
+      min: "0",
+    },
     { name: "dateAdded", label: "Date Added", type: "date" },
   ];
-  
+
   // New employee form state
   const [newEmployee, setNewEmployee] = useState({
     name: "",
@@ -62,7 +70,7 @@ const EmployeeManagement = () => {
     totalEmployees: 0,
     averageSalary: 0,
     topPosition: "",
-    newestEmployee: ""
+    newestEmployee: "",
   });
 
   // Fetch employees from API
@@ -89,14 +97,17 @@ const EmployeeManagement = () => {
 
     // Total employees
     const total = employeeData.length;
-    
+
     // Average salary
-    const totalSalary = employeeData.reduce((sum, emp) => sum + Number(emp.salary), 0);
+    const totalSalary = employeeData.reduce(
+      (sum, emp) => sum + Number(emp.salary),
+      0
+    );
     const average = totalSalary / total;
-    
+
     // Most common position
     const positions = {};
-    employeeData.forEach(emp => {
+    employeeData.forEach((emp) => {
       positions[emp.position] = (positions[emp.position] || 0) + 1;
     });
     let topPosition = "";
@@ -107,18 +118,18 @@ const EmployeeManagement = () => {
         topPosition = position;
       }
     });
-    
+
     // Newest employee
-    const sortedByDate = [...employeeData].sort((a, b) => 
-      new Date(b.dateAdded) - new Date(a.dateAdded)
+    const sortedByDate = [...employeeData].sort(
+      (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded)
     );
     const newest = sortedByDate.length ? sortedByDate[0].name : "";
-    
+
     setStats({
       totalEmployees: total,
       averageSalary: average.toFixed(0),
       topPosition,
-      newestEmployee: newest
+      newestEmployee: newest,
     });
   };
 
@@ -288,8 +299,6 @@ const EmployeeManagement = () => {
     link.click();
     document.body.removeChild(link);
   };
-
-
 
   return (
     <div className="container px-4 py-8 mx-auto">
@@ -566,146 +575,26 @@ const EmployeeManagement = () => {
       />
 
       {/* Edit Employee Modal */}
-      {showEditModal && currentEmployee && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
-            <h2 className="mb-4 text-xl font-bold text-white">Edit Employee</h2>
-            <form onSubmit={editEmployee}>
-              {/* Employee Name */}
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Employee Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={currentEmployee.name}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              {/* Position */}
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Position
-                </label>
-                <input
-                  type="text"
-                  name="position"
-                  value={currentEmployee.position}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              {/* Salary */}
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Salary
-                </label>
-                <input
-                  type="number"
-                  name="salary"
-                  value={currentEmployee.salary}
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              {/* Date Added */}
-              <div className="mb-4">
-                <label className="block mb-1 text-sm font-medium text-gray-300">
-                  Date Added
-                </label>
-                <input
-                  type="date"
-                  name="dateAdded"
-                  value={
-                    currentEmployee.dateAdded
-                      ? new Date(currentEmployee.dateAdded)
-                          .toISOString()
-                          .split("T")[0]
-                      : ""
-                  }
-                  onChange={handleInputChange}
-                  className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              {/* Buttons */}
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <span className="flex items-center">
-                      <RefreshCw size={16} className="mr-2 animate-spin" />
-                      Updating...
-                    </span>
-                  ) : (
-                    "Update Employee"
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <EditModalForm
+        showEditModal={showEditModal}
+        currentData={currentEmployee}
+        setShowEditModal={setShowEditModal}
+        handleInputChange={handleInputChange}
+        loading={loading}
+        editFunction={editEmployee}
+        entityType="Employees"
+      />
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && currentEmployee && (
-        <div className="fixed inset-0 z-10 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-white">
-                Delete Employee
-              </h2>
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="text-gray-400 hover:text-gray-200"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <p className="mb-6 text-gray-300">
-              Are you sure you want to delete {currentEmployee.name}? This
-              action cannot be undone.
-            </p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-gray-300 bg-gray-700 rounded hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={deleteEmployee}
-                disabled={loading}
-                className="flex items-center px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
-              >
-                {loading && (
-                  <RefreshCw size={16} className="mr-2 animate-spin" />
-                )}
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteRow
+        show={showDeleteModal}
+        item={currentEmployee}
+        itemType="Employee"
+        itemName={currentEmployee?.name}
+        onCancel={() => setShowDeleteModal(false)}
+        onDelete={deleteEmployee}
+        loading={loading}
+      />
     </div>
   );
 };
