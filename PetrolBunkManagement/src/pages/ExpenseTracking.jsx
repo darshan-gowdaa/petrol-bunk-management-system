@@ -417,8 +417,9 @@ const ExpenseTracking = () => {
                 Average Expense
               </p>
               <p className="text-3xl font-bold text-white">
-                ₹{averageAmount.toFixed(2)}
-              </p>
+  ₹{new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(averageAmount)}
+</p>
+
             </div>
           </div>
         </div>
@@ -433,7 +434,10 @@ const ExpenseTracking = () => {
               <p className="mb-2 text-sm font-medium text-gray-400">
                 Total Entries
               </p>
-              <p className="text-3xl font-bold text-white">{totalExpenses}</p>
+              <p className="text-3xl font-bold text-white">
+  {new Intl.NumberFormat("en-IN").format(totalExpenses)}
+</p>
+
             </div>
           </div>
         </div>

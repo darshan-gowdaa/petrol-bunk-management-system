@@ -1,12 +1,12 @@
 // src/pages/SalesManagement.jsx
 import React, { useState, useEffect, useRef } from "react";
+import { toWords } from 'number-to-words';
 import {
   Edit,
   Trash2,
   Download,
   Filter,
-  X,
-  Plus,
+  X,  Plus,
   RefreshCw,
   AlertTriangle,
   DollarSign,
@@ -63,6 +63,10 @@ const SalesManagement = () => {
     dateTo: "",
   });
 
+  const getTotalSalesInWords = (totalSales) => {
+    return toWords(totalSales);
+};
+  
   // Fetch sales from API
   const fetchSales = async () => {
     setLoading(true);
@@ -289,7 +293,9 @@ const SalesManagement = () => {
 
   // Calculate sales metrics
   const totalSales = filteredSales.length;
+  const totalSalesInWords = getTotalSalesInWords(totalSales);
   const totalRevenue = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+  const totalRevenueInWords = toWords(totalRevenue);
   const totalQuantity = filteredSales.reduce((sum, sale) => sum + sale.quantity, 0);
 
   return (
@@ -322,9 +328,7 @@ const SalesManagement = () => {
         <div className="p-4 mb-6 text-white bg-gray-800 rounded shadow">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
-              <label className="block text-sm font-medium">
-                Product
-              </label>
+              <label className="block text-sm font-medium">Product</label>
               <select
                 name="product"
                 value={filters.product}
@@ -364,9 +368,7 @@ const SalesManagement = () => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-sm font-medium">
-                  Min Price
-                </label>
+                <label className="block text-sm font-medium">Min Price</label>
                 <input
                   type="number"
                   name="priceMin"
@@ -376,9 +378,7 @@ const SalesManagement = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium">
-                  Max Price
-                </label>
+                <label className="block text-sm font-medium">Max Price</label>
                 <input
                   type="number"
                   name="priceMax"
@@ -389,9 +389,7 @@ const SalesManagement = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium">
-                From Date
-              </label>
+              <label className="block text-sm font-medium">From Date</label>
               <input
                 type="date"
                 name="dateFrom"
@@ -401,9 +399,7 @@ const SalesManagement = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">
-                To Date
-              </label>
+              <label className="block text-sm font-medium">To Date</label>
               <input
                 type="date"
                 name="dateTo"
@@ -439,7 +435,9 @@ const SalesManagement = () => {
               <BarChart2 size={24} />
             </div>
             <div>
-              <p className="mb-2 text-sm font-medium text-gray-400">Total Sales</p>
+              <p className="mb-2 text-sm font-medium text-gray-400">
+                Total Sales
+              </p>
               <p className="text-3xl font-bold text-white">{totalSales}</p>
             </div>
           </div>
@@ -452,8 +450,12 @@ const SalesManagement = () => {
               <DollarSign size={24} />
             </div>
             <div>
-              <p className="mb-2 text-sm font-medium text-gray-400">Total Revenue</p>
-              <p className="text-3xl font-bold text-white">₹{totalRevenue.toFixed(2)}</p>
+              <p className="mb-2 text-sm font-medium text-gray-400">
+                Total Revenue
+              </p>
+              <p className="text-3xl font-bold text-white">
+  ₹{new Intl.NumberFormat("en-IN").format(totalRevenue)}
+</p>
             </div>
           </div>
         </div>
@@ -465,8 +467,13 @@ const SalesManagement = () => {
               <Package size={24} />
             </div>
             <div>
-              <p className="mb-2 text-sm font-medium text-gray-400">Total Quantity</p>
-              <p className="text-3xl font-bold text-white">{totalQuantity.toFixed(2)} L</p>
+              <p className="mb-2 text-sm font-medium text-gray-400">
+                Total Quantity
+              </p>
+              <p className="text-3xl font-bold text-white">
+  {new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(totalQuantity)} L
+</p>
+
             </div>
           </div>
         </div>
@@ -500,10 +507,7 @@ const SalesManagement = () => {
           <tbody className="bg-gray-800 divide-y divide-gray-700">
             {loading ? (
               <tr>
-                <td
-                  colSpan="6"
-                  className="px-6 py-4 text-center text-gray-400"
-                >
+                <td colSpan="6" className="px-6 py-4 text-center text-gray-400">
                   <div className="flex items-center justify-center">
                     <RefreshCw
                       size={20}
@@ -515,19 +519,13 @@ const SalesManagement = () => {
               </tr>
             ) : filteredSales.length === 0 ? (
               <tr>
-                <td
-                  colSpan="6"
-                  className="px-6 py-4 text-center text-gray-400"
-                >
+                <td colSpan="6" className="px-6 py-4 text-center text-gray-400">
                   No sales found. Add a new sale to get started.
                 </td>
               </tr>
             ) : (
               filteredSales.map((sale) => (
-                <tr
-                  key={sale._id}
-                  className="hover:bg-gray-700"
-                >
+                <tr key={sale._id} className="hover:bg-gray-700">
                   <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
                     {sale.product}
                   </td>
@@ -574,15 +572,15 @@ const SalesManagement = () => {
 
       {/* Add Sale Modal */}
       <AddModalForm
-  show={showAddModal}
-  title="Add New Sale"
-  fields={salesFields}
-  formData={newSale}
-  onChange={handleInputChange}
-  onSubmit={addSale}
-  onCancel={() => setShowAddModal(false)}
-  loading={loading}
-/>
+        show={showAddModal}
+        title="Add New Sale"
+        fields={salesFields}
+        formData={newSale}
+        onChange={handleInputChange}
+        onSubmit={addSale}
+        onCancel={() => setShowAddModal(false)}
+        loading={loading}
+      />
 
       {/* Edit Sale Modal */}
       {showEditModal && currentSale && (
@@ -663,10 +661,7 @@ const SalesManagement = () => {
                 >
                   {loading ? (
                     <span className="flex items-center">
-                      <RefreshCw
-                        size={16}
-                        className="mr-2 animate-spin"
-                      />
+                      <RefreshCw size={16} className="mr-2 animate-spin" />
                       Updating...
                     </span>
                   ) : (
@@ -691,7 +686,8 @@ const SalesManagement = () => {
               Confirm Delete
             </h3>
             <p className="mb-6 text-center text-gray-300">
-              Are you sure you want to delete this {currentSale?.product} sale? This action cannot be undone.
+              Are you sure you want to delete this {currentSale?.product} sale?
+              This action cannot be undone.
             </p>
             <div className="flex justify-center space-x-4">
               <button
