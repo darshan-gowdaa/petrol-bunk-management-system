@@ -18,9 +18,11 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HeaderWithActions from "../components/HeaderWithActions";
+import Table from "../PagesModals/Tables";
 import AddModalForm from "../PagesModals/AddModalForm";
 import EditModalForm from "../PagesModals/EditModalForm";
 import DeleteRow from "../PagesModals/DeleteRow";
+
 
 const EmployeeManagement = () => {
   // State management
@@ -479,89 +481,25 @@ const EmployeeManagement = () => {
       )}
 
       {/* Employees Table */}
-      <div className="overflow-x-auto bg-gray-800 rounded shadow">
-        <table className="min-w-full divide-y divide-gray-700">
-          <thead className="bg-gray-900">
-            <tr>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Name
-              </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Position
-              </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Salary
-              </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Date Added
-              </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-gray-800 divide-y divide-gray-700">
-            {loading ? (
-              <tr>
-                <td colSpan="5" className="px-6 py-4 text-center text-gray-400">
-                  <div className="flex items-center justify-center">
-                    <RefreshCw
-                      size={20}
-                      className="mr-2 text-gray-300 animate-spin"
-                    />
-                    Loading...
-                  </div>
-                </td>
-              </tr>
-            ) : filteredEmployees.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="px-6 py-4 text-center text-gray-400">
-                  No employees found. Add a new employee to get started.
-                </td>
-              </tr>
-            ) : (
-              filteredEmployees.map((employee) => (
-                <tr key={employee._id} className="hover:bg-gray-700">
-                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                    {employee.name}
-                  </td>
-                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                    {employee.position}
-                  </td>
-                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                    ₹{parseInt(employee.salary).toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                    {new Date(employee.dateAdded).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => {
-                          setCurrentEmployee(employee);
-                          setShowEditModal(true);
-                        }}
-                        className="p-2 text-blue-300 bg-blue-900 rounded-full hover:bg-blue-800"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setCurrentEmployee(employee);
-                          setShowDeleteModal(true);
-                        }}
-                        className="p-2 text-red-300 bg-red-900 rounded-full hover:bg-red-800"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table
+        columns={[
+          { key: "name", label: "Name" },
+          { key: "position", label: "Position" },
+          { key: "salary", label: "Salary", render: (value) => `₹${parseInt(value).toLocaleString()}` },
+          { key: "dateAdded", label: "Date Added", render: (value) => new Date(value).toLocaleDateString() },
+        ]}
+        data={filteredEmployees}
+        loading={loading}
+        onEdit={(employee) => {
+          setCurrentEmployee(employee);
+          setShowEditModal(true);
+        }}
+        onDelete={(employee) => {
+          setCurrentEmployee(employee);
+          setShowDeleteModal(true);
+        }}
+      />
+
 
       <AddModalForm
         show={showAddModal}

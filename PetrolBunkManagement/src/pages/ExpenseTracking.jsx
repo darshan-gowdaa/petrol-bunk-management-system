@@ -15,6 +15,7 @@ import axios from "axios";
 import HeaderWithActions from "../components/HeaderWithActions";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Table from "../PagesModals/Tables";
 import AddModalForm from "../PagesModals/AddModalForm";
 import EditModalForm from "../PagesModals/EditModalForm";
 import DeleteRow from "../PagesModals/DeleteRow";
@@ -451,84 +452,25 @@ const ExpenseTracking = () => {
       </div>
 
       {/* Expenses Table */}
-      <div className="overflow-x-auto bg-gray-800 rounded shadow">
-        <table className="min-w-full divide-y divide-gray-700">
-          <thead className="bg-gray-900">
-            <tr>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Category
-              </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Amount
-              </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Date
-              </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-gray-800 divide-y divide-gray-700">
-            {loading ? (
-              <tr>
-                <td colSpan="4" className="px-6 py-4 text-center text-gray-400">
-                  <div className="flex items-center justify-center">
-                    <RefreshCw
-                      size={20}
-                      className="mr-2 text-gray-300 animate-spin"
-                    />
-                    Loading...
-                  </div>
-                </td>
-              </tr>
-            ) : filteredExpenses.length === 0 ? (
-              <tr>
-                <td colSpan="4" className="px-6 py-4 text-center text-gray-400">
-                  No expenses found. Add a new expense to get started.
-                </td>
-              </tr>
-            ) : (
-              filteredExpenses.map((expense) => (
-                <tr key={expense._id} className="hover:bg-gray-700">
-                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                    {expense.category}
-                  </td>
-                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                    ₹{Number(expense.amount).toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                    {new Date(expense.date).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => {
-                          setCurrentExpense(expense);
-                          setShowEditModal(true);
-                          setShowNewCategoryInput(false);
-                        }}
-                        className="p-2 text-blue-300 bg-blue-900 rounded-full hover:bg-blue-800"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setCurrentExpense(expense);
-                          setShowDeleteModal(true);
-                        }}
-                        className="p-2 text-red-300 bg-red-900 rounded-full hover:bg-red-800"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table
+      columns={[
+        { key: "category", label: "Category" },
+        { key: "amount", label: "Amount", render: (value) => `₹${Number(value).toLocaleString()}` },
+        { key: "date", label: "Date", render: (value) => new Date(value).toLocaleDateString() },
+      ]}
+      data={filteredExpenses}
+      loading={loading}
+      onEdit={(expense) => {
+        setCurrentExpense(expense);
+        setShowEditModal(true);
+        setShowNewCategoryInput(false);
+      }}
+      onDelete={(expense) => {
+        setCurrentExpense(expense);
+        setShowDeleteModal(true);
+      }}
+    />
+
 
       {/* Add Expense Modal */}
       {showAddModal && (

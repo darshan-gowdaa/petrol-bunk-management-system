@@ -18,6 +18,7 @@ import axios from "axios";
 import HeaderWithActions from "../components/HeaderWithActions";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Table from "../PagesModals/Tables";
 import AddModalForm from "../PagesModals/AddModalForm";
 import EditModalForm from "../PagesModals/EditModalForm";
 import DeleteRow from "../PagesModals/DeleteRow";
@@ -499,95 +500,26 @@ const SalesManagement = () => {
       </div>
 
       {/* Sales Table */}
-      <div className="overflow-x-auto bg-gray-800 rounded shadow">
-        <table className="min-w-full divide-y divide-gray-700">
-          <thead className="bg-gray-900">
-            <tr>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Product
-              </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Quantity
-              </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Price
-              </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Total
-              </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Date
-              </th>
-              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-300 uppercase">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-gray-800 divide-y divide-gray-700">
-            {loading ? (
-              <tr>
-                <td colSpan="6" className="px-6 py-4 text-center text-gray-400">
-                  <div className="flex items-center justify-center">
-                    <RefreshCw
-                      size={20}
-                      className="mr-2 text-gray-300 animate-spin"
-                    />
-                    Loading...
-                  </div>
-                </td>
-              </tr>
-            ) : filteredSales.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="px-6 py-4 text-center text-gray-400">
-                  No sales found. Add a new sale to get started.
-                </td>
-              </tr>
-            ) : (
-              filteredSales.map((sale) => (
-                <tr key={sale._id} className="hover:bg-gray-700">
-                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                    {sale.product}
-                  </td>
-                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                    {sale.quantity} L
-                  </td>
-                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                    ₹{sale.price}
-                  </td>
-                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                    ₹{sale.total}
-                  </td>
-                  <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                    {new Date(sale.date).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => {
-                          setCurrentSale(sale);
-                          setShowEditModal(true);
-                        }}
-                        className="p-2 text-blue-300 bg-blue-900 rounded-full hover:bg-blue-800"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setCurrentSale(sale);
-                          setShowDeleteModal(true);
-                        }}
-                        className="p-2 text-red-300 bg-red-900 rounded-full hover:bg-red-800"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table
+        columns={[
+          { key: "product", label: "Product" },
+          { key: "quantity", label: "Quantity", render: (value) => `${value} L` },
+          { key: "price", label: "Price", render: (value) => `₹${Number(value).toLocaleString()}` },
+          { key: "total", label: "Total", render: (value) => `₹${Number(value).toLocaleString()}` },
+          { key: "date", label: "Date", render: (value) => new Date(value).toLocaleDateString() },
+        ]}
+        data={filteredSales}
+        loading={loading}
+        onEdit={(sale) => {
+          setCurrentSale(sale);
+          setShowEditModal(true);
+        }}
+        onDelete={(sale) => {
+          setCurrentSale(sale);
+          setShowDeleteModal(true);
+        }}
+      />
+
 
       {/* Add Sale Modal */}
       <AddModalForm

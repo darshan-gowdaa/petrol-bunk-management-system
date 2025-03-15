@@ -1,30 +1,26 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Edit, Trash2 } from 'lucide-react';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Edit, Trash2 } from "lucide-react";
 
-const DataTable = ({ 
-  buttonVariants, 
+const DataTable = ({
+  buttonVariants,
 
-  data, 
-  columns, 
-  onEdit, 
-  onDelete, 
+  data,
+  columns,
+  onEdit,
+  onDelete,
   editingId = null,
   tableRowVariants,
-  renderEditForm = null
+  renderEditForm = null,
 }) => {
   return (
-<div className="overflow-x-auto bg-white rounded-lg shadow">
-
-
+    <div className="overflow-x-auto bg-white rounded-lg shadow">
       <table className="min-w-full divide-y divide-gray-200">
-<thead className="bg-gray-50">
-
-
+        <thead className="bg-gray-50">
           <tr>
             {columns.map((column) => (
-              <th 
-                key={column.key} 
+              <th
+                key={column.key}
                 className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
               >
                 {column.header}
@@ -35,12 +31,10 @@ const DataTable = ({
             </th>
           </tr>
         </thead>
-<tbody className="bg-white divide-y divide-gray-200">
-
-
+        <tbody className="bg-white divide-y divide-gray-200">
           <AnimatePresence>
             {data.map((item, index) => (
-              <motion.tr 
+              <motion.tr
                 key={item._id || index}
                 custom={index}
                 variants={tableRowVariants}
@@ -54,9 +48,10 @@ const DataTable = ({
                 ) : (
                   <>
                     {columns.map((column) => (
-<td key={column.key} className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-
-
+                      <td
+                        key={column.key}
+                        className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap"
+                      >
                         {column.render ? column.render(item) : item[column.key]}
                       </td>
                     ))}
