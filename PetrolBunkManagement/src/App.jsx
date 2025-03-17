@@ -11,18 +11,17 @@ import Login from './components/Login';
 import './App.css';
 
 const App = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
   return (
     <Router>
-      <AppContent isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+      <AppContent />
     </Router>
   );
 };
 
-const AppContent = ({ isCollapsed, setIsCollapsed }) => {
+const AppContent = () => {
   const location = useLocation();
   const isLoginPage = location.pathname === '/';
+  const [sidebarWidth, setSidebarWidth] = useState('w-16');
 
   return (
     <>
@@ -32,8 +31,8 @@ const AppContent = ({ isCollapsed, setIsCollapsed }) => {
         </div>
       ) : (
         <div className="flex h-screen bg-gray-900">
-          <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-          <DashboardLayout isCollapsed={isCollapsed}>
+          <Sidebar updateSidebarState={setSidebarWidth} />
+          <DashboardLayout sidebarWidth={sidebarWidth}>
             <Routes>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/inventory" element={<InventoryManagement />} />
@@ -49,12 +48,12 @@ const AppContent = ({ isCollapsed, setIsCollapsed }) => {
   );
 };
 
-// Dashboard layout that adjusts based on sidebar state
-const DashboardLayout = ({ isCollapsed, children }) => {
+// Dashboard layout that adjusts dynamically based on sidebar state
+const DashboardLayout = ({ sidebarWidth, children }) => {
   return (
     <main
       className={`flex-1 p-8 overflow-auto transition-all duration-300 ${
-        isCollapsed ? 'ml-16' : 'ml-64'
+        sidebarWidth === 'w-64' ? 'ml-64' : 'ml-16'
       }`}
     >
       {children}

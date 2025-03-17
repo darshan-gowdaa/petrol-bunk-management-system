@@ -307,7 +307,7 @@ const SalesManagement = () => {
 
   // Calculate sales metrics
   const totalSales = filteredSales.length;
-  
+
   const totalRevenue = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
 
   const totalQuantity = filteredSales.reduce(
@@ -342,133 +342,164 @@ const SalesManagement = () => {
 
       {/* Filter Panel */}
       {showFilters && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
-    <div className="w-full max-w-4xl overflow-hidden bg-gray-900 rounded-lg shadow-xl">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
-        <h3 className="text-xl font-medium text-white">Filter Products</h3>
-        <button 
-          onClick={() => setShowFilters(false)}
-          className="text-gray-400 hover:text-white focus:outline-none"
-        >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        </button>
-      </div>
-      
-      <div className="p-6">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-300">Product</label>
-            <select
-              name="product"
-              value={filters.product}
-              onChange={handleFilterChange}
-              className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">All Products</option>
-              <option value="Petrol">Petrol</option>
-              <option value="Diesel">Diesel</option>
-            </select>
-          </div>
-          
-          <div className="space-y-4">
-            <h3 className="mb-2 text-sm font-medium text-gray-300">Quantity</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs text-gray-400">Minimum</label>
-                <input
-                  type="number"
-                  name="quantityMin"
-                  value={filters.quantityMin}
-                  onChange={handleFilterChange}
-                  className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Min"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-400">Maximum</label>
-                <input
-                  type="number"
-                  name="quantityMax"
-                  value={filters.quantityMax}
-                  onChange={handleFilterChange}
-                  className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Max"
-                />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+          <div className="w-full max-w-4xl overflow-hidden bg-gray-900 rounded-lg shadow-xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
+              <h3 className="text-xl font-medium text-white">
+                Filter Products
+              </h3>
+              <button
+                onClick={() => setShowFilters(false)}
+                className="text-gray-400 hover:text-white focus:outline-none"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                <div>
+                  <label className="block mb-2 text-sm font-medium text-gray-300">
+                    Product
+                  </label>
+                  <select
+                    name="product"
+                    value={filters.product}
+                    onChange={handleFilterChange}
+                    className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">All Products</option>
+                    <option value="Petrol">Petrol</option>
+                    <option value="Diesel">Diesel</option>
+                  </select>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="mb-2 text-sm font-medium text-gray-300">
+                    Quantity
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs text-gray-400">
+                        Minimum
+                      </label>
+                      <input
+                        type="number"
+                        name="quantityMin"
+                        value={filters.quantityMin}
+                        onChange={handleFilterChange}
+                        className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Min"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-400">
+                        Maximum
+                      </label>
+                      <input
+                        type="number"
+                        name="quantityMax"
+                        value={filters.quantityMax}
+                        onChange={handleFilterChange}
+                        className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Max"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="mb-2 text-sm font-medium text-gray-300">
+                    Price
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs text-gray-400">
+                        Minimum
+                      </label>
+                      <input
+                        type="number"
+                        name="priceMin"
+                        value={filters.priceMin}
+                        onChange={handleFilterChange}
+                        className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Min"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-400">
+                        Maximum
+                      </label>
+                      <input
+                        type="number"
+                        name="priceMax"
+                        value={filters.priceMax}
+                        onChange={handleFilterChange}
+                        className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Max"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block mb-2 text-sm font-medium text-gray-300">
+                    From Date
+                  </label>
+                  <input
+                    type="date"
+                    name="dateFrom"
+                    value={filters.dateFrom}
+                    onChange={handleFilterChange}
+                    className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-2 text-sm font-medium text-gray-300">
+                    To Date
+                  </label>
+                  <input
+                    type="date"
+                    name="dateTo"
+                    value={filters.dateTo}
+                    onChange={handleFilterChange}
+                    className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          
-          <div className="space-y-4">
-            <h3 className="mb-2 text-sm font-medium text-gray-300">Price</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs text-gray-400">Minimum</label>
-                <input
-                  type="number"
-                  name="priceMin"
-                  value={filters.priceMin}
-                  onChange={handleFilterChange}
-                  className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Min"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-400">Maximum</label>
-                <input
-                  type="number"
-                  name="priceMax"
-                  value={filters.priceMax}
-                  onChange={handleFilterChange}
-                  className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Max"
-                />
-              </div>
+
+            <div className="flex justify-end px-6 py-4 bg-gray-800 border-t border-gray-700">
+              <button
+                onClick={resetFilters}
+                className="px-4 py-2 mr-2 text-white transition-colors bg-gray-600 border border-gray-500 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => {
+                  applyFilters();
+                  setShowFilters(false);
+                }}
+                className="px-4 py-2 text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Apply Filters
+              </button>
             </div>
-          </div>
-          
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-300">From Date</label>
-            <input
-              type="date"
-              name="dateFrom"
-              value={filters.dateFrom}
-              onChange={handleFilterChange}
-              className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-300">To Date</label>
-            <input
-              type="date"
-              name="dateTo"
-              value={filters.dateTo}
-              onChange={handleFilterChange}
-              className="block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
           </div>
         </div>
-      </div>
-      
-      <div className="flex justify-end px-6 py-4 bg-gray-800 border-t border-gray-700">
-        <button
-          onClick={resetFilters}
-          className="px-4 py-2 mr-2 text-white transition-colors bg-gray-600 border border-gray-500 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-        >
-          Reset
-        </button>
-        <button
-          onClick={() => { applyFilters(); setShowFilters(false); }}
-          className="px-4 py-2 text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Apply Filters
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
       {/* Interactive Cards */}
       <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
@@ -530,10 +561,26 @@ const SalesManagement = () => {
       <Table
         columns={[
           { key: "product", label: "Product" },
-          { key: "quantity", label: "Quantity", render: (value) => `${value} L` },
-          { key: "price", label: "Price", render: (value) => `₹${Number(value).toLocaleString()}` },
-          { key: "total", label: "Total", render: (value) => `₹${Number(value).toLocaleString()}` },
-          { key: "date", label: "Date", render: (value) => new Date(value).toLocaleDateString() },
+          {
+            key: "quantity",
+            label: "Quantity",
+            render: (value) => `${value} L`,
+          },
+          {
+            key: "price",
+            label: "Price",
+            render: (value) => `₹${Number(value).toLocaleString()}`,
+          },
+          {
+            key: "total",
+            label: "Total",
+            render: (value) => `₹${Number(value).toLocaleString()}`,
+          },
+          {
+            key: "date",
+            label: "Date",
+            render: (value) => new Date(value).toLocaleDateString(),
+          },
         ]}
         data={filteredSales}
         loading={loading}
@@ -546,7 +593,6 @@ const SalesManagement = () => {
           setShowDeleteModal(true);
         }}
       />
-
 
       {/* Add Sale Modal */}
       <AddModalForm

@@ -1,26 +1,16 @@
 // src/pages/InventoryManagement.jsx
-import React, { useState, useEffect } from "react";
-import {
-  Edit,
-  Trash2,
-  Download,
-  Filter,
-  X,
-  Plus,
-  RefreshCw,
-  AlertTriangle,
-  Package,
-  AlertCircle,
-  CheckCircle,
-} from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import {AlertTriangle, Package, AlertCircle, CheckCircle } from "lucide-react";
 import axios from "axios";
-import HeaderWithActions from "../components/HeaderWithActions";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+import HeaderWithActions from "../components/HeaderWithActions";
 import Table from "../PagesModals/Tables";
 import AddModalForm from "../PagesModals/AddModalForm";
 import EditModalForm from "../PagesModals/EditModalForm";
 import DeleteRow from "../PagesModals/DeleteRow";
+
 
 const InventoryManagement = () => {
   // State management
