@@ -5,7 +5,7 @@ const inventorySchema = new mongoose.Schema({
   name: { type: String, required: true },
   currentStock: { type: Number, required: true },
   reorderLevel: { type: Number, required: true },
-  date: { type: Date, required: true } // Added date field
+  date: { type: Date, required: true }
 });
 
 
