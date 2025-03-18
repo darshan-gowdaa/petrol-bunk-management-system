@@ -10,7 +10,6 @@ import Reports from './pages/Reports';
 import Login from './components/Login';
 import './App.css';
 
-// Main App component using Router
 const App = () => {
   return (
     <Router>
@@ -19,12 +18,11 @@ const App = () => {
   );
 };
 
-// AppContent component with routing logic
 const AppContent = () => {
   const location = useLocation();
   const isLoginPage = location.pathname === '/';
   
-  // Set document title based on current route
+  // Dynamic Title
   React.useEffect(() => {
     const pageTitles = {
       '/dashboard': 'Dashboard',
@@ -35,11 +33,9 @@ const AppContent = () => {
       '/reports': 'Reports',
       '/': 'Login',
     };
-
     document.title = pageTitles[location.pathname] || 'PetrolBunk Management System';
   }, [location.pathname]);
 
-  // Conditional rendering based on login page or dashboard pages
   return (
     <div className="min-h-screen overflow-hidden bg-gray-900">
       {isLoginPage ? (
