@@ -1,23 +1,13 @@
 // src/pages/SalesManagement.jsx
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Edit,
-  Trash2,
-  Download,
-  Filter,
-  X,
-  Plus,
-  RefreshCw,
-  AlertTriangle,
-  DollarSign,
-  BarChart2,
-  Package,
-  CheckCircle,
-} from "lucide-react";
-import axios from "axios";
-import HeaderWithActions from "../components/HeaderWithActions";
+import { DollarSign, BarChart2, Package } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+import axios from "axios";
+
+import HeaderWithActions from "../components/HeaderWithActions";
+import StatsCard from "../PagesModals/StatsCard";
 import Table from "../PagesModals/Tables";
 import AddModalForm from "../PagesModals/AddModalForm";
 import EditModalForm from "../PagesModals/EditModalForm";
@@ -503,58 +493,34 @@ const SalesManagement = () => {
 
       {/* Interactive Cards */}
       <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
-        {/* Total Sales Card */}
-        <div className="p-6 transition-colors bg-gray-800 rounded-lg shadow-lg cursor-pointer hover:bg-gray-700">
-          <div className="flex items-center">
-            <div className="p-3 mr-4 text-indigo-300 bg-indigo-900 rounded-full">
-              <BarChart2 size={24} />
-            </div>
-            <div>
-              <p className="mb-2 text-sm font-medium text-gray-400">
-                Total Sales
-              </p>
-              <p className="text-3xl font-bold text-white">{totalSales}</p>
-            </div>
-          </div>
-        </div>
+        <StatsCard
+          icon={<BarChart2 size={24} />}
+          iconBgColor="bg-indigo-900"
+          iconColor="text-indigo-300"
+          title="Total Sales"
+          value={totalSales}
+        />
 
-        {/* Total Revenue Card */}
-        <div className="p-6 transition-colors bg-gray-800 rounded-lg shadow-lg cursor-pointer hover:bg-gray-700">
-          <div className="flex items-center">
-            <div className="p-3 mr-4 text-green-300 bg-green-900 rounded-full">
-              <DollarSign size={24} />
-            </div>
-            <div>
-              <p className="mb-2 text-sm font-medium text-gray-400">
-                Total Revenue
-              </p>
-              <p className="text-3xl font-bold text-white">
-                ₹{new Intl.NumberFormat("en-IN").format(totalRevenue)}
-              </p>
-            </div>
-          </div>
-        </div>
+        <StatsCard
+          icon={<DollarSign size={24} />}
+          iconBgColor="bg-green-900"
+          iconColor="text-green-300"
+          title="Total Revenue"
+          value={new Intl.NumberFormat("en-IN").format(totalRevenue)}
+          suffix="₹"
+        />
 
-        {/* Total Quantity Card */}
-        <div className="p-6 transition-colors bg-gray-800 rounded-lg shadow-lg cursor-pointer hover:bg-gray-700">
-          <div className="flex items-center">
-            <div className="p-3 mr-4 text-blue-300 bg-blue-900 rounded-full">
-              <Package size={24} />
-            </div>
-            <div>
-              <p className="mb-2 text-sm font-medium text-gray-400">
-                Total Quantity
-              </p>
-              <p className="text-3xl font-bold text-white">
-                {new Intl.NumberFormat("en-IN", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(totalQuantity)}{" "}
-                L
-              </p>
-            </div>
-          </div>
-        </div>
+        <StatsCard
+          icon={<Package size={24} />}
+          iconBgColor="bg-blue-900"
+          iconColor="text-blue-300"
+          title="Total Quantity"
+          value={new Intl.NumberFormat("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }).format(totalQuantity)}
+          suffix=" L"
+        />
       </div>
 
       {/* Sales Table */}

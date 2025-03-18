@@ -15,8 +15,24 @@ const Dashboard = () => {
     { id: 6, title: "Logout", description: "Exit Petrol Bunk Management System?", icon: LogOut, path: "/", color: "red" },
   ];
 
-  const getColorClass = (color) => {
-    return `text-${color}-400 bg-${color}-400/10 ring-${color}-400/20`;
+  // Function to determine the appropriate color classes for each card
+  const getIconStyles = (color) => {
+    switch (color) {
+      case "blue":
+        return "text-blue-400 bg-blue-400/10 ring-blue-400/20";
+      case "green":
+        return "text-green-400 bg-green-400/10 ring-green-400/20";
+      case "purple":
+        return "text-purple-400 bg-purple-400/10 ring-purple-400/20";
+      case "orange":
+        return "text-orange-400 bg-orange-400/10 ring-orange-400/20";
+      case "teal":
+        return "text-teal-400 bg-teal-400/10 ring-teal-400/20";
+      case "red":
+        return "text-red-400 bg-red-400/10 ring-red-400/20";
+      default:
+        return "text-gray-400 bg-gray-400/10 ring-gray-400/20";
+    }
   };
 
   return (
@@ -33,11 +49,13 @@ const Dashboard = () => {
               onClick={() => navigate(card.path)}
               className="flex flex-col items-center space-y-4 transition-all bg-gray-800 shadow-lg cursor-pointer p-7 rounded-xl hover:shadow-xl group hover:scale-105 lg:p-9"
             >
-              <div className={`p-3 rounded-full ring-2 ${getColorClass(card.color)}`}>
+              <div className={`p-4 rounded-full ring-2 ${getIconStyles(card.color)}`}>
                 <card.icon size={36} />
               </div>
-              <h3 className="text-xl font-semibold text-center">{card.title}</h3>
-              <p className="text-base text-center text-gray-400">{card.description}</p>
+              <div className="text-center ">
+                <h3 className="text-xl font-semibold">{card.title}</h3>
+                <p className="text-base text-gray-400">{card.description}</p>
+              </div>
             </div>
           ))}
         </div>

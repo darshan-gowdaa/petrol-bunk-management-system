@@ -19,11 +19,11 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HeaderWithActions from "../components/HeaderWithActions";
 import Filters from "../PagesModals/Filters";
+import StatsCard from "../PagesModals/StatsCard";
 import Table from "../PagesModals/Tables";
 import AddModalForm from "../PagesModals/AddModalForm";
 import EditModalForm from "../PagesModals/EditModalForm";
 import DeleteRow from "../PagesModals/DeleteRow";
-
 
 const EmployeeManagement = () => {
   // State management
@@ -329,100 +329,86 @@ const EmployeeManagement = () => {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-2 lg:grid-cols-4">
-        {/* Total Employees Card */}
-        <div className="p-4 transition-all duration-300 bg-gray-800 rounded-lg shadow-md hover:bg-gray-700">
-          <div className="flex items-center">
-            <div className="p-3 mr-4 text-blue-300 bg-blue-900 rounded-full">
-              <Users size={24} />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-400">
-                Total Employees
-              </p>
-              <p className="text-2xl font-semibold text-white">
-                {stats.totalEmployees}
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
+        <StatsCard
+          icon={<Users size={24} />}
+          iconBgColor="bg-blue-900"
+          iconColor="text-blue-300"
+          title="Total Employees"
+          value={stats.totalEmployees}
+        />
 
-        {/* Average Salary Card */}
-        <div className="p-4 transition-all duration-300 bg-gray-800 rounded-lg shadow-md hover:bg-gray-700">
-          <div className="flex items-center">
-            <div className="p-3 mr-4 text-green-300 bg-green-900 rounded-full">
-              <DollarSign size={24} />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-400">
-                Average Salary
-              </p>
-              <p className="text-2xl font-semibold text-white">
-                ₹{parseInt(stats.averageSalary).toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
+        <StatsCard
+          icon={<DollarSign size={24} />}
+          iconBgColor="bg-green-900"
+          iconColor="text-green-300"
+          title="Average Salary"
+          value={parseInt(stats.averageSalary).toLocaleString()}
+          suffix="₹"
+        />
 
-        {/* Top Position Card */}
-        <div className="p-4 transition-all duration-300 bg-gray-800 rounded-lg shadow-md hover:bg-gray-700">
-          <div className="flex items-center">
-            <div className="p-3 mr-4 text-purple-300 bg-purple-900 rounded-full">
-              <Award size={24} />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-400">Top Position</p>
-              <p className="text-2xl font-semibold text-white">
-                {stats.topPosition || "N/A"}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Newest Employee Card */}
-        <div className="p-4 transition-all duration-300 bg-gray-800 rounded-lg shadow-md hover:bg-gray-700">
-          <div className="flex items-center">
-            <div className="p-3 mr-4 text-red-300 bg-red-900 rounded-full">
-              <Calendar size={24} />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-400">
-                Newest Employee
-              </p>
-              <p className="text-2xl font-semibold text-white">
-                {stats.newestEmployee || "N/A"}
-              </p>
-            </div>
-          </div>
-        </div>
+        <StatsCard
+          icon={<Award size={24} />}
+          iconBgColor="bg-purple-900"
+          iconColor="text-purple-300"
+          title="Top Position"
+          value={stats.topPosition || "N/A"}
+        />
       </div>
 
       {/* Filter Panel */}
       <Filters
-      showFilters={showFilters}
-      setShowFilters={setShowFilters}
-      filters={filters}
-      handleFilterChange={handleFilterChange}
-      resetFilters={resetFilters}
-      applyFilters={applyFilters}
-      fields={[
-        { name: "name", label: "Name", type: "text", placeholder: "Filter by name" },
-        { name: "position", label: "Position", type: "text", placeholder: "Filter by position" },
-        { name: "salaryMin", label: "Min Salary", type: "number", placeholder: "Min Salary" },
-        { name: "salaryMax", label: "Max Salary", type: "number", placeholder: "Max Salary" },
-        { name: "dateFrom", label: "Joining From", type: "date" },
-        { name: "dateTo", label: "Joining To", type: "date" },
-      ]}
-    />
-
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+        filters={filters}
+        handleFilterChange={handleFilterChange}
+        resetFilters={resetFilters}
+        applyFilters={applyFilters}
+        fields={[
+          {
+            name: "name",
+            label: "Name",
+            type: "text",
+            placeholder: "Filter by name",
+          },
+          {
+            name: "position",
+            label: "Position",
+            type: "text",
+            placeholder: "Filter by position",
+          },
+          {
+            name: "salaryMin",
+            label: "Min Salary",
+            type: "number",
+            placeholder: "Min Salary",
+          },
+          {
+            name: "salaryMax",
+            label: "Max Salary",
+            type: "number",
+            placeholder: "Max Salary",
+          },
+          { name: "dateFrom", label: "Joining From", type: "date" },
+          { name: "dateTo", label: "Joining To", type: "date" },
+        ]}
+      />
 
       {/* Employees Table */}
       <Table
         columns={[
           { key: "name", label: "Name" },
           { key: "position", label: "Position" },
-          { key: "salary", label: "Salary", render: (value) => `₹${parseInt(value).toLocaleString()}` },
-          { key: "dateAdded", label: "Date Added", render: (value) => new Date(value).toLocaleDateString() },
+          {
+            key: "salary",
+            label: "Salary",
+            render: (value) => `₹${parseInt(value).toLocaleString()}`,
+          },
+          {
+            key: "dateAdded",
+            label: "Date Added",
+            render: (value) => new Date(value).toLocaleDateString(),
+          },
         ]}
         data={filteredEmployees}
         loading={loading}
@@ -435,7 +421,6 @@ const EmployeeManagement = () => {
           setShowDeleteModal(true);
         }}
       />
-
 
       <AddModalForm
         show={showAddModal}
