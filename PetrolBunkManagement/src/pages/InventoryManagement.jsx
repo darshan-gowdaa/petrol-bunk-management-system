@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import HeaderWithActions from "../components/HeaderWithActions";
+import { exportToCSV } from "../utils/ExportToCSV";
 import StatsCard from "../PagesModals/StatsCard";
 import Table from "../PagesModals/Tables";
 import AddModalForm from "../PagesModals/AddModalForm";
@@ -203,30 +204,14 @@ const InventoryManagement = () => {
   };
 
   // Export inventory data to CSV
-  const exportToCSV = () => {
-    const headers = ["Name", "Current Stock", "Reorder Level", "Date"];
-    const csvData = filteredInventory.map((item) => [
-      item.name,
-      item.currentStock,
-      item.reorderLevel,
-      new Date(item.date).toLocaleDateString(),
-    ]);
-
-    const csvContent = [
-      headers.join(","),
-      ...csvData.map((row) => row.join(",")),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "inventory.csv");
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.info("Inventory data exported to CSV");
+  const handleExportInventory = () => {
+    const headers = [
+      { key: "name", label: "Name" },
+      { key: "currentStock", label: "Current Stock" },
+      { key: "reorderLevel", label: "Reorder Level" },
+      { key: "date", label: "Date" },
+    ];
+    exportToCSV(filteredInventory, headers, "inventory");
   };
 
   // Calculate inventory metrics
@@ -243,7 +228,7 @@ const InventoryManagement = () => {
         title="Inventory Management"
         onAdd={() => setShowAddModal(true)}
         onFilter={() => setShowFilters(!showFilters)}
-        onExport={exportToCSV}
+        onExport={handleExportInventory}
         addLabel="Add Item"
       />
 

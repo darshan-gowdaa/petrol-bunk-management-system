@@ -1,6 +1,14 @@
 import { Plus, Filter, Download, PlusCircle, Database } from "lucide-react";
 
-const HeaderWithActions = ({ title, icon, onAdd, onFilter, onExport, addLabel, filterLabel }) => {
+const HeaderWithActions = ({
+  title,
+  icon,
+  onAdd,
+  onFilter,
+  onExport,
+  addLabel,
+  filterLabel,
+}) => {
   return (
     <div className="flex flex-wrap items-center justify-between mb-6">
       <h1 className="flex items-center text-3xl font-bold text-white">
@@ -23,7 +31,7 @@ const HeaderWithActions = ({ title, icon, onAdd, onFilter, onExport, addLabel, f
         </button>
 
         <button
-          onClick={onExport}
+          onClick={() => onExport()}
           className="flex items-center gap-2 px-4 py-2 text-white bg-blue-700 rounded-lg shadow-md hover:bg-blue-800"
         >
           <Download size={16} /> Export

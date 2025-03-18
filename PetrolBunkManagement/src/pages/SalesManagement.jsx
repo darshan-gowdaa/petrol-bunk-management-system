@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
 import HeaderWithActions from "../components/HeaderWithActions";
+import { exportToCSV } from "../utils/ExportToCSV";
 import StatsCard from "../PagesModals/StatsCard";
 import Table from "../PagesModals/Tables";
 import AddModalForm from "../PagesModals/AddModalForm";
@@ -240,66 +241,20 @@ const SalesManagement = () => {
   };
 
   // Export sales data to CSV
-  const exportToCSV = () => {
-    const headers = ["Product", "Quantity", "Price", "Total", "Date"];
-    const csvData = filteredSales.map((sale) => [
-      sale.product,
-      sale.quantity,
-      sale.price,
-      sale.total,
-      new Date(sale.date).toLocaleDateString(),
-    ]);
 
-    const csvContent = [
-      headers.join(","),
-      ...csvData.map((row) => row.join(",")),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "sales.csv");
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.info("Sales data exported to CSV");
+  const handleExportSales = () => {
+    const headers = [
+      { key: "product", label: "Product" },
+      { key: "quantity", label: "Quantity" },
+      { key: "price", label: "Price" },
+      { key: "total", label: "Total" },
+      { key: "date", label: "Date" },
+    ];
+    exportToCSV(filteredSales, headers, "sales");
   };
 
-  // Download CSV for filtered results
-  const downloadCSV = (data) => {
-    const headers = ["Product", "Quantity", "Price", "Total", "Date"];
-    const csvData = data.map((sale) => [
-      sale.product,
-      sale.quantity,
-      sale.price,
-      sale.total,
-      new Date(sale.date).toLocaleDateString(),
-    ]);
-
-    const csvContent = [
-      headers.join(","),
-      ...csvData.map((row) => row.join(",")),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "filtered_sales.csv");
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.info("Filtered sales data exported to CSV");
-  };
-
-  // Calculate sales metrics
   const totalSales = filteredSales.length;
-
   const totalRevenue = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
-
   const totalQuantity = filteredSales.reduce(
     (sum, sale) => sum + sale.quantity,
     0
@@ -312,7 +267,7 @@ const SalesManagement = () => {
         title="Sales Management"
         onAdd={() => setShowAddModal(true)}
         onFilter={() => setShowFilters(!showFilters)}
-        onExport={exportToCSV}
+        onExport={handleExportSales}
         addLabel="Add Sale"
       />
 
@@ -515,10 +470,7 @@ const SalesManagement = () => {
           iconBgColor="bg-blue-900"
           iconColor="text-blue-300"
           title="Total Quantity"
-          value={new Intl.NumberFormat("en-IN", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(totalQuantity)}
+          value={new Intl.NumberFormat("en-IN", {minimumFractionDigits: 2,maximumFractionDigits: 2,}).format(totalQuantity)}
           suffix=" L"
         />
       </div>

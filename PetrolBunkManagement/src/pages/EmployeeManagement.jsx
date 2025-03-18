@@ -1,23 +1,11 @@
 // src/pages/EmployeeManagement.jsx
 import React, { useState, useEffect } from "react";
-import {
-  Edit,
-  Trash2,
-  Download,
-  Filter,
-  X,
-  Plus,
-  RefreshCw,
-  Users,
-  DollarSign,
-  Award,
-  Calendar,
-  AlertTriangle,
-} from "lucide-react";
+import { Users, DollarSign, Award } from "lucide-react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HeaderWithActions from "../components/HeaderWithActions";
+import { exportToCSV } from "../utils/ExportToCSV";
 import Filters from "../PagesModals/Filters";
 import StatsCard from "../PagesModals/StatsCard";
 import Table from "../PagesModals/Tables";
@@ -278,29 +266,14 @@ const EmployeeManagement = () => {
   };
 
   // Export employee data to CSV
-  const exportToCSV = () => {
-    const headers = ["Name", "Position", "Salary", "Date Added"];
-    const csvData = filteredEmployees.map((emp) => [
-      emp.name,
-      emp.position,
-      emp.salary,
-      new Date(emp.dateAdded).toLocaleDateString(),
-    ]);
-
-    const csvContent = [
-      headers.join(","),
-      ...csvData.map((row) => row.join(",")),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "employees.csv");
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleExportEmployees = () => {
+    const headers = [
+      { key: "name", label: "Name" },
+      { key: "position", label: "Position" },
+      { key: "salary", label: "Salary" },
+      { key: "dateAdded", label: "Date Added" },
+    ];
+    exportToCSV(filteredEmployees, headers, "employees");
   };
 
   return (
@@ -324,7 +297,7 @@ const EmployeeManagement = () => {
         title="Employee Management"
         onAdd={() => setShowAddModal(true)}
         onFilter={() => setShowFilters(!showFilters)}
-        onExport={exportToCSV}
+        onExport={handleExportEmployees}
         addLabel="Add Employee"
       />
 

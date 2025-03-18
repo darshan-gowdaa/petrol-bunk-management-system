@@ -17,6 +17,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Table from "../PagesModals/Tables";
 import StatsCard from "../PagesModals/StatsCard";
+import { exportToCSV } from "../utils/ExportToCSV";
 import AddModalForm from "../PagesModals/AddModalForm";
 import EditModalForm from "../PagesModals/EditModalForm";
 import DeleteRow from "../PagesModals/DeleteRow";
@@ -257,29 +258,13 @@ const ExpenseTracking = () => {
   };
 
   // Export expenses data to CSV
-  const exportToCSV = () => {
-    const headers = ["Category", "Amount", "Date"];
-    const csvData = filteredExpenses.map((expense) => [
-      expense.category,
-      expense.amount,
-      new Date(expense.date).toLocaleDateString(),
-    ]);
-
-    const csvContent = [
-      headers.join(","),
-      ...csvData.map((row) => row.join(",")),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "expenses.csv");
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.info("Expenses data exported to CSV");
+  const handleExportExpenses = () => {
+    const headers = [
+      { key: 'category', label: 'Category' },
+      { key: 'amount', label: 'Amount' },
+      { key: 'date', label: 'Date' }
+    ]; 
+    exportToCSV(filteredExpenses, headers, 'expenses');
   };
 
   // Calculate expense metrics
@@ -297,7 +282,7 @@ const ExpenseTracking = () => {
         title="Expense Tracking"
         onAdd={() => setShowAddModal(true)}
         onFilter={() => setShowFilters(!showFilters)}
-        onExport={exportToCSV}
+        onExport={handleExportExpenses}
         addLabel="Add Expense"
       />
 

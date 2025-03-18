@@ -231,33 +231,6 @@ const BaseManagement = ({
     }
   };
 
-  // Export data to CSV
-  const exportToCSV = () => {
-    const headers = columns.map((col) => col.label);
-    const csvData = filteredItems.map((item) =>
-      columns.map((col) => {
-        // If the column has a render function, it's likely meant for display only
-        // So we'll use the raw value for export
-        return item[col.key];
-      })
-    );
-
-    const csvContent = [
-      headers.join(","),
-      ...csvData.map((row) => row.join(",")),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${title.toLowerCase()}.csv`);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.info(`${title} data exported to CSV`);
-  };
 
   return (
     <div className="container px-4 py-8 mx-auto">
