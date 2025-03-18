@@ -16,6 +16,7 @@ const Sidebar = ({ updateSidebarState }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
 
+  // Navigation items configuration
   const navItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard', color: 'white' },
     { icon: Package, label: 'Inventory', path: '/inventory', color: 'blue' },
@@ -25,6 +26,7 @@ const Sidebar = ({ updateSidebarState }) => {
     { icon: ChartArea, label: 'Reports', path: '/reports', color: 'teal' }
   ];
 
+  // Get color class based on color name
   const getColorClass = (color) => {
     const colorMap = {
       blue: "text-blue-400",
@@ -54,21 +56,22 @@ const Sidebar = ({ updateSidebarState }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Sidebar Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-700">
-  <div className={`overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out ${
-    isExpanded ? 'w-40 opacity-100' : 'w-0 opacity-0'
-  }`}>
-    <h2 className="text-xl font-bold text-white">Petrol Bunk MS</h2>
-  </div>
-  <button 
-    onClick={() => setIsCollapsed(!isCollapsed)} 
-    className="flex items-center justify-center w-10 h-10 text-gray-300 transition-transform duration-300 hover:text-white"
-  >
-    {isCollapsed && !isHovered ? <Menu size={20} /> : <ChevronLeft size={20} />}
-  </button>
-</div>
-
+        <div className={`overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out ${
+          isExpanded ? 'w-40 opacity-100' : 'w-0 opacity-0'
+        }`}>
+          <h2 className="text-xl font-bold text-white">Petrol Bunk MS</h2>
+        </div>
+        <button 
+          onClick={() => setIsCollapsed(!isCollapsed)} 
+          className="flex items-center justify-center w-10 h-10 text-gray-300 transition-transform duration-300 hover:text-white"
+        >
+          {isCollapsed && !isHovered ? <Menu size={20} /> : <ChevronLeft size={20} />}
+        </button>
+      </div>
       
+      {/* Navigation Items */}
       <nav className="mt-6">
         {navItems.map((item, index) => {
           const isActive = location.pathname === item.path;

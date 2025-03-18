@@ -10,21 +10,18 @@ const Login = () => {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const navigate = useNavigate();
 
+  // Handle login form submission
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log('Login attempt:', { username, password });
-
+    
     if (username === 'admin' && password === 'admin') {
       toast.success('Login successful! Redirecting...');
-      console.log('Redirecting to dashboard...');
-
+      
       setTimeout(() => {
         navigate('/dashboard');
-        console.log('Navigation to dashboard executed');
       }, 800);
     } else {
       toast.error('Invalid Credentials, Try again!');
-      console.log('Login failed: Invalid credentials');
     }
   };
 
@@ -37,13 +34,17 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#000] bg-opacity-75 bg-cover bg-center">
+      {/* Background Image */}
       <div
         className="fixed inset-0 bg-center bg-cover"
         style={{ backgroundImage: `url(${bgImage})`, filter: 'brightness(35%)' }}
       />
+      
+      {/* Login Form */}
       <div className="z-10 flex-1 w-full max-w-md p-12 transition-transform duration-300 transform bg-black rounded shadow-xl opacity-90 backdrop-blur-sm">
         <h1 className="mb-8 text-3xl font-bold text-center text-white">Welcome Back!</h1>
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
+          {/* Username and Password Input Fields */}
           {['Username', 'Password'].map((label, index) => (
             <div className="relative" key={label}>
               <input
@@ -64,6 +65,8 @@ const Login = () => {
               </label>
             </div>
           ))}
+          
+          {/* Submit Button */}
           <button
             type="submit"
             className="bg-[#E50914] text-white py-3 px-4 rounded font-semibold hover:bg-[#f6121d] transition duration-200"
@@ -71,6 +74,8 @@ const Login = () => {
             Sign In
           </button>
         </form>
+        
+        {/* Help Link */}
         <div className="mt-6 text-center text-gray-400">
           <button 
             onClick={() => setShowHelpModal(true)}
@@ -97,6 +102,7 @@ const Login = () => {
               </button>
             </div>
             
+            {/* Developer List */}
             <div className="space-y-4">
               {developers.map((dev, index) => (
                 <div key={index} className="p-4 bg-[#0f0f0f] rounded-lg hover:bg-[#444] transition-colors">
@@ -111,6 +117,7 @@ const Login = () => {
               ))}
             </div>
             
+            {/* Close Button */}
             <div className="mt-6 text-center">
               <button
                 onClick={() => setShowHelpModal(false)}
