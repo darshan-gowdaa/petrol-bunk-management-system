@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import HeaderWithActions from "../components/HeaderWithActions";
+import Filters from "../PagesModals/Filters";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Table from "../PagesModals/Tables";
@@ -276,7 +277,7 @@ const ExpenseTracking = () => {
   const averageAmount = totalAmount / totalExpenses || 0;
 
   return (
-    <div className="container px-4 py-8 mx-auto">
+    <div className="container px-4 py-8 mx-auto transition-all duration-300 animate-fadeIn">
       {/* Header */}
       <HeaderWithActions
         title="Expense Tracking"
@@ -301,94 +302,34 @@ const ExpenseTracking = () => {
       />
 
       {/* Filter Panel */}
-      {showFilters && (
-        <div className="p-4 mb-6 text-white bg-gray-800 rounded shadow">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div>
-              <label className="block text-sm font-medium">Category</label>
-              <select
-                name="category"
-                value={filters.category}
-                onChange={handleFilterChange}
-                className="block w-full mt-1 text-white bg-gray-700 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-              >
-                <option value="All">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-sm font-medium">Min Amount</label>
-                <input
-                  type="number"
-                  name="amountMin"
-                  value={filters.amountMin}
-                  onChange={handleFilterChange}
-                  className="block w-full mt-1 text-white bg-gray-700 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Max Amount</label>
-                <input
-                  type="number"
-                  name="amountMax"
-                  value={filters.amountMax}
-                  onChange={handleFilterChange}
-                  className="block w-full mt-1 text-white bg-gray-700 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium">From Date</label>
-              <input
-                type="date"
-                name="dateFrom"
-                value={filters.dateFrom}
-                onChange={handleFilterChange}
-                className="block w-full mt-1 text-white bg-gray-700 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">To Date</label>
-              <input
-                type="date"
-                name="dateTo"
-                value={filters.dateTo}
-                onChange={handleFilterChange}
-                className="block w-full mt-1 text-white bg-gray-700 border-gray-600 rounded shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div className="flex justify-end mt-4 space-x-2">
-            <button
-              onClick={resetFilters}
-              className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-            >
-              Reset
-            </button>
-            <button
-              onClick={applyFilters}
-              className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-            >
-              Apply Filters
-            </button>
-          </div>
-        </div>
-      )}
+      <Filters
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+        filters={filters}
+        handleFilterChange={handleFilterChange}
+        resetFilters={resetFilters}
+        applyFilters={applyFilters}
+        fields={categories}
+        title="Filter Finances"
+      />
 
       {/* Interactive Cards */}
       <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
+      <StatsCard
+          icon={<CheckCircle size={24} />}
+          iconBgColor="bg-green-900"
+          iconColor="text-green-300"
+          title="Total Entries"
+          value={new Intl.NumberFormat("en-IN").format(totalExpenses)}
+        />
+        
         <StatsCard
           icon={<Package size={24} />}
           iconBgColor="bg-indigo-900"
           iconColor="text-indigo-300"
           title="Total Expenses"
           value={totalAmount.toLocaleString()}
-          suffix="₹"
+          prefix="₹"
         />
 
         <StatsCard
@@ -400,15 +341,7 @@ const ExpenseTracking = () => {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           }).format(averageAmount)}
-          suffix="₹"
-        />
-
-        <StatsCard
-          icon={<CheckCircle size={24} />}
-          iconBgColor="bg-green-900"
-          iconColor="text-green-300"
-          title="Total Entries"
-          value={new Intl.NumberFormat("en-IN").format(totalExpenses)}
+          prefix="₹"
         />
       </div>
 

@@ -36,7 +36,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center min-h-screen text-gray-100 bg-gray-900">
+    <div className="flex flex-col justify-center min-h-screen text-gray-100 transition-all duration-200 bg-gray-900 animate-fadeIn">
       <main className="flex flex-col w-full max-w-6xl p-6 mx-auto">
         <h1 className="self-start mb-6 text-3xl font-bold">
           <Typewriter words={["Welcome to Petrol Bunk Management System!"]} typeSpeed={32} />

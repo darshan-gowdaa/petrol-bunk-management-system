@@ -1,6 +1,5 @@
-// src/pages/EmployeeManagement.jsx
 import React, { useState, useEffect } from "react";
-import { Users, DollarSign, Award } from "lucide-react";
+import { Users, DollarSign, Calculator } from "lucide-react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -59,9 +58,8 @@ const EmployeeManagement = () => {
   // Stats
   const [stats, setStats] = useState({
     totalEmployees: 0,
+    totalSalary: 0,
     averageSalary: 0,
-    topPosition: "",
-    newestEmployee: "",
   });
 
   // Fetch employees from API
@@ -89,38 +87,19 @@ const EmployeeManagement = () => {
     // Total employees
     const total = employeeData.length;
 
-    // Average salary
+    // Calculate total salary
     const totalSalary = employeeData.reduce(
       (sum, emp) => sum + Number(emp.salary),
       0
     );
+    
+    // Average salary
     const average = totalSalary / total;
-
-    // Most common position
-    const positions = {};
-    employeeData.forEach((emp) => {
-      positions[emp.position] = (positions[emp.position] || 0) + 1;
-    });
-    let topPosition = "";
-    let maxCount = 0;
-    Object.entries(positions).forEach(([position, count]) => {
-      if (count > maxCount) {
-        maxCount = count;
-        topPosition = position;
-      }
-    });
-
-    // Newest employee
-    const sortedByDate = [...employeeData].sort(
-      (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded)
-    );
-    const newest = sortedByDate.length ? sortedByDate[0].name : "";
 
     setStats({
       totalEmployees: total,
+      totalSalary: totalSalary.toFixed(0),
       averageSalary: average.toFixed(0),
-      topPosition,
-      newestEmployee: newest,
     });
   };
 
@@ -277,9 +256,8 @@ const EmployeeManagement = () => {
   };
 
   return (
-    <div className="container px-4 py-8 mx-auto">
+    <div className="container px-4 py-8 mx-auto transition-all duration-300 animate-fadeIn">
       {/* Toast Container */}
-
       <ToastContainer
         position="bottom-right"
         autoClose={3000}
@@ -315,17 +293,18 @@ const EmployeeManagement = () => {
           icon={<DollarSign size={24} />}
           iconBgColor="bg-green-900"
           iconColor="text-green-300"
-          title="Average Salary"
-          value={parseInt(stats.averageSalary).toLocaleString()}
-          suffix="₹"
+          title="Total Salary"
+          value={parseInt(stats.totalSalary).toLocaleString()}
+          prefix="₹"
         />
 
         <StatsCard
-          icon={<Award size={24} />}
+          icon={<Calculator size={24} />}
           iconBgColor="bg-purple-900"
           iconColor="text-purple-300"
-          title="Top Position"
-          value={stats.topPosition || "N/A"}
+          title="Average Salary"
+          value={parseInt(stats.averageSalary).toLocaleString()}
+          prefix="₹"
         />
       </div>
 
@@ -337,34 +316,8 @@ const EmployeeManagement = () => {
         handleFilterChange={handleFilterChange}
         resetFilters={resetFilters}
         applyFilters={applyFilters}
-        fields={[
-          {
-            name: "name",
-            label: "Name",
-            type: "text",
-            placeholder: "Filter by name",
-          },
-          {
-            name: "position",
-            label: "Position",
-            type: "text",
-            placeholder: "Filter by position",
-          },
-          {
-            name: "salaryMin",
-            label: "Min Salary",
-            type: "number",
-            placeholder: "Min Salary",
-          },
-          {
-            name: "salaryMax",
-            label: "Max Salary",
-            type: "number",
-            placeholder: "Max Salary",
-          },
-          { name: "dateFrom", label: "Joining From", type: "date" },
-          { name: "dateTo", label: "Joining To", type: "date" },
-        ]}
+        fields={employeeFields}
+        title="Filter Employees"
       />
 
       {/* Employees Table */}

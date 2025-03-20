@@ -302,7 +302,7 @@ const Reports = () => {
 
   return (
     <div
-      className="max-w-full p-4 text-white bg-gray-800 shadow-xl md:p-6 rounded-xl"
+      className="max-w-full p-4 text-white transition-all duration-300 bg-gray-800 shadow-xl md:p-6 rounded-xl animate-fadeIn"
     >
       <div ref={reportRef}>
         <div className="flex flex-col items-start justify-between gap-4 mb-6 md:flex-row md:items-center">
