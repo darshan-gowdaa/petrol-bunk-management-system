@@ -18,18 +18,19 @@ const COLOR_MAP = {
   purple: "text-purple-400",
   orange: "text-orange-400",
   teal: "text-teal-400",
-  white: "text-gray-300"
+  cyan: "text-cyan-400"
 };
 
-// Navigation items configuration moved outside component
+// Navigation items configuration
 const NAV_ITEMS = [
-  { icon: Home, label: 'Dashboard', path: '/dashboard', color: 'white' },
+  { icon: Home, label: 'Dashboard', path: '/dashboard', color: 'cyan' },  
   { icon: Package, label: 'Inventory', path: '/inventory', color: 'blue' },
   { icon: BarChart2, label: 'Sales', path: '/sales', color: 'green' },
   { icon: Users, label: 'Employees', path: '/employees', color: 'purple' },
   { icon: DollarSign, label: 'Expenses', path: '/expenses', color: 'orange' },
   { icon: ChartArea, label: 'Reports', path: '/reports', color: 'teal' }
 ];
+
 
 const NavItem = memo(({ item, isActive, isExpanded }) => {
   const { icon: Icon, label, path, color } = item;
