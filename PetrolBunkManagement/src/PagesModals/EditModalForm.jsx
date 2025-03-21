@@ -38,7 +38,7 @@ const EditModalForm = ({
       { label: "Salary", type: "number", name: "salary" },
       { label: "Date Added", type: "date", name: "dateAdded" },
     ],
-    Expenses: [
+    Expense: [
       { label: "Category", type: "category", name: "category" },
       { label: "Amount (₹)", type: "number", name: "amount", step: "0.01", min: "0" },
       { label: "Date", type: "date", name: "date" },
@@ -61,6 +61,7 @@ const EditModalForm = ({
                   className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
+                  <option value="">Select {field.label}</option>
                   {field.options.map((option) => (
                     <option key={option} value={option}>{option}</option>
                   ))}
@@ -74,34 +75,43 @@ const EditModalForm = ({
                     className="w-full p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
+                    <option value="">Select a Category</option>
                     {categories.map((category) => (
                       <option key={category} value={category}>{category}</option>
                     ))}
                     <option value="add_new">+ Add New Category</option>
                   </select>
                 ) : (
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="text"
-                      value={newCategory}
-                      onChange={handleNewCategoryChange}
-                      placeholder="Enter new category name"
-                      className="flex-1 p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={addNewCategory}
-                      className="p-2 text-white bg-green-600 rounded hover:bg-green-700"
-                    >
-                      <Plus size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowNewCategoryInput(false)}
-                      className="p-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-                    >
-                      <X size={16} />
-                    </button>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={newCategory}
+                        onChange={handleNewCategoryChange}
+                        placeholder="Enter new category name"
+                        className="flex-1 p-2 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        autoFocus
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={addNewCategory}
+                        className="flex items-center px-3 py-1 text-sm text-white bg-green-600 rounded hover:bg-green-700"
+                        disabled={!newCategory.trim()}
+                      >
+                        <Plus size={16} className="mr-1" />
+                        Add Category
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowNewCategoryInput(false)}
+                        className="flex items-center px-3 py-1 text-sm text-white bg-gray-600 rounded hover:bg-gray-700"
+                      >
+                        <X size={16} className="mr-1" />
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 )
               ) : (
@@ -135,7 +145,7 @@ const EditModalForm = ({
             <button
               type="submit"
               className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
-              disabled={loading || (entityType === "Expenses" && showNewCategoryInput)}
+              disabled={loading || showNewCategoryInput}
             >
               {loading ? (
                 <span className="flex items-center">

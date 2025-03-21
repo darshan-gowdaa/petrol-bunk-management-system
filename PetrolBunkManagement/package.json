@@ -49,12 +49,12 @@
   "main": "eslint.config.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/darshan-gowdaa/PetrolBunkManagement.git"
+    "url": "git+https://github.com/darshan-gowdaa/petrol-bunk-management-system.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/darshan-gowdaa/PetrolBunkManagement/issues"
+    "url": "https://github.com/darshan-gowdaa/petrol-bunk-management-system/issues"
   },
-  "homepage": "https://github.com/darshan-gowdaa/PetrolBunkManagement#readme"
+  "homepage": "https://github.com/darshan-gowdaa/petrol-bunk-management-system#readme"
 }
