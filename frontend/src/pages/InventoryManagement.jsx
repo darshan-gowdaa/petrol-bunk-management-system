@@ -37,7 +37,7 @@ const InventoryManagement = () => {
     name: "",
     currentStock: "",
     reorderLevel: "",
-    date: new Date().toISOString().split("T")[0],
+    date: new Date().toLocaleDateString('en-GB').split('/').reverse().join('-'),
   });
 
   const inventoryFields = [
@@ -152,7 +152,7 @@ const InventoryManagement = () => {
         name: "",
         currentStock: "",
         reorderLevel: "",
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toLocaleDateString('en-GB').split('/').reverse().join('-'),
       });
       setShowAddModal(false);
       toast.success("Inventory item added successfully!");
@@ -228,6 +228,48 @@ const InventoryManagement = () => {
   ).length;
   const inStockItems = totalItems - itemsToReorder;
 
+  // Handle removing a filter
+  const handleRemoveFilter = (key) => {
+    const newFilters = { ...filters };
+    
+    // Handle range filters
+    if (key.endsWith('Min') || key.endsWith('Max')) {
+      const baseKey = key.slice(0, -3); // Remove 'Min' or 'Max'
+      delete newFilters[`${baseKey}Min`];
+      delete newFilters[`${baseKey}Max`];
+    } else {
+      // Handle regular filters
+      delete newFilters[key];
+    }
+    
+    setFilters(newFilters);
+    
+    // Build query params with the new filters
+    const params = new URLSearchParams();
+    if (newFilters.name) params.append("name", newFilters.name);
+    if (newFilters.stockMin) params.append("stockMin", newFilters.stockMin);
+    if (newFilters.stockMax) params.append("stockMax", newFilters.stockMax);
+    if (newFilters.reorderMin) params.append("reorderMin", newFilters.reorderMin);
+    if (newFilters.reorderMax) params.append("reorderMax", newFilters.reorderMax);
+    if (newFilters.dateFrom) params.append("dateFrom", newFilters.dateFrom);
+    if (newFilters.dateTo) params.append("dateTo", newFilters.dateTo);
+
+    // If no filters are active, show all inventory
+    if (params.toString() === '') {
+      setFilteredInventory(inventory);
+    } else {
+      // Apply the remaining filters
+      axios.get(`http://localhost:5000/api/inventory?${params}`)
+        .then(response => {
+          setFilteredInventory(response.data);
+        })
+        .catch(err => {
+          toast.error("Failed to update filters. Please try again.");
+          console.error("Error updating filters:", err);
+        });
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
       <main className="container flex flex-col w-full max-w-7xl p-6 mx-auto">
@@ -262,7 +304,13 @@ const InventoryManagement = () => {
           handleFilterChange={handleFilterChange}
           resetFilters={resetFilters}
           applyFilters={applyFilters}
-          fields={inventoryFields}
+          fields={[
+            { name: "name", label: "Item Name", type: "text" },
+            { name: "stock", label: "Stock Range", type: "range" },
+            { name: "reorder", label: "Reorder Level Range", type: "range" },
+            { name: "dateFrom", label: "Date From", type: "date" },
+            { name: "dateTo", label: "Date To", type: "date" },
+          ]}
           title="Filter Inventory"
         />
 
@@ -272,52 +320,37 @@ const InventoryManagement = () => {
             title="Total Items"
             value={totalItems}
             icon={Package}
-            color="indigo"
+            color="blue"
             footer={`Total inventory items`}
           />
 
           <StatsCard
-            title="Need to Reorder"
+            title="Items to Reorder"
             value={itemsToReorder}
-            icon={AlertCircle}
+            icon={AlertTriangle}
             color="red"
-            footer={`Below reorder level`}
+            footer={`Items below reorder level`}
           />
 
           <StatsCard
-            title="In Stock"
+            title="In Stock Items"
             value={inStockItems}
             icon={CheckCircle}
             color="green"
-            footer={`Sufficient stock`}
+            footer={`Items above reorder level`}
           />
         </div>
 
         {/* Inventory Table */}
         <Table
           columns={[
-            { key: "name", label: "Item Name" },
+            { key: "name", label: "Name" },
             { key: "currentStock", label: "Current Stock" },
             { key: "reorderLevel", label: "Reorder Level" },
-            {
-              key: "status",
-              label: "Status",
-              render: (_, item) =>
-                item.currentStock <= item.reorderLevel ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-red-900 to-red-800 text-red-200">
-                    <AlertTriangle size={12} className="mr-1" />
-                    Reorder
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-green-900 to-green-800 text-green-200">
-                    In Stock
-                  </span>
-                ),
-            },
-            {
-              key: "date",
+            { 
+              key: "date", 
               label: "Date",
-              render: (value) => new Date(value).toLocaleDateString(),
+              render: (value) => new Date(value).toLocaleDateString('en-GB')
             },
           ]}
           data={filteredInventory}
@@ -330,6 +363,8 @@ const InventoryManagement = () => {
             setCurrentItem(item);
             setShowDeleteModal(true);
           }}
+          activeFilters={filters}
+          onRemoveFilter={handleRemoveFilter}
         />
 
         <AddModalForm

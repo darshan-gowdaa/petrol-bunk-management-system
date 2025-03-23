@@ -31,7 +31,7 @@ const SalesManagement = () => {
     product: "Petrol",
     quantity: "",
     price: "",
-    date: new Date().toISOString().split("T")[0],
+    date: new Date().toLocaleDateString('en-GB').split('/').reverse().join('-'),
   });
 
   const salesFields = [
@@ -153,7 +153,7 @@ const SalesManagement = () => {
         product: "Petrol",
         quantity: "",
         price: "",
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toLocaleDateString('en-GB').split('/').reverse().join('-'),
       });
       setShowAddModal(false);
       toast.success("Sale added successfully!");
@@ -225,6 +225,48 @@ const SalesManagement = () => {
     0
   );
 
+  // Handle removing a filter
+  const handleRemoveFilter = (key) => {
+    const newFilters = { ...filters };
+    
+    // Handle range filters
+    if (key.endsWith('Min') || key.endsWith('Max')) {
+      const baseKey = key.slice(0, -3); // Remove 'Min' or 'Max'
+      delete newFilters[`${baseKey}Min`];
+      delete newFilters[`${baseKey}Max`];
+    } else {
+      // Handle regular filters
+      delete newFilters[key];
+    }
+    
+    setFilters(newFilters);
+    
+    // Build query params with the new filters
+    const params = new URLSearchParams();
+    if (newFilters.product) params.append("product", newFilters.product);
+    if (newFilters.quantityMin) params.append("quantityMin", newFilters.quantityMin);
+    if (newFilters.quantityMax) params.append("quantityMax", newFilters.quantityMax);
+    if (newFilters.priceMin) params.append("priceMin", newFilters.priceMin);
+    if (newFilters.priceMax) params.append("priceMax", newFilters.priceMax);
+    if (newFilters.dateFrom) params.append("dateFrom", newFilters.dateFrom);
+    if (newFilters.dateTo) params.append("dateTo", newFilters.dateTo);
+
+    // If no filters are active, show all sales
+    if (params.toString() === '') {
+      setFilteredSales(sales);
+    } else {
+      // Apply the remaining filters
+      axios.get(`${API_URL}?${params}`)
+        .then(response => {
+          setFilteredSales(response.data);
+        })
+        .catch(err => {
+          toast.error("Failed to update filters. Please try again.");
+          console.error("Error updating filters:", err);
+        });
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
       <main className="container flex flex-col w-full max-w-7xl p-6 mx-auto">
@@ -259,37 +301,43 @@ const SalesManagement = () => {
           handleFilterChange={handleFilterChange}
           resetFilters={resetFilters}
           applyFilters={applyFilters}
-          fields={salesFields}
-          title="Filter Products"
+          fields={[
+            {
+              name: "product",
+              label: "Product",
+              type: "select",
+              options: ["Petrol", "Diesel"],
+            },
+            { name: "quantity", label: "Quantity Range", type: "range" },
+            { name: "price", label: "Price Range", type: "range" },
+            { name: "dateFrom", label: "Date From", type: "date" },
+            { name: "dateTo", label: "Date To", type: "date" },
+          ]}
+          title="Filter Sales"
         />
 
-        {/* Interactive Cards */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
           <StatsCard
             title="Total Sales"
             value={totalSales}
             icon={BarChart2}
-            color="indigo"
-            footer={`Total transactions`}
+            color="blue"
+            footer={`Total number of sales`}
           />
-
           <StatsCard
             title="Total Revenue"
-            value={`₹${new Intl.NumberFormat("en-IN").format(totalRevenue)}`}
+            value={`₹${totalRevenue.toFixed(2)}`}
             icon={DollarSign}
             color="green"
-            footer={`Gross revenue`}
+            footer={`Total revenue generated`}
           />
-
           <StatsCard
             title="Total Quantity"
-            value={`${new Intl.NumberFormat("en-IN", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }).format(totalQuantity)} L`}
+            value={`${totalQuantity.toFixed(2)}L`}
             icon={Package}
-            color="blue"
-            footer={`Total volume sold`}
+            color="purple"
+            footer={`Total quantity sold`}
           />
         </div>
 
@@ -297,37 +345,27 @@ const SalesManagement = () => {
         <Table
           columns={[
             { key: "product", label: "Product" },
-            {
-              key: "quantity",
-              label: "Quantity",
-              render: (value) => `${value} L`,
-            },
-            {
-              key: "price",
-              label: "Price",
-              render: (value) => `₹${Number(value).toLocaleString()}`,
-            },
-            {
-              key: "total",
-              label: "Total",
-              render: (value) => `₹${Number(value).toLocaleString()}`,
-            },
-            {
-              key: "date",
+            { key: "quantity", label: "Quantity (L)" },
+            { key: "price", label: "Price per Liter (₹)" },
+            { key: "total", label: "Total (₹)" },
+            { 
+              key: "date", 
               label: "Date",
-              render: (value) => new Date(value).toLocaleDateString(),
+              render: (value) => new Date(value).toLocaleDateString('en-GB')
             },
           ]}
           data={filteredSales}
           loading={loading}
-          onEdit={(sale) => {
-            setCurrentSale(sale);
+          onEdit={(item) => {
+            setCurrentSale(item);
             setShowEditModal(true);
           }}
-          onDelete={(sale) => {
-            setCurrentSale(sale);
+          onDelete={(item) => {
+            setCurrentSale(item);
             setShowDeleteModal(true);
           }}
+          activeFilters={filters}
+          onRemoveFilter={handleRemoveFilter}
         />
 
         {/* Add Sale Modal */}

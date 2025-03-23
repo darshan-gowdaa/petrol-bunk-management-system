@@ -7,7 +7,87 @@ import {
   ChevronDown,
   Loader2,
   Database,
+  X,
 } from "lucide-react";
+
+const ActiveFilters = ({ activeFilters, onRemoveFilter }) => {
+  if (!activeFilters || Object.keys(activeFilters).length === 0) return null;
+
+  return (
+    <div className="px-4 py-2 border-b border-gray-700 bg-gray-800/50">
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-gray-300">
+          Active Filters:
+        </span>
+        <div className="flex items-center gap-2">
+          {Object.entries(activeFilters).map(([key, value]) => {
+            // Skip empty values
+            if (!value || value === "") return null;
+
+            // Handle date range filters
+            if (key === "dateFrom" || key === "dateTo") {
+              const dateValue = new Date(value).toLocaleDateString("en-GB");
+              return (
+                <span
+                  key={key}
+                  className="inline-flex items-center px-2 py-1 text-sm text-gray-200 bg-gray-700 rounded-full"
+                >
+                  {key === "dateFrom" ? "From: " : "To: "}
+                  {dateValue}
+                  <button
+                    onClick={() => onRemoveFilter(key)}
+                    className="ml-1 text-gray-400 hover:text-gray-200"
+                  >
+                    ×
+                  </button>
+                </span>
+              );
+            }
+
+            // Handle range filters (min/max)
+            if (key.endsWith("Min") || key.endsWith("Max")) {
+              const baseKey = key.slice(0, -3); // Remove 'Min' or 'Max'
+              const rangeKey = key.endsWith("Min") ? "Min" : "Max";
+              const displayKey =
+                baseKey.charAt(0).toUpperCase() + baseKey.slice(1);
+
+              return (
+                <span
+                  key={key}
+                  className="inline-flex items-center px-2 py-1 text-sm text-gray-200 bg-gray-700 rounded-full"
+                >
+                  {displayKey} {rangeKey}: {value}
+                  <button
+                    onClick={() => onRemoveFilter(key)}
+                    className="ml-1 text-gray-400 hover:text-gray-200"
+                  >
+                    ×
+                  </button>
+                </span>
+              );
+            }
+
+            // Handle regular filters
+            return (
+              <span
+                key={key}
+                className="inline-flex items-center px-2 py-1 text-sm text-gray-200 bg-gray-700 rounded-full"
+              >
+                {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
+                <button
+                  onClick={() => onRemoveFilter(key)}
+                  className="ml-1 text-gray-400 hover:text-gray-200"
+                >
+                  ×
+                </button>
+              </span>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Table = ({
   columns = [],
@@ -17,6 +97,8 @@ const Table = ({
   onView,
   isLoading = false,
   emptyStateMessage = "No records found. Add a new entry to get started.",
+  activeFilters = {},
+  onRemoveFilter,
 }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const getGridTemplate = () =>
@@ -61,13 +143,93 @@ const Table = ({
   );
 
   return (
-    <div className="overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-lg shadow-xl border border-gray-700/50">
-      <div className="flex items-center justify-between px-4 py-3 border-b-2 border-gray-600 shadow-md bg-gray-800">
+    <div className="overflow-hidden border rounded-lg shadow-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-gray-700/50">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-800 border-b-2 border-gray-600 shadow-md">
         <h2 className="text-lg font-medium text-white">Records</h2>
-        <div className="px-3 py-1 text-sm font-medium text-gray-300 bg-gray-700/50 rounded-md">
+        <div className="px-3 py-1 text-sm font-medium text-gray-300 rounded-md bg-gray-700/50">
           Showing {data.length} entries
         </div>
       </div>
+
+      {/* Active Filters */}
+      {activeFilters &&
+        Object.keys(activeFilters).length > 0 &&
+        Object.values(activeFilters).some((value) => value !== "") && (
+          <div className="px-4 py-2 border-b border-gray-700 bg-gray-800/50">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-300">
+                Active Filters:
+              </span>
+              <div className="flex items-center gap-2">
+                {Object.entries(activeFilters).map(([key, value]) => {
+                  // Skip empty values
+                  if (!value || value === "") return null;
+
+                  // Handle date range filters
+                  if (key === "dateFrom" || key === "dateTo") {
+                    const dateValue = new Date(value).toLocaleDateString(
+                      "en-GB"
+                    );
+                    return (
+                      <span
+                        key={key}
+                        className="inline-flex items-center px-2 py-1 text-sm text-gray-200 bg-gray-700 rounded-full"
+                      >
+                        {key === "dateFrom" ? "From: " : "To: "}
+                        {dateValue}
+                        <button
+                          onClick={() => onRemoveFilter(key)}
+                          className="ml-1 text-gray-400 hover:text-gray-200"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    );
+                  }
+
+                  // Handle range filters (min/max)
+                  if (key.endsWith("Min") || key.endsWith("Max")) {
+                    const baseKey = key.slice(0, -3); // Remove 'Min' or 'Max'
+                    const rangeKey = key.endsWith("Min") ? "Min" : "Max";
+                    const displayKey =
+                      baseKey.charAt(0).toUpperCase() + baseKey.slice(1);
+
+                    return (
+                      <span
+                        key={key}
+                        className="inline-flex items-center px-2 py-1 text-sm text-gray-200 bg-gray-700 rounded-full"
+                      >
+                        {displayKey} {rangeKey}: {value}
+                        <button
+                          onClick={() => onRemoveFilter(key)}
+                          className="ml-1 text-gray-400 hover:text-gray-200"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    );
+                  }
+
+                  // Handle regular filters
+                  return (
+                    <span
+                      key={key}
+                      className="inline-flex items-center px-2 py-1 text-sm text-gray-200 bg-gray-700 rounded-full"
+                    >
+                      {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
+                      <button
+                        onClick={() => onRemoveFilter(key)}
+                        className="ml-1 text-gray-400 hover:text-gray-200"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
       {/* Desktop view */}
       <div className="hidden md:block overflow-auto max-h-[calc(100vh-12rem)]">
@@ -78,7 +240,7 @@ const Table = ({
         ) : (
           <div className="min-w-full">
             <div
-              className="sticky top-0 z-10 grid bg-gradient-to-r from-gray-800 to-gray-700 border-b-2 border-gray-600 shadow-md"
+              className="sticky top-0 z-10 grid border-b-2 border-gray-600 shadow-md bg-gradient-to-r from-gray-800 to-gray-700"
               style={{ gridTemplateColumns: getGridTemplate() }}
             >
               {columns.map((col) => (
@@ -103,7 +265,7 @@ const Table = ({
               </div>
             </div>
 
-            <div className="bg-gradient-to-b from-gray-800 to-gray-900 divide-y divide-gray-700/50">
+            <div className="divide-y bg-gradient-to-b from-gray-800 to-gray-900 divide-gray-700/50">
               {sortedData().map((item) => (
                 <div
                   key={item._id}
@@ -160,7 +322,7 @@ const Table = ({
             {data.map((item) => (
               <div
                 key={item._id}
-                className="p-4 hover:bg-gray-700/50 transition-all duration-200"
+                className="p-4 transition-all duration-200 hover:bg-gray-700/50"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="font-medium text-gray-200 truncate max-w-[70%]">

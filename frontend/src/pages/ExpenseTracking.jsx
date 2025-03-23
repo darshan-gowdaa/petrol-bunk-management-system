@@ -32,7 +32,7 @@ const ExpenseTracking = () => {
   const [newExpense, setNewExpense] = useState({
     category: "",
     amount: "",
-    date: new Date().toISOString().split("T")[0],
+    date: new Date().toLocaleDateString('en-GB').split('/').reverse().join('-'),
   });
 
   const [filters, setFilters] = useState({
@@ -138,7 +138,7 @@ const ExpenseTracking = () => {
       setNewExpense({
         category: "",
         amount: "",
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toLocaleDateString('en-GB').split('/').reverse().join('-'),
       });
       setShowAddModal(false);
       toast.success("Expense added successfully");
@@ -250,7 +250,46 @@ const ExpenseTracking = () => {
       { key: "date", label: "Date" },
     ];
     exportToCSV(filteredExpenses, headers, "expenses");
-    toast.success("Expenses exported successfully");
+  };
+
+  // Handle removing a filter
+  const handleRemoveFilter = (key) => {
+    const newFilters = { ...filters };
+    
+    // Handle range filters
+    if (key.endsWith('Min') || key.endsWith('Max')) {
+      const baseKey = key.slice(0, -3); // Remove 'Min' or 'Max'
+      delete newFilters[`${baseKey}Min`];
+      delete newFilters[`${baseKey}Max`];
+    } else {
+      // Handle regular filters
+      delete newFilters[key];
+    }
+    
+    setFilters(newFilters);
+    
+    // Build query params with the new filters
+    const params = new URLSearchParams();
+    if (newFilters.category && newFilters.category !== "All") params.append("category", newFilters.category);
+    if (newFilters.amountMin) params.append("amountMin", newFilters.amountMin);
+    if (newFilters.amountMax) params.append("amountMax", newFilters.amountMax);
+    if (newFilters.dateFrom) params.append("dateFrom", newFilters.dateFrom);
+    if (newFilters.dateTo) params.append("dateTo", newFilters.dateTo);
+
+    // If no filters are active, show all expenses
+    if (params.toString() === '') {
+      setFilteredExpenses(expenses);
+    } else {
+      // Apply the remaining filters
+      axios.get(`/api/expenses?${params}`)
+        .then(response => {
+          setFilteredExpenses(response.data);
+        })
+        .catch(err => {
+          toast.error("Failed to update filters. Please try again.");
+          console.error("Error updating filters:", err);
+        });
+    }
   };
 
   // Stats calculation
@@ -320,7 +359,7 @@ const ExpenseTracking = () => {
             {
               key: "date",
               label: "Date",
-              render: (value) => new Date(value).toLocaleDateString(),
+              render: (value) => new Date(value).toLocaleDateString('en-GB'),
             },
           ]}
           data={filteredExpenses}
@@ -333,6 +372,8 @@ const ExpenseTracking = () => {
             setCurrentExpense(exp);
             setShowDeleteModal(true);
           }}
+          activeFilters={filters}
+          onRemoveFilter={handleRemoveFilter}
         />
 
         {/* Modals */}

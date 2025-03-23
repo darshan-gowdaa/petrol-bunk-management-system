@@ -42,7 +42,7 @@ const EmployeeManagement = () => {
     name: "",
     position: "",
     salary: "",
-    dateAdded: new Date().toISOString().split("T")[0],
+    dateAdded: new Date().toLocaleDateString('en-GB').split('/').reverse().join('-'),
   });
 
   // Filter state
@@ -180,7 +180,7 @@ const EmployeeManagement = () => {
         name: "",
         position: "",
         salary: "",
-        dateAdded: new Date().toISOString().split("T")[0],
+        dateAdded: new Date().toLocaleDateString('en-GB').split('/').reverse().join('-'),
       });
       setShowAddModal(false);
       toast.success("Employee added successfully!");
@@ -255,6 +255,47 @@ const EmployeeManagement = () => {
     exportToCSV(filteredEmployees, headers, "employees");
   };
 
+  // Handle removing a filter
+  const handleRemoveFilter = (key) => {
+    const newFilters = { ...filters };
+    
+    // Handle range filters
+    if (key.endsWith('Min') || key.endsWith('Max')) {
+      const baseKey = key.slice(0, -3); // Remove 'Min' or 'Max'
+      delete newFilters[`${baseKey}Min`];
+      delete newFilters[`${baseKey}Max`];
+    } else {
+      // Handle regular filters
+      delete newFilters[key];
+    }
+    
+    setFilters(newFilters);
+    
+    // Build query params with the new filters
+    const params = new URLSearchParams();
+    if (newFilters.name) params.append("name", newFilters.name);
+    if (newFilters.position) params.append("position", newFilters.position);
+    if (newFilters.salaryMin) params.append("salaryMin", newFilters.salaryMin);
+    if (newFilters.salaryMax) params.append("salaryMax", newFilters.salaryMax);
+    if (newFilters.dateFrom) params.append("dateFrom", newFilters.dateFrom);
+    if (newFilters.dateTo) params.append("dateTo", newFilters.dateTo);
+
+    // If no filters are active, show all employees
+    if (params.toString() === '') {
+      setFilteredEmployees(employees);
+    } else {
+      // Apply the remaining filters
+      axios.get(`http://localhost:5000/api/employees?${params}`)
+        .then(response => {
+          setFilteredEmployees(response.data);
+        })
+        .catch(err => {
+          toast.error("Failed to update filters. Please try again.");
+          console.error("Error updating filters:", err);
+        });
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
       <main className="container flex flex-col w-full max-w-7xl p-6 mx-auto">
@@ -315,7 +356,13 @@ const EmployeeManagement = () => {
           handleFilterChange={handleFilterChange}
           resetFilters={resetFilters}
           applyFilters={applyFilters}
-          fields={employeeFields}
+          fields={[
+            { name: "name", label: "Name", type: "text" },
+            { name: "position", label: "Position", type: "text" },
+            { name: "salary", label: "Salary Range", type: "range" },
+            { name: "dateFrom", label: "Date From", type: "date" },
+            { name: "dateTo", label: "Date To", type: "date" },
+          ]}
           title="Filter Employees"
         />
 
@@ -332,7 +379,7 @@ const EmployeeManagement = () => {
             {
               key: "dateAdded",
               label: "Date Added",
-              render: (value) => new Date(value).toLocaleDateString(),
+              render: (value) => new Date(value).toLocaleDateString('en-GB'),
             },
           ]}
           data={filteredEmployees}
@@ -345,6 +392,8 @@ const EmployeeManagement = () => {
             setCurrentEmployee(employee);
             setShowDeleteModal(true);
           }}
+          activeFilters={filters}
+          onRemoveFilter={handleRemoveFilter}
         />
 
         <AddModalForm
