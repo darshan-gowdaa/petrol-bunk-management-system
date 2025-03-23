@@ -1,47 +1,61 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import { STORAGE_KEYS, ROUTES } from "../constants/constants.js";
 
 export const useAuth = () => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
-  }, []);
-
   const login = useCallback(async (credentials) => {
+    setLoading(true);
+
     try {
       const response = await api.post("/auth/login", credentials);
-      const { token, user: userData } = response.data;
 
-      localStorage.setItem(STORAGE_KEYS.TOKEN, token);
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
-      setUser(userData);
-      return { success: true };
-    } catch (error) {
+      if (response.data && response.data.token) {
+        const { user, token } = response.data;
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("token", token);
+        setUser(user);
+        return { success: true };
+      }
+
       return {
         success: false,
-        error: error.response?.data?.message || "Login failed",
+        message: "Invalid response from server",
       };
+    } catch (error) {
+      if (error.response?.status === 401) {
+        return {
+          success: false,
+          message: "Invalid username or password",
+        };
+      }
+      if (error.response?.status === 400) {
+        return {
+          success: false,
+          message: "Please provide valid credentials",
+        };
+      }
+      return {
+        success: false,
+        message: "An error occurred during login",
+      };
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEYS.TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.USER);
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     setUser(null);
-    navigate(ROUTES.LOGIN);
+    navigate("/");
   }, [navigate]);
 
   const isAuthenticated = useCallback(() => {
-    return !!localStorage.getItem(STORAGE_KEYS.TOKEN);
+    return !!localStorage.getItem("token");
   }, []);
 
   return {
