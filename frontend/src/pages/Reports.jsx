@@ -45,7 +45,7 @@ import { format } from "date-fns";
 
 // Import custom components
 import DateFilter from "../components/DateFilter";
-import StatsCard from "../PagesModals/StatsCard";
+import StatsCard from "../components/features/StatsCard";
 import ChartContainer from "../components/ChartContainer";
 import CustomTooltip from "../components/CustomTooltip";
 

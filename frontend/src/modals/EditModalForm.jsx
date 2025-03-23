@@ -1,5 +1,6 @@
 import React from "react";
 import { RefreshCw, Plus, X } from "lucide-react";
+import { format } from "date-fns";
 
 const EditModalForm = ({
   showEditModal,
@@ -18,6 +19,30 @@ const EditModalForm = ({
   entityType,
 }) => {
   if (!showEditModal || !currentData) return null;
+
+  const formatDateForInput = (value) => {
+    if (!value) return "";
+    try {
+      const date = new Date(value);
+      if (isNaN(date.getTime())) return "";
+      return format(date, "yyyy-MM-dd");
+    } catch (e) {
+      console.error("Date formatting error:", e);
+      return "";
+    }
+  };
+
+  const formatDateForDisplay = (value) => {
+    if (!value) return "";
+    try {
+      const date = new Date(value);
+      if (isNaN(date.getTime())) return "";
+      return format(date, "dd/MM/yyyy");
+    } catch (e) {
+      console.error("Date formatting error:", e);
+      return "";
+    }
+  };
 
   const entityFields = {
     Sales: [
@@ -49,11 +74,11 @@ const EditModalForm = ({
       { label: "Reorder Level", type: "number", name: "reorderLevel" },
       { label: "Date", type: "date", name: "date" },
     ],
-    Employees: [
+    Employee: [
       { label: "Employee Name", type: "text", name: "name" },
       { label: "Position", type: "text", name: "position" },
       { label: "Salary", type: "number", name: "salary" },
-      { label: "Date Added", type: "date", name: "dateAdded" },
+      { label: "Date Added", type: "date", name: "date" },
     ],
     Expense: [
       { label: "Category", type: "category", name: "category" },
@@ -162,11 +187,7 @@ const EditModalForm = ({
                   name={field.name}
                   value={
                     field.type === "date"
-                      ? currentData[field.name]
-                        ? new Date(currentData[field.name])
-                            .toISOString()
-                            .split("T")[0]
-                        : ""
+                      ? formatDateForInput(currentData[field.name])
                       : currentData[field.name] || ""
                   }
                   onChange={handleInputChange}

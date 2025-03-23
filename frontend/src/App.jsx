@@ -5,7 +5,7 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
+import { Sidebar } from "./components/layout";
 import Dashboard from "./pages/Dashboard";
 import InventoryManagement from "./pages/InventoryManagement";
 import SalesManagement from "./pages/SalesManagement";
@@ -13,8 +13,8 @@ import EmployeeManagement from "./pages/EmployeeManagement";
 import ExpenseTracking from "./pages/ExpenseTracking";
 import Reports from "./pages/Reports";
 import Login from "./pages/Login";
-import "./App.css";
-import "./toast.css"; // Custom toast styles
+import "./styles/App.css";
+import "./styles/toast.css"; // Custom toast styles
 
 const App = () => {
   return (

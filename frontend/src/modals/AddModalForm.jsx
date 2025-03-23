@@ -1,5 +1,6 @@
 import React from "react";
 import { Plus, X, RefreshCw } from "lucide-react";
+import { format, parse } from "date-fns";
 
 const AddModalForm = ({
   show,
@@ -19,6 +20,17 @@ const AddModalForm = ({
   handleCategorySelect,
 }) => {
   if (!show) return null;
+
+  const formatDateForInput = (value) => {
+    if (!value) return "";
+    try {
+      const date = new Date(value);
+      return format(date, "yyyy-MM-dd");
+    } catch (e) {
+      console.error("Date formatting error:", e);
+      return "";
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center animate-modalFadeIn">
@@ -114,7 +126,11 @@ const AddModalForm = ({
                 <input
                   type={type}
                   name={name}
-                  value={formData[name]}
+                  value={
+                    type === "date"
+                      ? formatDateForInput(formData[name])
+                      : formData[name]
+                  }
                   onChange={onChange}
                   className="w-full p-2 text-white bg-gray-700/50 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 hover:border-blue-500/50 backdrop-blur-sm"
                   required

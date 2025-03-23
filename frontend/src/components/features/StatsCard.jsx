@@ -34,7 +34,15 @@ const getIndianNumberInWords = (num, prefix, suffix) => {
   return words;
 };
 
-const StatsCard = ({ title, value, icon: Icon, color = "blue", footer, subValue1, subValue2 }) => {
+const StatsCard = ({
+  title,
+  value,
+  icon: Icon,
+  color = "blue",
+  footer,
+  subValue1,
+  subValue2,
+}) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
   const getGradient = () => {
@@ -129,9 +137,7 @@ const StatsCard = ({ title, value, icon: Icon, color = "blue", footer, subValue1
               >
                 <Info size={16} />
                 {showTooltip && (
-                  <div
-                    className="absolute right-0 z-50 p-2 mt-2 text-sm text-white bg-gray-800 border border-gray-700 rounded-lg shadow-xl whitespace-nowrap top-full min-w-max backdrop-blur-sm bg-opacity-95"
-                  >
+                  <div className="absolute right-0 z-50 p-2 mt-2 text-sm text-white bg-gray-800 border border-gray-700 rounded-lg shadow-xl whitespace-nowrap top-full min-w-max backdrop-blur-sm bg-opacity-95">
                     {getIndianNumberInWords(
                       numericValue,
                       isCurrency,

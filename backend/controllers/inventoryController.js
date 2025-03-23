@@ -1,53 +1,55 @@
 // backend/controllers/inventoryController.js
-import Inventory from '../models/Inventory.js';
+import Inventory from "../models/Inventory.js";
+import { format } from "date-fns";
 
 // Format inventory data consistently
 const formatInventory = (item) => {
+  const itemData = item._doc || item;
   return {
-    ...item._doc,
-    date: item.date || item.createdAt,
+    ...itemData,
+    date: format(new Date(itemData.date || itemData.createdAt), "yyyy-MM-dd"),
   };
 };
 
 export const getInventory = async (req, res) => {
   try {
-    const { 
-      name, 
-      stockMin, 
-      stockMax, 
-      reorderMin, 
+    const {
+      name,
+      stockMin,
+      stockMax,
+      reorderMin,
       reorderMax,
-      dateFrom, 
-      dateTo 
+      dateFrom,
+      dateTo,
     } = req.query;
-    
+
     // Build filter object
     let filter = {};
-    if (name) filter.name = { $regex: name, $options: 'i' };
-    
+    if (name) filter.name = { $regex: name, $options: "i" };
+
     // Add stock range filter if provided
     if (stockMin || stockMax) {
       filter.currentStock = {};
       if (stockMin) filter.currentStock.$gte = parseFloat(stockMin);
       if (stockMax) filter.currentStock.$lte = parseFloat(stockMax);
     }
-    
+
     // Add reorder level range filter if provided
     if (reorderMin || reorderMax) {
       filter.reorderLevel = {};
       if (reorderMin) filter.reorderLevel.$gte = parseFloat(reorderMin);
       if (reorderMax) filter.reorderLevel.$lte = parseFloat(reorderMax);
     }
-    
+
     // Add date range filter if provided
     if (dateFrom || dateTo) {
       filter.date = {};
       if (dateFrom) filter.date.$gte = new Date(dateFrom);
       if (dateTo) filter.date.$lte = new Date(dateTo);
     }
-    
+
     const inventory = await Inventory.find(filter);
-    res.status(200).json(inventory.map(item => formatInventory(item)));
+    res.status(200).json(inventory.map((item) => formatInventory(item)));
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -66,8 +68,8 @@ export const createInventoryItem = async (req, res) => {
 export const updateInventoryItem = async (req, res) => {
   try {
     const updatedItem = await Inventory.findByIdAndUpdate(
-      req.params.id, 
-      req.body, 
+      req.params.id,
+      req.body,
       { new: true }
     );
     res.status(200).json(formatInventory(updatedItem));
