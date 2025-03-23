@@ -34,7 +34,7 @@ const getIndianNumberInWords = (num, prefix, suffix) => {
   return words;
 };
 
-const StatsCard = ({ title, value, icon: Icon, color = "blue", footer }) => {
+const StatsCard = ({ title, value, icon: Icon, color = "blue", footer, subValue1, subValue2 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
   const getGradient = () => {
@@ -125,7 +125,7 @@ const StatsCard = ({ title, value, icon: Icon, color = "blue", footer }) => {
               <button
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
-                className="relative p-1 text-gray-400 transition-colors hover:text-white"
+                className="relative flex items-center justify-center w-6 h-6 text-gray-400 transition-colors hover:text-white"
               >
                 <Info size={16} />
                 {showTooltip && (
@@ -148,6 +148,16 @@ const StatsCard = ({ title, value, icon: Icon, color = "blue", footer }) => {
           {footer && (
             <div className="mt-1 text-sm text-gray-300 transition-colors">
               {footer}
+            </div>
+          )}
+          {subValue1 && (
+            <div className="mt-1 text-sm text-gray-300 transition-colors">
+              {subValue1}
+            </div>
+          )}
+          {subValue2 && (
+            <div className="mt-0.5 text-sm text-gray-400 transition-colors">
+              {subValue2}
             </div>
           )}
         </div>

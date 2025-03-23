@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -39,7 +45,7 @@ import { format } from "date-fns";
 
 // Import custom components
 import DateFilter from "../components/DateFilter";
-import SummaryCard from "../components/SummaryCard";
+import StatsCard from "../PagesModals/StatsCard";
 import ChartContainer from "../components/ChartContainer";
 import CustomTooltip from "../components/CustomTooltip";
 
@@ -63,6 +69,7 @@ const Reports = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const reportRef = useRef(null);
+  const fetchTimeoutRef = useRef(null);
 
   // Color palette
   const COLORS = [
@@ -76,166 +83,193 @@ const Reports = () => {
     "#84cc16",
   ];
 
-  // Fetch data on component mount and when date range changes
-  useEffect(() => {
-    fetchAllData();
-  }, [dateFilter]);
+  // Memoized filter data helper
+  const filterDataByDate = useCallback(
+    (data, dateField = "date") => {
+      if (dateFilter.isCustom) {
+        return data.filter((item) => {
+          const itemDate = new Date(item[dateField]);
+          return (
+            itemDate >= dateFilter.customRange.startDate &&
+            itemDate <= dateFilter.customRange.endDate
+          );
+        });
+      }
 
-  // Filter data helper
-  const filterDataByDate = (data, dateField = "date") => {
-    if (dateFilter.isCustom) {
-      return data.filter((item) => {
-        const itemDate = new Date(item[dateField]);
-        return (
-          itemDate >= dateFilter.customRange.startDate &&
-          itemDate <= dateFilter.customRange.endDate
-        );
-      });
-    }
+      if (dateFilter.range === "all") return data;
 
-    if (dateFilter.range === "all") return data;
+      const now = new Date();
+      let startDate;
 
-    const now = new Date();
-    let startDate;
+      const ranges = {
+        today: () => {
+          const d = new Date(now);
+          d.setHours(0, 0, 0, 0);
+          return d;
+        },
+        week: () => {
+          const d = new Date(now);
+          d.setDate(now.getDate() - 7);
+          return d;
+        },
+        month: () => {
+          const d = new Date(now);
+          d.setMonth(now.getMonth() - 1);
+          return d;
+        },
+        quarter: () => {
+          const d = new Date(now);
+          d.setMonth(now.getMonth() - 3);
+          return d;
+        },
+        year: () => {
+          const d = new Date(now);
+          d.setFullYear(now.getFullYear() - 1);
+          return d;
+        },
+      };
 
-    const ranges = {
-      today: () => {
-        const d = new Date(now);
-        d.setHours(0, 0, 0, 0);
-        return d;
-      },
-      week: () => {
-        const d = new Date(now);
-        d.setDate(now.getDate() - 7);
-        return d;
-      },
-      month: () => {
-        const d = new Date(now);
-        d.setMonth(now.getMonth() - 1);
-        return d;
-      },
-      quarter: () => {
-        const d = new Date(now);
-        d.setMonth(now.getMonth() - 3);
-        return d;
-      },
-      year: () => {
-        const d = new Date(now);
-        d.setFullYear(now.getFullYear() - 1);
-        return d;
-      },
-    };
+      startDate = ranges[dateFilter.range] ? ranges[dateFilter.range]() : now;
+      return data.filter((item) => new Date(item[dateField]) >= startDate);
+    },
+    [dateFilter]
+  );
 
-    startDate = ranges[dateFilter.range] ? ranges[dateFilter.range]() : now;
-    return data.filter((item) => new Date(item[dateField]) >= startDate);
-  };
+  // Memoized data processing
+  const processData = useCallback(
+    (rawData) => {
+      const filteredSales = filterDataByDate(rawData.sales);
 
-  // Process data - reduced and streamlined
-  const processData = (rawData) => {
-    const filteredSales = filterDataByDate(rawData.sales);
-
-    // Process sales by product
-    const salesByProduct = Object.values(
-      filteredSales.reduce((acc, sale) => {
-        if (!acc[sale.product]) {
-          acc[sale.product] = {
-            product: sale.product,
-            quantity: 0,
-            revenue: 0,
-            count: 0,
-            avgPrice: 0,
-          };
-        }
-        acc[sale.product].quantity += sale.quantity;
-        acc[sale.product].revenue += sale.total;
-        acc[sale.product].count += 1;
-        acc[sale.product].avgPrice =
-          acc[sale.product].revenue / acc[sale.product].quantity;
-        return acc;
-      }, {})
-    );
-
-    // Generate sales trend
-    const salesTrend = Object.values(
-      filteredSales.reduce((acc, sale) => {
-        const date = new Date(sale.date).toLocaleDateString();
-        if (!acc[date]) {
-          acc[date] = { date, revenue: 0, quantity: 0, transactions: 0 };
-        }
-        acc[date].revenue += sale.total;
-        acc[date].quantity += sale.quantity;
-        acc[date].transactions += 1;
-        return acc;
-      }, {})
-    )
-      .map((item) => ({
-        ...item,
-        avgTransactionValue: item.revenue / item.transactions,
-      }))
-      .sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    // Process expenses
-    const filteredExpenses = filterDataByDate(rawData.expenses);
-    const totalExpenses = filteredExpenses.reduce(
-      (sum, exp) => sum + exp.amount,
-      0
-    );
-
-    const expensesByCategory = Object.values(
-      filteredExpenses.reduce((acc, expense) => {
-        if (!acc[expense.category]) {
-          acc[expense.category] = {
-            category: expense.category,
-            amount: 0,
-            count: 0,
-          };
-        }
-        acc[expense.category].amount += expense.amount;
-        acc[expense.category].count += 1;
-        return acc;
-      }, {})
-    ).map((item) => ({
-      ...item,
-      percentage: ((item.amount / totalExpenses) * 100).toFixed(1),
-    }));
-
-    return {
-      sales: salesByProduct,
-      inventory: rawData.inventory,
-      employees: rawData.employees,
-      expenses: expensesByCategory,
-      salesTrend: salesTrend,
-    };
-  };
-
-  // Fetch data
-  const fetchAllData = async () => {
-    setIsLoading(true);
-    try {
-      const endpoints = ["sales", "inventory", "employees", "expenses"];
-      const responses = await Promise.all(
-        endpoints.map((endpoint) =>
-          axios.get(`http://localhost:5000/api/${endpoint}`)
-        )
+      // Process sales by product
+      const salesByProduct = Object.values(
+        filteredSales.reduce((acc, sale) => {
+          if (!acc[sale.product]) {
+            acc[sale.product] = {
+              product: sale.product,
+              quantity: 0,
+              revenue: 0,
+              count: 0,
+              avgPrice: 0,
+            };
+          }
+          acc[sale.product].quantity += sale.quantity;
+          acc[sale.product].revenue += sale.total;
+          acc[sale.product].count += 1;
+          acc[sale.product].avgPrice =
+            acc[sale.product].revenue / acc[sale.product].quantity;
+          return acc;
+        }, {})
       );
 
-      const rawData = endpoints.reduce((acc, endpoint, i) => {
-        acc[endpoint] = responses[i].data;
-        return acc;
-      }, {});
+      // Generate sales trend
+      const salesTrend = Object.values(
+        filteredSales.reduce((acc, sale) => {
+          const date = new Date(sale.date).toLocaleDateString();
+          if (!acc[date]) {
+            acc[date] = { date, revenue: 0, quantity: 0, transactions: 0 };
+          }
+          acc[date].revenue += sale.total;
+          acc[date].quantity += sale.quantity;
+          acc[date].transactions += 1;
+          return acc;
+        }, {})
+      )
+        .map((item) => ({
+          ...item,
+          avgTransactionValue: item.revenue / item.transactions,
+        }))
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-      setData(processData(rawData));
-      setIsLoading(false);
-      toast.success("Data refreshed successfully!");
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      toast.error("Failed to fetch data. Please try again.");
-      setIsLoading(false);
+      // Process expenses
+      const filteredExpenses = filterDataByDate(rawData.expenses);
+      const totalExpenses = filteredExpenses.reduce(
+        (sum, exp) => sum + exp.amount,
+        0
+      );
+
+      const expensesByCategory = Object.values(
+        filteredExpenses.reduce((acc, expense) => {
+          if (!acc[expense.category]) {
+            acc[expense.category] = {
+              category: expense.category,
+              amount: 0,
+              count: 0,
+            };
+          }
+          acc[expense.category].amount += expense.amount;
+          acc[expense.category].count += 1;
+          return acc;
+        }, {})
+      ).map((item) => ({
+        ...item,
+        percentage: ((item.amount / totalExpenses) * 100).toFixed(1),
+      }));
+
+      return {
+        sales: salesByProduct,
+        inventory: rawData.inventory,
+        employees: rawData.employees,
+        expenses: expensesByCategory,
+        salesTrend: salesTrend,
+      };
+    },
+    [filterDataByDate]
+  );
+
+  // Fetch data with debouncing
+  const fetchAllData = useCallback(
+    async (showToast = false) => {
+      setIsLoading(true);
+      try {
+        const endpoints = ["sales", "inventory", "employees", "expenses"];
+        const responses = await Promise.all(
+          endpoints.map((endpoint) =>
+            axios.get(`http://localhost:5000/api/${endpoint}`)
+          )
+        );
+
+        const rawData = endpoints.reduce((acc, endpoint, i) => {
+          acc[endpoint] = responses[i].data;
+          return acc;
+        }, {});
+
+        setData(processData(rawData));
+        setIsLoading(false);
+        if (showToast) {
+          toast.success("Data refreshed successfully!");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Failed to fetch data. Please try again.");
+        setIsLoading(false);
+      }
+    },
+    [processData]
+  );
+
+  // Initial data fetch on mount
+  useEffect(() => {
+    fetchAllData(false);
+  }, [fetchAllData]);
+
+  // Debounced data fetch on date filter change
+  useEffect(() => {
+    if (fetchTimeoutRef.current) {
+      clearTimeout(fetchTimeoutRef.current);
     }
-  };
+    fetchTimeoutRef.current = setTimeout(() => {
+      fetchAllData(true);
+    }, 500); // 500ms debounce
 
-  // Calculate summary statistics - simplified
-  const getSummaryStats = () => {
+    return () => {
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
+    };
+  }, [dateFilter, fetchAllData]);
+
+  // Memoized summary statistics
+  const stats = useMemo(() => {
     const totals = {
       sales: data.sales.reduce((sum, item) => sum + item.revenue, 0),
       quantity: data.sales.reduce((sum, item) => sum + item.quantity, 0),
@@ -272,7 +306,7 @@ const Reports = () => {
           ? (totals.quantity / totals.inventory).toFixed(2)
           : 0,
     };
-  };
+  }, [data]);
 
   // Generate PDF report - simplified
   const generatePDFReport = async () => {
@@ -319,11 +353,9 @@ const Reports = () => {
     }
   };
 
-  const stats = getSummaryStats();
-
   return (
     <div className="flex flex-col min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
-      <main className="container flex flex-col w-full max-w-7xl p-6 mx-auto">
+      <main className="container flex flex-col w-full p-6 mx-auto max-w-7xl">
         <div ref={reportRef}>
           {/* Header */}
           <div className="flex flex-col items-start justify-between gap-4 mb-6 md:flex-row md:items-center">
@@ -358,7 +390,7 @@ const Reports = () => {
             <>
               {/* Summary Cards */}
               <div className="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 lg:grid-cols-4">
-                <SummaryCard
+                <StatsCard
                   title="Total Sales"
                   value={`₹${stats.sales.toLocaleString()}`}
                   icon={DollarSign}
@@ -376,7 +408,7 @@ const Reports = () => {
                     </span>
                   }
                 />
-                <SummaryCard
+                <StatsCard
                   title="Inventory Status"
                   value={`${stats.inventory.toLocaleString()} Units`}
                   icon={Package}
@@ -393,7 +425,7 @@ const Reports = () => {
                     </span>
                   }
                 />
-                <SummaryCard
+                <StatsCard
                   title="Total Expenses"
                   value={`₹${stats.expenses.toLocaleString()}`}
                   icon={DollarSign}
@@ -411,7 +443,7 @@ const Reports = () => {
                     </span>
                   }
                 />
-                <SummaryCard
+                <StatsCard
                   title="Net Profit/Loss"
                   value={`₹${stats.profitLoss.toLocaleString()}`}
                   icon={BarChart2}
@@ -433,7 +465,7 @@ const Reports = () => {
               {/* Charts Section - Condensed */}
               <div className="space-y-6">
                 {/* Sales Analysis */}
-                <div className="p-5 bg-gray-700 shadow-lg rounded-xl">
+                <div className="p-5 border shadow-lg bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-700/50 rounded-xl backdrop-blur-sm">
                   <h2 className="mb-4 text-xl font-semibold">Sales Analysis</h2>
                   <div className="grid gap-6 md:grid-cols-2">
                     <ChartContainer title="Sales by Product">
@@ -501,7 +533,7 @@ const Reports = () => {
                 </div>
 
                 {/* Advanced Analytics */}
-                <div className="p-5 bg-gray-700 shadow-lg rounded-xl">
+                <div className="p-5 border shadow-lg bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-700/50 rounded-xl backdrop-blur-sm">
                   <h2 className="mb-4 text-xl font-semibold">
                     Advanced Analytics
                   </h2>
@@ -587,7 +619,7 @@ const Reports = () => {
                 </div>
 
                 {/* Expense Analysis */}
-                <div className="p-5 bg-gray-700 shadow-lg rounded-xl">
+                <div className="p-5 border shadow-lg bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-700/50 rounded-xl backdrop-blur-sm">
                   <h2 className="mb-4 text-xl font-semibold">
                     Expense Analysis
                   </h2>
@@ -655,18 +687,18 @@ const Reports = () => {
                 </div>
 
                 {/* Inventory Status */}
-                <div className="p-5 bg-gray-700 shadow-lg rounded-xl">
+                <div className="p-5 border shadow-lg bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-700/50 rounded-xl backdrop-blur-sm">
                   <h2 className="mb-4 text-xl font-semibold">
                     Inventory Status
                   </h2>
                   <div className="grid gap-6 md:grid-cols-2">
-                    <div className="p-4 overflow-auto bg-gray-800 rounded-lg max-h-72">
+                    <div className="p-4 overflow-auto border rounded-lg bg-gradient-to-br from-gray-800/30 to-gray-900/30 border-gray-700/30 max-h-72 backdrop-blur-sm">
                       <h3 className="mb-3 text-lg font-medium text-gray-300">
                         Current Stock
                       </h3>
                       <table className="w-full text-white border-collapse shadow-md">
                         <thead>
-                          <tr className="text-gray-300 bg-gray-600">
+                          <tr className="text-gray-300 bg-gray-800/50">
                             <th className="p-3 text-left">Item</th>
                             <th className="p-3 text-left">Current Stock</th>
                             <th className="p-3 text-left">Reorder Level</th>
@@ -694,7 +726,7 @@ const Reports = () => {
                             return (
                               <tr
                                 key={item._id}
-                                className="transition-colors border-b border-gray-500 hover:bg-gray-900"
+                                className="transition-colors border-b border-gray-700/50 hover:bg-gray-800/50"
                               >
                                 <td className="p-3">{item.name}</td>
                                 <td className="p-3">{item.currentStock}</td>
