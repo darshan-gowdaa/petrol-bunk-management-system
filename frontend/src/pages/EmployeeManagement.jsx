@@ -256,128 +256,130 @@ const EmployeeManagement = () => {
   };
 
   return (
-    <div className="container px-4 py-4 mx-auto transition-all duration-300 animate-fadeIn">
-      {/* Toast Container */}
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
-
-      <HeaderWithActions
-        title="Employee Management"
-        onAdd={() => setShowAddModal(true)}
-        onFilter={() => setShowFilters(!showFilters)}
-        onExport={handleExportEmployees}
-        addLabel="Add Employee"
-      />
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
-        <StatsCard
-          title="Total Employees"
-          value={stats.totalEmployees}
-          icon={Users}
-          color="blue"
-          footer={`Active workforce`}
+    <div className="flex flex-col min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
+      <main className="container flex flex-col w-full max-w-7xl p-6 mx-auto">
+        {/* Toast Container */}
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
         />
 
-        <StatsCard
-          title="Total Salary"
-          value={`₹${parseInt(stats.totalSalary).toLocaleString()}`}
-          icon={DollarSign}
-          color="green"
-          footer={`Monthly payout`}
+        <HeaderWithActions
+          title="Employee Management"
+          onAdd={() => setShowAddModal(true)}
+          onFilter={() => setShowFilters(!showFilters)}
+          onExport={handleExportEmployees}
+          addLabel="Add Employee"
         />
 
-        <StatsCard
-          title="Average Salary"
-          value={`₹${parseInt(stats.averageSalary).toLocaleString()}`}
-          icon={Calculator}
-          color="purple"
-          footer={`Per employee`}
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
+          <StatsCard
+            title="Total Employees"
+            value={stats.totalEmployees}
+            icon={Users}
+            color="blue"
+            footer={`Active workforce`}
+          />
+
+          <StatsCard
+            title="Total Salary"
+            value={`₹${parseInt(stats.totalSalary).toLocaleString()}`}
+            icon={DollarSign}
+            color="green"
+            footer={`Monthly payout`}
+          />
+
+          <StatsCard
+            title="Average Salary"
+            value={`₹${parseInt(stats.averageSalary).toLocaleString()}`}
+            icon={Calculator}
+            color="purple"
+            footer={`Per employee`}
+          />
+        </div>
+
+        {/* Filter Panel */}
+        <Filters
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+          filters={filters}
+          handleFilterChange={handleFilterChange}
+          resetFilters={resetFilters}
+          applyFilters={applyFilters}
+          fields={employeeFields}
+          title="Filter Employees"
         />
-      </div>
 
-      {/* Filter Panel */}
-      <Filters
-        showFilters={showFilters}
-        setShowFilters={setShowFilters}
-        filters={filters}
-        handleFilterChange={handleFilterChange}
-        resetFilters={resetFilters}
-        applyFilters={applyFilters}
-        fields={employeeFields}
-        title="Filter Employees"
-      />
+        {/* Employees Table */}
+        <Table
+          columns={[
+            { key: "name", label: "Name" },
+            { key: "position", label: "Position" },
+            {
+              key: "salary",
+              label: "Salary",
+              render: (value) => `₹${parseInt(value).toLocaleString()}`,
+            },
+            {
+              key: "dateAdded",
+              label: "Date Added",
+              render: (value) => new Date(value).toLocaleDateString(),
+            },
+          ]}
+          data={filteredEmployees}
+          loading={loading}
+          onEdit={(employee) => {
+            setCurrentEmployee(employee);
+            setShowEditModal(true);
+          }}
+          onDelete={(employee) => {
+            setCurrentEmployee(employee);
+            setShowDeleteModal(true);
+          }}
+        />
 
-      {/* Employees Table */}
-      <Table
-        columns={[
-          { key: "name", label: "Name" },
-          { key: "position", label: "Position" },
-          {
-            key: "salary",
-            label: "Salary",
-            render: (value) => `₹${parseInt(value).toLocaleString()}`,
-          },
-          {
-            key: "dateAdded",
-            label: "Date Added",
-            render: (value) => new Date(value).toLocaleDateString(),
-          },
-        ]}
-        data={filteredEmployees}
-        loading={loading}
-        onEdit={(employee) => {
-          setCurrentEmployee(employee);
-          setShowEditModal(true);
-        }}
-        onDelete={(employee) => {
-          setCurrentEmployee(employee);
-          setShowDeleteModal(true);
-        }}
-      />
+        <AddModalForm
+          show={showAddModal}
+          title="Add New Employee"
+          fields={employeeFields}
+          formData={newEmployee}
+          onChange={handleInputChange}
+          onSubmit={addEmployee}
+          onCancel={() => setShowAddModal(false)}
+          loading={loading}
+        />
 
-      <AddModalForm
-        show={showAddModal}
-        title="Add New Employee"
-        fields={employeeFields}
-        formData={newEmployee}
-        onChange={handleInputChange}
-        onSubmit={addEmployee}
-        onCancel={() => setShowAddModal(false)}
-        loading={loading}
-      />
+        {/* Edit Employee Modal */}
+        <EditModalForm
+          showEditModal={showEditModal}
+          currentData={currentEmployee}
+          setShowEditModal={setShowEditModal}
+          handleInputChange={handleInputChange}
+          loading={loading}
+          editFunction={editEmployee}
+          entityType="Employees"
+        />
 
-      {/* Edit Employee Modal */}
-      <EditModalForm
-        showEditModal={showEditModal}
-        currentData={currentEmployee}
-        setShowEditModal={setShowEditModal}
-        handleInputChange={handleInputChange}
-        loading={loading}
-        editFunction={editEmployee}
-        entityType="Employees"
-      />
-
-      {/* Delete Confirmation Modal */}
-      <DeleteRow
-        show={showDeleteModal}
-        item={currentEmployee}
-        itemType="Employee"
-        itemName={currentEmployee?.name}
-        onCancel={() => setShowDeleteModal(false)}
-        onDelete={deleteEmployee}
-        loading={loading}
-      />
+        {/* Delete Confirmation Modal */}
+        <DeleteRow
+          show={showDeleteModal}
+          item={currentEmployee}
+          itemType="Employee"
+          itemName={currentEmployee?.name}
+          onCancel={() => setShowDeleteModal(false)}
+          onDelete={deleteEmployee}
+          loading={loading}
+        />
+      </main>
     </div>
   );
 };

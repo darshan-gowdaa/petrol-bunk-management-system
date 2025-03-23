@@ -14,6 +14,7 @@ import ExpenseTracking from "./pages/ExpenseTracking";
 import Reports from "./pages/Reports";
 import Login from "./pages/Login";
 import "./App.css";
+import "./toast.css"; // Custom toast styles
 
 const App = () => {
   return (
@@ -62,7 +63,7 @@ const ProtectedLayout = () => {
     <div className="flex h-screen overflow-hidden">
       <Sidebar updateSidebarState={setSidebarWidth} />
       <div
-        className={`flex-1 overflow-auto transition-all duration-300 p-3 ${
+        className={`flex-1 overflow-auto transition-all duration-300 p-3 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 ${
           sidebarWidth === "w-64" ? "ml-64" : "ml-16"
         }`}
       >

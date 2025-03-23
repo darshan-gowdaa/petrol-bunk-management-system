@@ -8,3 +8,48 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+@keyframes colorGlow {
+  0% {
+    text-shadow: 0 0 10px #60A5FA, 0 0 20px #60A5FA, 0 0 30px #60A5FA;
+  }
+
+  25% {
+    text-shadow: 0 0 10px #34D399, 0 0 20px #34D399, 0 0 30px #34D399;
+  }
+
+  50% {
+    text-shadow: 0 0 10px #A78BFA, 0 0 20px #A78BFA, 0 0 30px #A78BFA;
+  }
+
+  75% {
+    text-shadow: 0 0 10px #F472B6, 0 0 20px #F472B6, 0 0 30px #F472B6;
+  }
+
+  100% {
+    text-shadow: 0 0 10px #60A5FA, 0 0 20px #60A5FA, 0 0 30px #60A5FA;
+  }
+}
+
+.animate-color-glow {
+  animation: colorGlow 4s infinite;
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-flow {
+  background-size: 200% auto;
+  animation: gradientFlow 3s linear infinite;
+}

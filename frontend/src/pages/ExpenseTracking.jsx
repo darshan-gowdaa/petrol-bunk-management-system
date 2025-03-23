@@ -261,173 +261,175 @@ const ExpenseTracking = () => {
   const averageAmount = totalAmount / filteredExpenses.length || 0;
 
   return (
-    <div className="container px-4 py-4 mx-auto animate-fadein">
-      <HeaderWithActions
-        title="Expense Tracking"
-        onAdd={() => setShowAddModal(true)}
-        onFilter={() => setShowFilters(!showFilters)}
-        onExport={handleExport}
-        addLabel="Add Expense"
-      />
-
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
-        <StatsCard
-          title="Total Expenses"
-          value={`₹${totalAmount.toLocaleString()}`}
-          icon={Package}
-          color="indigo"
-          footer={`Total expenditure`}
+    <div className="flex flex-col min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
+      <main className="container flex flex-col w-full max-w-7xl p-6 mx-auto">
+        <HeaderWithActions
+          title="Expense Tracking"
+          onAdd={() => setShowAddModal(true)}
+          onFilter={() => setShowFilters(!showFilters)}
+          onExport={handleExport}
+          addLabel="Add Expense"
         />
-        <StatsCard
-          title="Total Entries"
-          value={filteredExpenses.length}
-          icon={CheckCircle}
-          color="green"
-          footer={`Number of transactions`}
+
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
         />
-        <StatsCard
-          title="Average Expense"
-          value={`₹${averageAmount.toFixed(2)}`}
-          icon={TrendingUp}
-          color="blue"
-          footer={`Per transaction`}
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
+          <StatsCard
+            title="Total Expenses"
+            value={`₹${totalAmount.toLocaleString()}`}
+            icon={Package}
+            color="indigo"
+            footer={`Total expenditure`}
+          />
+          <StatsCard
+            title="Total Entries"
+            value={filteredExpenses.length}
+            icon={CheckCircle}
+            color="green"
+            footer={`Number of transactions`}
+          />
+          <StatsCard
+            title="Average Expense"
+            value={`₹${averageAmount.toFixed(2)}`}
+            icon={TrendingUp}
+            color="blue"
+            footer={`Per transaction`}
+          />
+        </div>
+
+        {/* Table */}
+        <Table
+          columns={[
+            { key: "category", label: "Category" },
+            {
+              key: "amount",
+              label: "Amount",
+              render: (value) => `₹${Number(value).toLocaleString()}`,
+            },
+            {
+              key: "date",
+              label: "Date",
+              render: (value) => new Date(value).toLocaleDateString(),
+            },
+          ]}
+          data={filteredExpenses}
+          loading={loading}
+          onEdit={(exp) => {
+            setCurrentExpense(exp);
+            setShowEditModal(true);
+          }}
+          onDelete={(exp) => {
+            setCurrentExpense(exp);
+            setShowDeleteModal(true);
+          }}
         />
-      </div>
 
-      {/* Table */}
-      <Table
-        columns={[
-          { key: "category", label: "Category" },
-          {
-            key: "amount",
-            label: "Amount",
-            render: (value) => `₹${Number(value).toLocaleString()}`,
-          },
-          {
-            key: "date",
-            label: "Date",
-            render: (value) => new Date(value).toLocaleDateString(),
-          },
-        ]}
-        data={filteredExpenses}
-        loading={loading}
-        onEdit={(exp) => {
-          setCurrentExpense(exp);
-          setShowEditModal(true);
-        }}
-        onDelete={(exp) => {
-          setCurrentExpense(exp);
-          setShowDeleteModal(true);
-        }}
-      />
-
-      {/* Modals */}
-      <AddModalForm
-        show={showAddModal}
-        title="Add New Expense"
-        fields={[
-          {
-            name: "category",
-            label: "Category",
-            type: "select",
-            options: [...categories, "add_new"],
-          },
-          {
-            name: "amount",
-            label: "Amount (₹)",
-            type: "number",
-            min: 0,
-            step: 0.01,
-          },
-          { name: "date", label: "Date", type: "date" },
-        ]}
-        formData={newExpense}
-        onChange={handleInputChange}
-        onSubmit={addExpense}
-        onCancel={() => {
-          setShowAddModal(false);
-          setShowNewCategoryInput(false);
-          setNewCategory("");
-        }}
-        categories={categories}
-        addNewCategory={addNewCategory}
-        newCategory={newCategory}
-        handleNewCategoryChange={(e) => setNewCategory(e.target.value)}
-        showNewCategoryInput={showNewCategoryInput}
-        setShowNewCategoryInput={setShowNewCategoryInput}
-        handleCategorySelect={handleCategorySelect}
-        loading={loading}
-      />
-
-      <EditModalForm
-        showEditModal={showEditModal}
-        currentData={currentExpense}
-        setShowEditModal={(val) => {
-          setShowEditModal(val);
-          if (!val) {
+        {/* Modals */}
+        <AddModalForm
+          show={showAddModal}
+          title="Add New Expense"
+          fields={[
+            {
+              name: "category",
+              label: "Category",
+              type: "select",
+              options: [...categories, "add_new"],
+            },
+            {
+              name: "amount",
+              label: "Amount (₹)",
+              type: "number",
+              min: 0,
+              step: 0.01,
+            },
+            { name: "date", label: "Date", type: "date" },
+          ]}
+          formData={newExpense}
+          onChange={handleInputChange}
+          onSubmit={addExpense}
+          onCancel={() => {
+            setShowAddModal(false);
             setShowNewCategoryInput(false);
             setNewCategory("");
+          }}
+          categories={categories}
+          addNewCategory={addNewCategory}
+          newCategory={newCategory}
+          handleNewCategoryChange={(e) => setNewCategory(e.target.value)}
+          showNewCategoryInput={showNewCategoryInput}
+          setShowNewCategoryInput={setShowNewCategoryInput}
+          handleCategorySelect={handleCategorySelect}
+          loading={loading}
+        />
+
+        <EditModalForm
+          showEditModal={showEditModal}
+          currentData={currentExpense}
+          setShowEditModal={(val) => {
+            setShowEditModal(val);
+            if (!val) {
+              setShowNewCategoryInput(false);
+              setNewCategory("");
+            }
+          }}
+          handleInputChange={handleInputChange}
+          loading={loading}
+          editFunction={editExpense}
+          entityType="Expense"
+          categories={categories}
+          addNewCategory={addNewCategory}
+          newCategory={newCategory}
+          handleNewCategoryChange={(e) => setNewCategory(e.target.value)}
+          showNewCategoryInput={showNewCategoryInput}
+          setShowNewCategoryInput={setShowNewCategoryInput}
+          handleCategorySelect={handleCategorySelect}
+        />
+
+        <DeleteRow
+          show={showDeleteModal}
+          item={currentExpense}
+          itemType="Expense"
+          itemName={`${currentExpense?.category} expense (₹${currentExpense?.amount})`}
+          onCancel={() => setShowDeleteModal(false)}
+          onDelete={deleteExpense}
+          loading={loading}
+        />
+
+        <Filters
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+          filters={filters}
+          handleFilterChange={(e) =>
+            setFilters({ ...filters, [e.target.name]: e.target.value })
           }
-        }}
-        handleInputChange={handleInputChange}
-        loading={loading}
-        editFunction={editExpense}
-        entityType="Expense"
-        categories={categories}
-        addNewCategory={addNewCategory}
-        newCategory={newCategory}
-        handleNewCategoryChange={(e) => setNewCategory(e.target.value)}
-        showNewCategoryInput={showNewCategoryInput}
-        setShowNewCategoryInput={setShowNewCategoryInput}
-        handleCategorySelect={handleCategorySelect}
-      />
-
-      <DeleteRow
-        show={showDeleteModal}
-        item={currentExpense}
-        itemType="Expense"
-        itemName={`${currentExpense?.category} expense (₹${currentExpense?.amount})`}
-        onCancel={() => setShowDeleteModal(false)}
-        onDelete={deleteExpense}
-        loading={loading}
-      />
-
-      <Filters
-        showFilters={showFilters}
-        setShowFilters={setShowFilters}
-        filters={filters}
-        handleFilterChange={(e) =>
-          setFilters({ ...filters, [e.target.name]: e.target.value })
-        }
-        resetFilters={resetFilters}
-        applyFilters={applyFilters}
-        fields={[
-          {
-            name: "category",
-            label: "Category",
-            type: "select",
-            options: ["All", ...categories],
-          },
-          { name: "amountMin", label: "Min Amount", type: "number" },
-          { name: "amountMax", label: "Max Amount", type: "number" },
-          { name: "dateFrom", label: "From Date", type: "date" },
-          { name: "dateTo", label: "To Date", type: "date" },
-        ]}
-        title="Filter Expenses"
-      />
+          resetFilters={resetFilters}
+          applyFilters={applyFilters}
+          fields={[
+            {
+              name: "category",
+              label: "Category",
+              type: "select",
+              options: ["All", ...categories],
+            },
+            { name: "amountMin", label: "Min Amount", type: "number" },
+            { name: "amountMax", label: "Max Amount", type: "number" },
+            { name: "dateFrom", label: "From Date", type: "date" },
+            { name: "dateTo", label: "To Date", type: "date" },
+          ]}
+          title="Filter Expenses"
+        />
+      </main>
     </div>
   );
 };

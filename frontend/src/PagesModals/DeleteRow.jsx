@@ -1,20 +1,20 @@
 import React from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 
-const DeleteRow = ({ 
-  show, 
-  item, 
-  onCancel, 
-  onDelete, 
-  loading, 
-  itemType, 
-  itemName 
+const DeleteRow = ({
+  show,
+  item,
+  onCancel,
+  onDelete,
+  loading,
+  itemType,
+  itemName,
 }) => {
   if (!show || !item) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-md p-6 bg-gray-900 rounded-2xl shadow-[0px_0px_15px_rgba(255,255,255,0.4)]">
+      <div className="w-full max-w-md p-6 bg-gray-900 rounded-2xl shadow-[0_0_20px_rgba(0,0,0,0.3),0_0_10px_rgba(255,255,255,0.1)] border border-gray-800/50">
         <div className="flex items-center justify-center mb-4 text-red-500">
           <AlertTriangle size={48} />
         </div>
@@ -22,8 +22,10 @@ const DeleteRow = ({
           Confirm Delete
         </h3>
         <p className="mb-6 text-center text-gray-300">
-          Are you sure you want to delete {itemType && <strong>{itemType}</strong>} 
-          {itemName && <strong> {itemName}</strong>}? This action cannot be undone.
+          Are you sure you want to delete{" "}
+          {itemType && <strong>{itemType}</strong>}
+          {itemName && <strong> {itemName}</strong>}? This action cannot be
+          undone.
         </p>
         <div className="flex justify-center space-x-4">
           <button

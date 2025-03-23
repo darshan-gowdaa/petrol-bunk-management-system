@@ -105,44 +105,46 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center min-h-screen text-gray-100 transition-all duration-200 bg-gray-900 animate-fadeIn">
+    <div className="flex flex-col justify-center min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
       <main className="flex flex-col w-full max-w-6xl p-6 mx-auto">
-        <h1 className="self-start mb-6 text-3xl font-bold">
-          <Typewriter
-            words={["Welcome to Petrol Bunk Management System!"]}
-            typeSpeed={32}
-          />
-        </h1>
+        <div className="flex-1 overflow-auto transition-all duration-300 p-3 ml-16 bg-transparent">
+          <h1 className="self-start mb-10 text-4xl font-black leading-tight tracking-tight text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text animate-gradient-flow drop-shadow-[0_0_15px_rgba(147,51,234,0.3)]">
+            <Typewriter
+              words={["Welcome to Petrol Bunk Management System!"]}
+              typeSpeed={32}
+            />
+          </h1>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((card) => (
-            <div
-              key={card.id}
-              onClick={() => navigate(card.path)}
-              className={`flex flex-col items-center space-y-4 transition-all duration-200 ease-out ${getGradientBackground(
-                card.color
-              )} border shadow-none cursor-pointer p-7 rounded-xl group hover:shadow-[0_4px_12px] hover:scale-[1.02] lg:p-9 backdrop-blur-sm`}
-            >
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {cards.map((card) => (
               <div
-                className={`p-4 rounded-full ring-2 transform transition-all duration-200 ease-out ${getIconStyles(
+                key={card.id}
+                onClick={() => navigate(card.path)}
+                className={`flex flex-col items-center justify-center space-y-2 transition-all duration-200 ease-out ${getGradientBackground(
                   card.color
-                )} group-hover:rotate-6 group-hover:scale-110`}
+                )} border shadow-none cursor-pointer px-6 py-4 rounded-xl group hover:shadow-[0_4px_12px] hover:scale-[1.02] backdrop-blur-sm h-[180px]`}
               >
-                <card.icon
-                  size={36}
-                  className="transition-transform duration-200 group-hover:animate-pulse"
-                />
+                <div
+                  className={`p-2.5 rounded-full ring-2 transform transition-all duration-200 ease-out ${getIconStyles(
+                    card.color
+                  )} group-hover:rotate-6 group-hover:scale-110`}
+                >
+                  <card.icon
+                    size={28}
+                    className="transition-transform duration-200 group-hover:animate-pulse"
+                  />
+                </div>
+                <div className="text-center transition-all duration-200 ease-out group-hover:-translate-y-1">
+                  <h3 className="text-lg font-semibold text-gray-100">
+                    {card.title}
+                  </h3>
+                  <p className="text-sm text-gray-400 transition-all duration-200 group-hover:text-gray-200 line-clamp-1">
+                    {card.description}
+                  </p>
+                </div>
               </div>
-              <div className="text-center transition-all duration-200 ease-out group-hover:-translate-y-1">
-                <h3 className="text-xl font-semibold text-gray-100">
-                  {card.title}
-                </h3>
-                <p className="text-base text-gray-400 transition-all duration-200 group-hover:text-gray-200">
-                  {card.description}
-                </p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </main>
     </div>

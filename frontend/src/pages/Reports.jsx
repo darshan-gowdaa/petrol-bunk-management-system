@@ -322,421 +322,438 @@ const Reports = () => {
   const stats = getSummaryStats();
 
   return (
-    <div className="max-w-full p-4 text-white transition-all duration-300 bg-gray-800 shadow-xl md:p-6 rounded-xl animate-fadeIn">
-      <div ref={reportRef}>
-        {/* Header */}
-        <div className="flex flex-col items-start justify-between gap-4 mb-6 md:flex-row md:items-center">
-          <h1 className="text-2xl font-bold md:text-3xl">
-            Business Analytics & Reports
-          </h1>
-          <div className="flex items-center gap-3">
-            <DateFilter dateFilter={dateFilter} setDateFilter={setDateFilter} />
-            <button
-              onClick={fetchAllData}
-              className="flex items-center gap-2 p-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-            >
-              <RefreshCw size={16} /> <span>Refresh</span>
-            </button>
-            <button
-              onClick={generatePDFReport}
-              className="flex items-center gap-2 p-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
-            >
-              <Download size={16} /> <span>Export PDF</span>
-            </button>
+    <div className="flex flex-col min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
+      <main className="container flex flex-col w-full max-w-7xl p-6 mx-auto">
+        <div ref={reportRef}>
+          {/* Header */}
+          <div className="flex flex-col items-start justify-between gap-4 mb-6 md:flex-row md:items-center">
+            <h1 className="text-2xl font-bold md:text-3xl">
+              Business Analytics & Reports
+            </h1>
+            <div className="flex items-center gap-3">
+              <DateFilter
+                dateFilter={dateFilter}
+                setDateFilter={setDateFilter}
+              />
+              <button
+                onClick={fetchAllData}
+                className="flex items-center gap-2 p-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+              >
+                <RefreshCw size={16} /> <span>Refresh</span>
+              </button>
+              <button
+                onClick={generatePDFReport}
+                className="flex items-center gap-2 p-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
+              >
+                <Download size={16} /> <span>Export PDF</span>
+              </button>
+            </div>
           </div>
+
+          {isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-xl text-blue-400">Loading data...</div>
+            </div>
+          ) : (
+            <>
+              {/* Summary Cards */}
+              <div className="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 lg:grid-cols-4">
+                <SummaryCard
+                  title="Total Sales"
+                  value={`₹${stats.sales.toLocaleString()}`}
+                  icon={DollarSign}
+                  color="blue"
+                  subValue1={
+                    <span className="flex items-center">
+                      <TrendingUp size={16} className="mr-1" />
+                      {stats.quantity.toFixed(2)} Liters
+                    </span>
+                  }
+                  subValue2={
+                    <span className="flex items-center text-sm">
+                      <ArrowUp size={14} className="mr-1" />
+                      Avg ₹{stats.avgSaleValue}/sale
+                    </span>
+                  }
+                />
+                <SummaryCard
+                  title="Inventory Status"
+                  value={`${stats.inventory.toLocaleString()} Units`}
+                  icon={Package}
+                  color="green"
+                  subValue1={
+                    <span className="flex items-center">
+                      <Zap size={16} className="mr-1" />
+                      {stats.lowStockItems} needs reorder
+                    </span>
+                  }
+                  subValue2={
+                    <span className="flex items-center text-sm">
+                      Turnover: {stats.inventoryTurnover}x
+                    </span>
+                  }
+                />
+                <SummaryCard
+                  title="Total Expenses"
+                  value={`₹${stats.expenses.toLocaleString()}`}
+                  icon={DollarSign}
+                  color="red"
+                  subValue1={
+                    <span className="flex items-center">
+                      <RefreshCw size={16} className="mr-1" />
+                      {data.expenses.length} records
+                    </span>
+                  }
+                  subValue2={
+                    <span className="flex items-center text-sm">
+                      <ArrowDown size={14} className="mr-1" />
+                      Salaries: ₹{stats.salaries.toLocaleString()}
+                    </span>
+                  }
+                />
+                <SummaryCard
+                  title="Net Profit/Loss"
+                  value={`₹${stats.profitLoss.toLocaleString()}`}
+                  icon={BarChart2}
+                  color="purple"
+                  subValue1={
+                    <span className="flex items-center">
+                      <Users size={16} className="mr-1" />
+                      {stats.totalEmployees} employees
+                    </span>
+                  }
+                  subValue2={
+                    <span className="flex items-center text-sm">
+                      Margin: {stats.profitMargin}%
+                    </span>
+                  }
+                />
+              </div>
+
+              {/* Charts Section - Condensed */}
+              <div className="space-y-6">
+                {/* Sales Analysis */}
+                <div className="p-5 bg-gray-700 shadow-lg rounded-xl">
+                  <h2 className="mb-4 text-xl font-semibold">Sales Analysis</h2>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <ChartContainer title="Sales by Product">
+                      <ComposedChart data={data.sales}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                        <XAxis dataKey="product" stroke="#CCC" />
+                        <YAxis yAxisId="left" stroke="#CCC" />
+                        <YAxis
+                          yAxisId="right"
+                          orientation="right"
+                          stroke="#CCC"
+                        />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend />
+                        <Bar
+                          yAxisId="left"
+                          dataKey="revenue"
+                          name="Revenue (₹)"
+                          fill="#3b82f6"
+                        />
+                        <Bar
+                          yAxisId="left"
+                          dataKey="quantity"
+                          name="Quantity (L)"
+                          fill="#10b981"
+                        />
+                        <Line
+                          yAxisId="right"
+                          type="monotone"
+                          dataKey="avgPrice"
+                          name="Avg Price (₹/L)"
+                          stroke="#f59e0b"
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                        />
+                      </ComposedChart>
+                    </ChartContainer>
+
+                    <ChartContainer title="Sales Trend">
+                      <AreaChart data={data.salesTrend}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                        <XAxis dataKey="date" stroke="#CCC" />
+                        <YAxis stroke="#CCC" />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend />
+                        <Area
+                          type="monotone"
+                          dataKey="revenue"
+                          name="Revenue (₹)"
+                          stroke="#8884d8"
+                          fill="#8884d8"
+                          fillOpacity={0.3}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="quantity"
+                          name="Quantity (L)"
+                          stroke="#82ca9d"
+                          fill="#82ca9d"
+                          fillOpacity={0.3}
+                        />
+                      </AreaChart>
+                    </ChartContainer>
+                  </div>
+                </div>
+
+                {/* Advanced Analytics */}
+                <div className="p-5 bg-gray-700 shadow-lg rounded-xl">
+                  <h2 className="mb-4 text-xl font-semibold">
+                    Advanced Analytics
+                  </h2>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <ChartContainer title="Transaction Analysis">
+                      <ComposedChart data={data.salesTrend}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                        <XAxis dataKey="date" stroke="#CCC" />
+                        <YAxis yAxisId="left" stroke="#CCC" />
+                        <YAxis
+                          yAxisId="right"
+                          orientation="right"
+                          stroke="#CCC"
+                        />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend />
+                        <Bar
+                          yAxisId="left"
+                          dataKey="transactions"
+                          name="Transactions"
+                          fill="#8b5cf6"
+                        />
+                        <Line
+                          yAxisId="right"
+                          type="monotone"
+                          dataKey="avgTransactionValue"
+                          name="Avg Transaction (₹)"
+                          stroke="#ec4899"
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                        />
+                      </ComposedChart>
+                    </ChartContainer>
+
+                    <ChartContainer title="Expense vs Income">
+                      <BarChart
+                        data={[
+                          {
+                            name: "Revenue",
+                            value: stats.sales,
+                            type: "Income",
+                          },
+                          {
+                            name: "Expenses",
+                            value: stats.expenses,
+                            type: "Expense",
+                          },
+                          {
+                            name: "Salaries",
+                            value: stats.salaries,
+                            type: "Expense",
+                          },
+                          {
+                            name: "Profit",
+                            value: stats.profitLoss > 0 ? stats.profitLoss : 0,
+                            type: "Income",
+                          },
+                          {
+                            name: "Loss",
+                            value:
+                              stats.profitLoss < 0
+                                ? Math.abs(stats.profitLoss)
+                                : 0,
+                            type: "Expense",
+                          },
+                        ]}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                        <XAxis dataKey="name" stroke="#CCC" />
+                        <YAxis stroke="#CCC" />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend />
+                        <Bar
+                          dataKey="value"
+                          name="Amount (₹)"
+                          fill={(entry) =>
+                            entry.type === "Income" ? "#10b981" : "#ef4444"
+                          }
+                        />
+                      </BarChart>
+                    </ChartContainer>
+                  </div>
+                </div>
+
+                {/* Expense Analysis */}
+                <div className="p-5 bg-gray-700 shadow-lg rounded-xl">
+                  <h2 className="mb-4 text-xl font-semibold">
+                    Expense Analysis
+                  </h2>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <ChartContainer title="Expense Distribution">
+                      <PieChart>
+                        <Pie
+                          data={data.expenses}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="amount"
+                          nameKey="category"
+                          label={({ name, percent }) =>
+                            `${name}: ${(percent * 100).toFixed(1)}%`
+                          }
+                        >
+                          {data.expenses.map((entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value) => [
+                            `₹${value.toLocaleString()}`,
+                            "Amount",
+                          ]}
+                          contentStyle={{
+                            backgroundColor: "#333",
+                            border: "none",
+                            borderRadius: "8px",
+                          }}
+                        />
+                        <Legend />
+                      </PieChart>
+                    </ChartContainer>
+
+                    <ChartContainer title="Expense Categories">
+                      <BarChart
+                        data={data.expenses.sort((a, b) => b.amount - a.amount)}
+                        layout="vertical"
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                        <XAxis type="number" stroke="#CCC" />
+                        <YAxis
+                          dataKey="category"
+                          type="category"
+                          stroke="#CCC"
+                          width={100}
+                        />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend />
+                        <Bar
+                          dataKey="amount"
+                          name="Amount (₹)"
+                          fill="#ef4444"
+                        />
+                      </BarChart>
+                    </ChartContainer>
+                  </div>
+                </div>
+
+                {/* Inventory Status */}
+                <div className="p-5 bg-gray-700 shadow-lg rounded-xl">
+                  <h2 className="mb-4 text-xl font-semibold">
+                    Inventory Status
+                  </h2>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="p-4 overflow-auto bg-gray-800 rounded-lg max-h-72">
+                      <h3 className="mb-3 text-lg font-medium text-gray-300">
+                        Current Stock
+                      </h3>
+                      <table className="w-full text-white border-collapse shadow-md">
+                        <thead>
+                          <tr className="text-gray-300 bg-gray-600">
+                            <th className="p-3 text-left">Item</th>
+                            <th className="p-3 text-left">Current Stock</th>
+                            <th className="p-3 text-left">Reorder Level</th>
+                            <th className="p-3 text-left">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {data.inventory.map((item) => {
+                            const stockStatus =
+                              item.currentStock <= item.reorderLevel
+                                ? {
+                                    class: "bg-red-900 text-red-200",
+                                    text: "Low Stock",
+                                  }
+                                : item.currentStock <= item.reorderLevel * 1.5
+                                ? {
+                                    class: "bg-yellow-900 text-yellow-200",
+                                    text: "Medium Stock",
+                                  }
+                                : {
+                                    class: "bg-green-900 text-green-200",
+                                    text: "Sufficient",
+                                  };
+
+                            return (
+                              <tr
+                                key={item._id}
+                                className="transition-colors border-b border-gray-500 hover:bg-gray-900"
+                              >
+                                <td className="p-3">{item.name}</td>
+                                <td className="p-3">{item.currentStock}</td>
+                                <td className="p-3">{item.reorderLevel}</td>
+                                <td className="p-3">
+                                  <span
+                                    className={`px-2 py-1 rounded-full text-sm ${stockStatus.class}`}
+                                  >
+                                    {stockStatus.text}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <ChartContainer title="Stock Levels">
+                      <BarChart
+                        data={data.inventory.map((item) => ({
+                          name: item.name,
+                          stock: item.currentStock,
+                          reorderLevel: item.reorderLevel,
+                          buffer: Math.max(
+                            0,
+                            item.currentStock - item.reorderLevel
+                          ),
+                        }))}
+                        margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+                        barGap={0}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                        <XAxis dataKey="name" stroke="#CCC" />
+                        <YAxis stroke="#CCC" />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend />
+                        <Bar
+                          dataKey="reorderLevel"
+                          name="Reorder Level"
+                          fill="#ef4444"
+                        />
+                        <Bar
+                          dataKey="buffer"
+                          name="Buffer Stock"
+                          fill="#10b981"
+                          stackId="a"
+                        />
+                      </BarChart>
+                    </ChartContainer>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-xl text-blue-400">Loading data...</div>
-          </div>
-        ) : (
-          <>
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 lg:grid-cols-4">
-              <SummaryCard
-                title="Total Sales"
-                value={`₹${stats.sales.toLocaleString()}`}
-                icon={DollarSign}
-                color="blue"
-                subValue1={
-                  <span className="flex items-center">
-                    <TrendingUp size={16} className="mr-1" />
-                    {stats.quantity.toFixed(2)} Liters
-                  </span>
-                }
-                subValue2={
-                  <span className="flex items-center text-sm">
-                    <ArrowUp size={14} className="mr-1" />
-                    Avg ₹{stats.avgSaleValue}/sale
-                  </span>
-                }
-              />
-              <SummaryCard
-                title="Inventory Status"
-                value={`${stats.inventory.toLocaleString()} Units`}
-                icon={Package}
-                color="green"
-                subValue1={
-                  <span className="flex items-center">
-                    <Zap size={16} className="mr-1" />
-                    {stats.lowStockItems} needs reorder
-                  </span>
-                }
-                subValue2={
-                  <span className="flex items-center text-sm">
-                    Turnover: {stats.inventoryTurnover}x
-                  </span>
-                }
-              />
-              <SummaryCard
-                title="Total Expenses"
-                value={`₹${stats.expenses.toLocaleString()}`}
-                icon={DollarSign}
-                color="red"
-                subValue1={
-                  <span className="flex items-center">
-                    <RefreshCw size={16} className="mr-1" />
-                    {data.expenses.length} records
-                  </span>
-                }
-                subValue2={
-                  <span className="flex items-center text-sm">
-                    <ArrowDown size={14} className="mr-1" />
-                    Salaries: ₹{stats.salaries.toLocaleString()}
-                  </span>
-                }
-              />
-              <SummaryCard
-                title="Net Profit/Loss"
-                value={`₹${stats.profitLoss.toLocaleString()}`}
-                icon={BarChart2}
-                color="purple"
-                subValue1={
-                  <span className="flex items-center">
-                    <Users size={16} className="mr-1" />
-                    {stats.totalEmployees} employees
-                  </span>
-                }
-                subValue2={
-                  <span className="flex items-center text-sm">
-                    Margin: {stats.profitMargin}%
-                  </span>
-                }
-              />
-            </div>
-
-            {/* Charts Section - Condensed */}
-            <div className="space-y-6">
-              {/* Sales Analysis */}
-              <div className="p-5 bg-gray-700 shadow-lg rounded-xl">
-                <h2 className="mb-4 text-xl font-semibold">Sales Analysis</h2>
-                <div className="grid gap-6 md:grid-cols-2">
-                  <ChartContainer title="Sales by Product">
-                    <ComposedChart data={data.sales}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                      <XAxis dataKey="product" stroke="#CCC" />
-                      <YAxis yAxisId="left" stroke="#CCC" />
-                      <YAxis
-                        yAxisId="right"
-                        orientation="right"
-                        stroke="#CCC"
-                      />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend />
-                      <Bar
-                        yAxisId="left"
-                        dataKey="revenue"
-                        name="Revenue (₹)"
-                        fill="#3b82f6"
-                      />
-                      <Bar
-                        yAxisId="left"
-                        dataKey="quantity"
-                        name="Quantity (L)"
-                        fill="#10b981"
-                      />
-                      <Line
-                        yAxisId="right"
-                        type="monotone"
-                        dataKey="avgPrice"
-                        name="Avg Price (₹/L)"
-                        stroke="#f59e0b"
-                        strokeWidth={2}
-                        dot={{ r: 4 }}
-                      />
-                    </ComposedChart>
-                  </ChartContainer>
-
-                  <ChartContainer title="Sales Trend">
-                    <AreaChart data={data.salesTrend}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                      <XAxis dataKey="date" stroke="#CCC" />
-                      <YAxis stroke="#CCC" />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend />
-                      <Area
-                        type="monotone"
-                        dataKey="revenue"
-                        name="Revenue (₹)"
-                        stroke="#8884d8"
-                        fill="#8884d8"
-                        fillOpacity={0.3}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="quantity"
-                        name="Quantity (L)"
-                        stroke="#82ca9d"
-                        fill="#82ca9d"
-                        fillOpacity={0.3}
-                      />
-                    </AreaChart>
-                  </ChartContainer>
-                </div>
-              </div>
-
-              {/* Advanced Analytics */}
-              <div className="p-5 bg-gray-700 shadow-lg rounded-xl">
-                <h2 className="mb-4 text-xl font-semibold">
-                  Advanced Analytics
-                </h2>
-                <div className="grid gap-6 md:grid-cols-2">
-                  <ChartContainer title="Transaction Analysis">
-                    <ComposedChart data={data.salesTrend}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                      <XAxis dataKey="date" stroke="#CCC" />
-                      <YAxis yAxisId="left" stroke="#CCC" />
-                      <YAxis
-                        yAxisId="right"
-                        orientation="right"
-                        stroke="#CCC"
-                      />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend />
-                      <Bar
-                        yAxisId="left"
-                        dataKey="transactions"
-                        name="Transactions"
-                        fill="#8b5cf6"
-                      />
-                      <Line
-                        yAxisId="right"
-                        type="monotone"
-                        dataKey="avgTransactionValue"
-                        name="Avg Transaction (₹)"
-                        stroke="#ec4899"
-                        strokeWidth={2}
-                        dot={{ r: 4 }}
-                      />
-                    </ComposedChart>
-                  </ChartContainer>
-
-                  <ChartContainer title="Expense vs Income">
-                    <BarChart
-                      data={[
-                        { name: "Revenue", value: stats.sales, type: "Income" },
-                        {
-                          name: "Expenses",
-                          value: stats.expenses,
-                          type: "Expense",
-                        },
-                        {
-                          name: "Salaries",
-                          value: stats.salaries,
-                          type: "Expense",
-                        },
-                        {
-                          name: "Profit",
-                          value: stats.profitLoss > 0 ? stats.profitLoss : 0,
-                          type: "Income",
-                        },
-                        {
-                          name: "Loss",
-                          value:
-                            stats.profitLoss < 0
-                              ? Math.abs(stats.profitLoss)
-                              : 0,
-                          type: "Expense",
-                        },
-                      ]}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                      <XAxis dataKey="name" stroke="#CCC" />
-                      <YAxis stroke="#CCC" />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend />
-                      <Bar
-                        dataKey="value"
-                        name="Amount (₹)"
-                        fill={(entry) =>
-                          entry.type === "Income" ? "#10b981" : "#ef4444"
-                        }
-                      />
-                    </BarChart>
-                  </ChartContainer>
-                </div>
-              </div>
-
-              {/* Expense Analysis */}
-              <div className="p-5 bg-gray-700 shadow-lg rounded-xl">
-                <h2 className="mb-4 text-xl font-semibold">Expense Analysis</h2>
-                <div className="grid gap-6 md:grid-cols-2">
-                  <ChartContainer title="Expense Distribution">
-                    <PieChart>
-                      <Pie
-                        data={data.expenses}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="amount"
-                        nameKey="category"
-                        label={({ name, percent }) =>
-                          `${name}: ${(percent * 100).toFixed(1)}%`
-                        }
-                      >
-                        {data.expenses.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        formatter={(value) => [
-                          `₹${value.toLocaleString()}`,
-                          "Amount",
-                        ]}
-                        contentStyle={{
-                          backgroundColor: "#333",
-                          border: "none",
-                          borderRadius: "8px",
-                        }}
-                      />
-                      <Legend />
-                    </PieChart>
-                  </ChartContainer>
-
-                  <ChartContainer title="Expense Categories">
-                    <BarChart
-                      data={data.expenses.sort((a, b) => b.amount - a.amount)}
-                      layout="vertical"
-                    >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                      <XAxis type="number" stroke="#CCC" />
-                      <YAxis
-                        dataKey="category"
-                        type="category"
-                        stroke="#CCC"
-                        width={100}
-                      />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend />
-                      <Bar dataKey="amount" name="Amount (₹)" fill="#ef4444" />
-                    </BarChart>
-                  </ChartContainer>
-                </div>
-              </div>
-
-              {/* Inventory Status */}
-              <div className="p-5 bg-gray-700 shadow-lg rounded-xl">
-                <h2 className="mb-4 text-xl font-semibold">Inventory Status</h2>
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div className="p-4 overflow-auto bg-gray-800 rounded-lg max-h-72">
-                    <h3 className="mb-3 text-lg font-medium text-gray-300">
-                      Current Stock
-                    </h3>
-                    <table className="w-full text-white border-collapse shadow-md">
-                      <thead>
-                        <tr className="text-gray-300 bg-gray-600">
-                          <th className="p-3 text-left">Item</th>
-                          <th className="p-3 text-left">Current Stock</th>
-                          <th className="p-3 text-left">Reorder Level</th>
-                          <th className="p-3 text-left">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.inventory.map((item) => {
-                          const stockStatus =
-                            item.currentStock <= item.reorderLevel
-                              ? {
-                                  class: "bg-red-900 text-red-200",
-                                  text: "Low Stock",
-                                }
-                              : item.currentStock <= item.reorderLevel * 1.5
-                              ? {
-                                  class: "bg-yellow-900 text-yellow-200",
-                                  text: "Medium Stock",
-                                }
-                              : {
-                                  class: "bg-green-900 text-green-200",
-                                  text: "Sufficient",
-                                };
-
-                          return (
-                            <tr
-                              key={item._id}
-                              className="transition-colors border-b border-gray-500 hover:bg-gray-900"
-                            >
-                              <td className="p-3">{item.name}</td>
-                              <td className="p-3">{item.currentStock}</td>
-                              <td className="p-3">{item.reorderLevel}</td>
-                              <td className="p-3">
-                                <span
-                                  className={`px-2 py-1 rounded-full text-sm ${stockStatus.class}`}
-                                >
-                                  {stockStatus.text}
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <ChartContainer title="Stock Levels">
-                    <BarChart
-                      data={data.inventory.map((item) => ({
-                        name: item.name,
-                        stock: item.currentStock,
-                        reorderLevel: item.reorderLevel,
-                        buffer: Math.max(
-                          0,
-                          item.currentStock - item.reorderLevel
-                        ),
-                      }))}
-                      margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
-                      barGap={0}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                      <XAxis dataKey="name" stroke="#CCC" />
-                      <YAxis stroke="#CCC" />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend />
-                      <Bar
-                        dataKey="reorderLevel"
-                        name="Reorder Level"
-                        fill="#ef4444"
-                      />
-                      <Bar
-                        dataKey="buffer"
-                        name="Buffer Stock"
-                        fill="#10b981"
-                        stackId="a"
-                      />
-                    </BarChart>
-                  </ChartContainer>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      <ToastContainer position="bottom-right" autoClose={3000} theme="dark" />
+        <ToastContainer position="bottom-right" autoClose={3000} theme="dark" />
+      </main>
     </div>
   );
 };

@@ -226,142 +226,144 @@ const SalesManagement = () => {
   );
 
   return (
-    <div className="container px-4 py-4 mx-auto transition-all duration-300 animate-fadeIn">
-      {/* Header */}
-      <HeaderWithActions
-        title="Sales Management"
-        onAdd={() => setShowAddModal(true)}
-        onFilter={() => setShowFilters(!showFilters)}
-        onExport={handleExportSales}
-        addLabel="Add Sale"
-      />
-
-      {/* Toast Container */}
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
-
-      {/* Filter Panel */}
-      <Filters
-        showFilters={showFilters}
-        setShowFilters={setShowFilters}
-        filters={filters}
-        handleFilterChange={handleFilterChange}
-        resetFilters={resetFilters}
-        applyFilters={applyFilters}
-        fields={salesFields}
-        title="Filter Products"
-      />
-
-      {/* Interactive Cards */}
-      <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
-        <StatsCard
-          title="Total Sales"
-          value={totalSales}
-          icon={BarChart2}
-          color="indigo"
-          footer={`Total transactions`}
+    <div className="flex flex-col min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
+      <main className="container flex flex-col w-full max-w-7xl p-6 mx-auto">
+        {/* Header */}
+        <HeaderWithActions
+          title="Sales Management"
+          onAdd={() => setShowAddModal(true)}
+          onFilter={() => setShowFilters(!showFilters)}
+          onExport={handleExportSales}
+          addLabel="Add Sale"
         />
 
-        <StatsCard
-          title="Total Revenue"
-          value={`₹${new Intl.NumberFormat("en-IN").format(totalRevenue)}`}
-          icon={DollarSign}
-          color="green"
-          footer={`Gross revenue`}
+        {/* Toast Container */}
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
         />
 
-        <StatsCard
-          title="Total Quantity"
-          value={`${new Intl.NumberFormat("en-IN", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(totalQuantity)} L`}
-          icon={Package}
-          color="blue"
-          footer={`Total volume sold`}
+        {/* Filter Panel */}
+        <Filters
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+          filters={filters}
+          handleFilterChange={handleFilterChange}
+          resetFilters={resetFilters}
+          applyFilters={applyFilters}
+          fields={salesFields}
+          title="Filter Products"
         />
-      </div>
 
-      {/* Sales Table */}
-      <Table
-        columns={[
-          { key: "product", label: "Product" },
-          {
-            key: "quantity",
-            label: "Quantity",
-            render: (value) => `${value} L`,
-          },
-          {
-            key: "price",
-            label: "Price",
-            render: (value) => `₹${Number(value).toLocaleString()}`,
-          },
-          {
-            key: "total",
-            label: "Total",
-            render: (value) => `₹${Number(value).toLocaleString()}`,
-          },
-          {
-            key: "date",
-            label: "Date",
-            render: (value) => new Date(value).toLocaleDateString(),
-          },
-        ]}
-        data={filteredSales}
-        loading={loading}
-        onEdit={(sale) => {
-          setCurrentSale(sale);
-          setShowEditModal(true);
-        }}
-        onDelete={(sale) => {
-          setCurrentSale(sale);
-          setShowDeleteModal(true);
-        }}
-      />
+        {/* Interactive Cards */}
+        <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
+          <StatsCard
+            title="Total Sales"
+            value={totalSales}
+            icon={BarChart2}
+            color="indigo"
+            footer={`Total transactions`}
+          />
 
-      {/* Add Sale Modal */}
-      <AddModalForm
-        show={showAddModal}
-        title="Add New Sale"
-        fields={salesFields}
-        formData={newSale}
-        onChange={handleInputChange}
-        onSubmit={addSale}
-        onCancel={() => setShowAddModal(false)}
-        loading={loading}
-      />
+          <StatsCard
+            title="Total Revenue"
+            value={`₹${new Intl.NumberFormat("en-IN").format(totalRevenue)}`}
+            icon={DollarSign}
+            color="green"
+            footer={`Gross revenue`}
+          />
 
-      {/* Edit Sale Modal */}
-      <EditModalForm
-        showEditModal={showEditModal}
-        currentData={currentSale}
-        setShowEditModal={setShowEditModal}
-        handleInputChange={handleInputChange}
-        loading={loading}
-        editFunction={editSale}
-        entityType="Sales"
-      />
+          <StatsCard
+            title="Total Quantity"
+            value={`${new Intl.NumberFormat("en-IN", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }).format(totalQuantity)} L`}
+            icon={Package}
+            color="blue"
+            footer={`Total volume sold`}
+          />
+        </div>
 
-      {/* Delete Confirmation Modal */}
-      <DeleteRow
-        show={showDeleteModal}
-        item={currentSale}
-        itemType="Sale"
-        itemName={currentSale?.product}
-        onCancel={() => setShowDeleteModal(false)}
-        onDelete={deleteSale}
-        loading={loading}
-      />
+        {/* Sales Table */}
+        <Table
+          columns={[
+            { key: "product", label: "Product" },
+            {
+              key: "quantity",
+              label: "Quantity",
+              render: (value) => `${value} L`,
+            },
+            {
+              key: "price",
+              label: "Price",
+              render: (value) => `₹${Number(value).toLocaleString()}`,
+            },
+            {
+              key: "total",
+              label: "Total",
+              render: (value) => `₹${Number(value).toLocaleString()}`,
+            },
+            {
+              key: "date",
+              label: "Date",
+              render: (value) => new Date(value).toLocaleDateString(),
+            },
+          ]}
+          data={filteredSales}
+          loading={loading}
+          onEdit={(sale) => {
+            setCurrentSale(sale);
+            setShowEditModal(true);
+          }}
+          onDelete={(sale) => {
+            setCurrentSale(sale);
+            setShowDeleteModal(true);
+          }}
+        />
+
+        {/* Add Sale Modal */}
+        <AddModalForm
+          show={showAddModal}
+          title="Add New Sale"
+          fields={salesFields}
+          formData={newSale}
+          onChange={handleInputChange}
+          onSubmit={addSale}
+          onCancel={() => setShowAddModal(false)}
+          loading={loading}
+        />
+
+        {/* Edit Sale Modal */}
+        <EditModalForm
+          showEditModal={showEditModal}
+          currentData={currentSale}
+          setShowEditModal={setShowEditModal}
+          handleInputChange={handleInputChange}
+          loading={loading}
+          editFunction={editSale}
+          entityType="Sales"
+        />
+
+        {/* Delete Confirmation Modal */}
+        <DeleteRow
+          show={showDeleteModal}
+          item={currentSale}
+          itemType="Sale"
+          itemName={currentSale?.product}
+          onCancel={() => setShowDeleteModal(false)}
+          onDelete={deleteSale}
+          loading={loading}
+        />
+      </main>
     </div>
   );
 };

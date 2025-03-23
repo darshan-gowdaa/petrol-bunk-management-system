@@ -47,24 +47,24 @@ const Table = ({
   }, [data, sortConfig]);
 
   const EmptyState = () => (
-    <div className="px-4 py-12 text-center">
+    <div className="px-4 py-12 text-center bg-gradient-to-b from-gray-900 to-gray-800">
       <Database className="w-12 h-12 mx-auto mb-4 text-gray-400" />
       <p className="text-lg text-gray-400">{emptyStateMessage}</p>
     </div>
   );
 
   const LoadingState = () => (
-    <div className="px-4 py-12 text-center">
+    <div className="px-4 py-12 text-center bg-gradient-to-b from-gray-900 to-gray-800">
       <Loader2 className="w-8 h-8 mx-auto mb-4 text-gray-400 animate-spin" />
       <p className="text-lg text-gray-400">Loading data...</p>
     </div>
   );
 
   return (
-    <div className="overflow-hidden bg-gray-900 rounded-lg shadow-lg">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
+    <div className="overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-lg shadow-xl border border-gray-700/50">
+      <div className="flex items-center justify-between px-4 py-3 border-b-2 border-gray-600 shadow-md bg-gray-800">
         <h2 className="text-lg font-medium text-white">Records</h2>
-        <div className="px-3 py-1 text-sm font-medium text-gray-300 bg-gray-700 rounded-md">
+        <div className="px-3 py-1 text-sm font-medium text-gray-300 bg-gray-700/50 rounded-md">
           Showing {data.length} entries
         </div>
       </div>
@@ -78,13 +78,13 @@ const Table = ({
         ) : (
           <div className="min-w-full">
             <div
-              className="sticky top-0 z-10 grid bg-gray-800 border-b border-gray-700"
+              className="sticky top-0 z-10 grid bg-gradient-to-r from-gray-800 to-gray-700 border-b-2 border-gray-600 shadow-md"
               style={{ gridTemplateColumns: getGridTemplate() }}
             >
               {columns.map((col) => (
                 <div
                   key={col.key}
-                  className="px-4 py-3 text-xs font-medium tracking-wider text-gray-200 uppercase transition-colors bg-gray-600 cursor-pointer hover:bg-gray-500"
+                  className="px-4 py-3 text-xs font-medium tracking-wider text-gray-200 uppercase transition-all duration-200 cursor-pointer hover:bg-gray-600/50"
                   onClick={() => handleSort(col.key)}
                 >
                   <div className="flex items-center space-x-1">
@@ -98,16 +98,16 @@ const Table = ({
                   </div>
                 </div>
               ))}
-              <div className="px-4 py-3 text-xs font-medium tracking-wider text-gray-200 uppercase bg-gray-600">
+              <div className="px-4 py-3 text-xs font-medium tracking-wider text-gray-200 uppercase">
                 Actions
               </div>
             </div>
 
-            <div className="bg-gray-800 divide-y divide-gray-700">
+            <div className="bg-gradient-to-b from-gray-800 to-gray-900 divide-y divide-gray-700/50">
               {sortedData().map((item) => (
                 <div
                   key={item._id}
-                  className="grid transition-colors hover:bg-gray-700"
+                  className="grid transition-all duration-200 hover:bg-gray-700/50"
                   style={{ gridTemplateColumns: getGridTemplate() }}
                 >
                   {columns.map((col) => (
@@ -156,9 +156,12 @@ const Table = ({
         {data.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="divide-y divide-gray-700">
+          <div className="divide-y divide-gray-700/50">
             {data.map((item) => (
-              <div key={item._id} className="p-4 hover:bg-gray-700">
+              <div
+                key={item._id}
+                className="p-4 hover:bg-gray-700/50 transition-all duration-200"
+              >
                 <div className="flex items-center justify-between mb-3">
                   <div className="font-medium text-gray-200 truncate max-w-[70%]">
                     {item[columns[0]?.key]}
@@ -211,7 +214,13 @@ const Table = ({
 const ActionButton = ({ onClick, Icon, colorClass, title }) => (
   <button
     onClick={onClick}
-    className={`p-1.5 ${colorClass} rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800`}
+    className={`p-1.5 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 hover:scale-110 ${
+      colorClass.includes("blue")
+        ? "bg-gradient-to-r from-blue-900 to-blue-800 text-blue-200 hover:from-blue-800 hover:to-blue-700"
+        : colorClass.includes("green")
+        ? "bg-gradient-to-r from-green-900 to-green-800 text-green-200 hover:from-green-800 hover:to-green-700"
+        : "bg-gradient-to-r from-red-900 to-red-800 text-red-200 hover:from-red-800 hover:to-red-700"
+    }`}
     title={title}
     aria-label={title}
   >

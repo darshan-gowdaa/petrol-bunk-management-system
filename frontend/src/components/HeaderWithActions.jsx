@@ -11,9 +11,9 @@ const HeaderWithActions = ({
   exportLabel = "Export",
 }) => {
   return (
-    <div className="px-4 sm:px-6 py-4 sm:py-5 mb-4 sm:mb-6 bg-gray-900 rounded-lg sm:rounded-xl shadow-lg">
+    <div className="px-4 py-4 mb-4 rounded-lg shadow-lg sm:px-6 sm:py-5 sm:mb-6 sm:rounded-xl">
       <div className="flex flex-col gap-4 sm:gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="flex items-center text-xl sm:text-2xl font-bold text-white md:text-3xl">
+        <h1 className="flex items-center text-xl font-bold text-white sm:text-2xl md:text-3xl">
           {icon && <span className="mr-2 sm:mr-3">{icon}</span>}
           {title}
         </h1>

@@ -229,140 +229,142 @@ const InventoryManagement = () => {
   const inStockItems = totalItems - itemsToReorder;
 
   return (
-    <div className="container px-4 py-4 mx-auto transition-all duration-300 animate-fadeIn">
-      {/* Header */}
-      <HeaderWithActions
-        title="Inventory Management"
-        onAdd={() => setShowAddModal(true)}
-        onFilter={() => setShowFilters(!showFilters)}
-        onExport={handleExportInventory}
-        addLabel="Add Item"
-      />
-
-      {/* Toast Container */}
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
-
-      {/* Filter Panel */}
-      <Filters
-        showFilters={showFilters}
-        setShowFilters={setShowFilters}
-        filters={filters}
-        handleFilterChange={handleFilterChange}
-        resetFilters={resetFilters}
-        applyFilters={applyFilters}
-        fields={inventoryFields}
-        title="Filter Inventory"
-      />
-
-      {/* Interactive Cards */}
-      <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
-        <StatsCard
-          title="Total Items"
-          value={totalItems}
-          icon={Package}
-          color="indigo"
-          footer={`Total inventory items`}
+    <div className="flex flex-col min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
+      <main className="container flex flex-col w-full max-w-7xl p-6 mx-auto">
+        {/* Header */}
+        <HeaderWithActions
+          title="Inventory Management"
+          onAdd={() => setShowAddModal(true)}
+          onFilter={() => setShowFilters(!showFilters)}
+          onExport={handleExportInventory}
+          addLabel="Add Item"
         />
 
-        <StatsCard
-          title="Need to Reorder"
-          value={itemsToReorder}
-          icon={AlertCircle}
-          color="red"
-          footer={`Below reorder level`}
+        {/* Toast Container */}
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
         />
 
-        <StatsCard
-          title="In Stock"
-          value={inStockItems}
-          icon={CheckCircle}
-          color="green"
-          footer={`Sufficient stock`}
+        {/* Filter Panel */}
+        <Filters
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+          filters={filters}
+          handleFilterChange={handleFilterChange}
+          resetFilters={resetFilters}
+          applyFilters={applyFilters}
+          fields={inventoryFields}
+          title="Filter Inventory"
         />
-      </div>
 
-      {/* Inventory Table */}
-      <Table
-        columns={[
-          { key: "name", label: "Item Name" },
-          { key: "currentStock", label: "Current Stock" },
-          { key: "reorderLevel", label: "Reorder Level" },
-          {
-            key: "status",
-            label: "Status",
-            render: (_, item) =>
-              item.currentStock <= item.reorderLevel ? (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900 text-red-200">
-                  <AlertTriangle size={12} className="mr-1" />
-                  Reorder
-                </span>
-              ) : (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900 text-green-200">
-                  In Stock
-                </span>
-              ),
-          },
-          {
-            key: "date",
-            label: "Date",
-            render: (value) => new Date(value).toLocaleDateString(),
-          },
-        ]}
-        data={filteredInventory}
-        loading={loading}
-        onEdit={(item) => {
-          setCurrentItem(item);
-          setShowEditModal(true);
-        }}
-        onDelete={(item) => {
-          setCurrentItem(item);
-          setShowDeleteModal(true);
-        }}
-      />
+        {/* Interactive Cards */}
+        <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
+          <StatsCard
+            title="Total Items"
+            value={totalItems}
+            icon={Package}
+            color="indigo"
+            footer={`Total inventory items`}
+          />
 
-      <AddModalForm
-        show={showAddModal}
-        title="Add New Inventory Item"
-        fields={inventoryFields}
-        formData={newItem}
-        onChange={handleInputChange}
-        onSubmit={addInventoryItem}
-        onCancel={() => setShowAddModal(false)}
-        loading={loading}
-      />
+          <StatsCard
+            title="Need to Reorder"
+            value={itemsToReorder}
+            icon={AlertCircle}
+            color="red"
+            footer={`Below reorder level`}
+          />
 
-      {/* Edit Inventory Item Modal */}
-      <EditModalForm
-        showEditModal={showEditModal}
-        currentData={currentItem}
-        setShowEditModal={setShowEditModal}
-        handleInputChange={handleInputChange}
-        loading={loading}
-        editFunction={editInventoryItem}
-        entityType="Inventory"
-      />
+          <StatsCard
+            title="In Stock"
+            value={inStockItems}
+            icon={CheckCircle}
+            color="green"
+            footer={`Sufficient stock`}
+          />
+        </div>
 
-      {/* Delete Confirmation Modal */}
-      <DeleteRow
-        show={showDeleteModal}
-        item={currentItem}
-        itemType="Inventory Item"
-        itemName={currentItem?.name}
-        onCancel={() => setShowDeleteModal(false)}
-        onDelete={deleteInventoryItem}
-        loading={loading}
-      />
+        {/* Inventory Table */}
+        <Table
+          columns={[
+            { key: "name", label: "Item Name" },
+            { key: "currentStock", label: "Current Stock" },
+            { key: "reorderLevel", label: "Reorder Level" },
+            {
+              key: "status",
+              label: "Status",
+              render: (_, item) =>
+                item.currentStock <= item.reorderLevel ? (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-red-900 to-red-800 text-red-200">
+                    <AlertTriangle size={12} className="mr-1" />
+                    Reorder
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-green-900 to-green-800 text-green-200">
+                    In Stock
+                  </span>
+                ),
+            },
+            {
+              key: "date",
+              label: "Date",
+              render: (value) => new Date(value).toLocaleDateString(),
+            },
+          ]}
+          data={filteredInventory}
+          loading={loading}
+          onEdit={(item) => {
+            setCurrentItem(item);
+            setShowEditModal(true);
+          }}
+          onDelete={(item) => {
+            setCurrentItem(item);
+            setShowDeleteModal(true);
+          }}
+        />
+
+        <AddModalForm
+          show={showAddModal}
+          title="Add New Inventory Item"
+          fields={inventoryFields}
+          formData={newItem}
+          onChange={handleInputChange}
+          onSubmit={addInventoryItem}
+          onCancel={() => setShowAddModal(false)}
+          loading={loading}
+        />
+
+        {/* Edit Inventory Item Modal */}
+        <EditModalForm
+          showEditModal={showEditModal}
+          currentData={currentItem}
+          setShowEditModal={setShowEditModal}
+          handleInputChange={handleInputChange}
+          loading={loading}
+          editFunction={editInventoryItem}
+          entityType="Inventory"
+        />
+
+        {/* Delete Confirmation Modal */}
+        <DeleteRow
+          show={showDeleteModal}
+          item={currentItem}
+          itemType="Inventory Item"
+          itemName={currentItem?.name}
+          onCancel={() => setShowDeleteModal(false)}
+          onDelete={deleteInventoryItem}
+          loading={loading}
+        />
+      </main>
     </div>
   );
 };
