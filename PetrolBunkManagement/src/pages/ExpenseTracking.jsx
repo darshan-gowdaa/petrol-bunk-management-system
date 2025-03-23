@@ -1,6 +1,6 @@
 // PetrolBunkManagement/src/pages/ExpenseTracking.jsx
 import React, { useState, useEffect } from "react";
-import { CheckCircle, Package } from "lucide-react";
+import { CheckCircle, Package, TrendingUp } from "lucide-react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -261,7 +261,7 @@ const ExpenseTracking = () => {
   const averageAmount = totalAmount / filteredExpenses.length || 0;
 
   return (
-    <div className="container px-4 py-8 mx-auto animate-fadein">
+    <div className="container px-4 py-4 mx-auto animate-fadein">
       <HeaderWithActions
         title="Expense Tracking"
         onAdd={() => setShowAddModal(true)}
@@ -301,7 +301,7 @@ const ExpenseTracking = () => {
         <StatsCard
           title="Average Expense"
           value={`₹${averageAmount.toFixed(2)}`}
-          icon={CheckCircle}
+          icon={TrendingUp}
           color="blue"
           footer={`Per transaction`}
         />

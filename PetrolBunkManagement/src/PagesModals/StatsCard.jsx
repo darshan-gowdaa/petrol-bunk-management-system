@@ -118,21 +118,19 @@ const StatsCard = ({ title, value, icon: Icon, color = "blue", footer }) => {
         {/* Right side - Content */}
         <div className="flex-1">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+            <span className="text-sm text-gray-300 transition-colors group-hover:text-white">
               {title}
             </span>
             {numericValue && (
               <button
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
-                className="relative p-1 text-gray-400 hover:text-white transition-colors"
+                className="relative p-1 text-gray-400 transition-colors hover:text-white"
               >
                 <Info size={16} />
                 {showTooltip && (
                   <div
-                    className="absolute z-50 p-2 text-sm text-white bg-gray-800 rounded-lg shadow-xl 
-                    whitespace-nowrap right-0 top-full mt-2 min-w-max border border-gray-700
-                    backdrop-blur-sm bg-opacity-95"
+                    className="absolute right-0 z-50 p-2 mt-2 text-sm text-white bg-gray-800 border border-gray-700 rounded-lg shadow-xl whitespace-nowrap top-full min-w-max backdrop-blur-sm bg-opacity-95"
                   >
                     {getIndianNumberInWords(
                       numericValue,
@@ -144,11 +142,11 @@ const StatsCard = ({ title, value, icon: Icon, color = "blue", footer }) => {
               </button>
             )}
           </div>
-          <div className="text-2xl font-bold text-white transition-colors mt-1">
+          <div className="mt-1 text-2xl font-bold text-white transition-colors">
             {value}
           </div>
           {footer && (
-            <div className="text-sm text-gray-300 transition-colors mt-1">
+            <div className="mt-1 text-sm text-gray-300 transition-colors">
               {footer}
             </div>
           )}

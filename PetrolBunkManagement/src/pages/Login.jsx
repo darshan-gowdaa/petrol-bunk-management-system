@@ -1,29 +1,29 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import bgImage from '../assets/bg_image.jpeg';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import bgImage from "../assets/bg_image.jpeg";
 
 const Login = () => {
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [showHelpModal, setShowHelpModal] = useState(false);
   const navigate = useNavigate();
 
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Handle login form submission
   const handleLogin = (e) => {
     e.preventDefault();
-    
-    if (formData.username === 'admin' && formData.password === 'admin') {
-      toast.success('Login successful! Redirecting...');
-      setTimeout(() => navigate('/dashboard'), 800);
+
+    if (formData.username === "admin" && formData.password === "admin") {
+      toast.success("Login successful! Redirecting...");
+      setTimeout(() => navigate("/dashboard"), 800);
     } else {
-      toast.error('Invalid Credentials, Try again!');
+      toast.error("Invalid Credentials, Try again!");
     }
   };
 
@@ -31,7 +31,7 @@ const Login = () => {
     { name: "Darshan Gowda G S", email: "DarshanGowdaa223@gmail.com" },
     { name: "Monish Kumar R", email: "Kumarrmonish06@gmail.com" },
     { name: "Gnanesh K C", email: "appuGnanesh655@gmail.com" },
-    { name: "Kushal J Vishwas", email: "KushalVishwas3835@gmail.com" }
+    { name: "Kushal J Vishwas", email: "KushalVishwas3835@gmail.com" },
   ];
 
   return (
@@ -39,12 +39,17 @@ const Login = () => {
       {/* Background Image */}
       <div
         className="fixed inset-0 bg-center bg-cover"
-        style={{ backgroundImage: `url(${bgImage})`, filter: 'brightness(35%)' }}
+        style={{
+          backgroundImage: `url(${bgImage})`,
+          filter: "brightness(35%)",
+        }}
       />
-      
+
       {/* Login Form */}
       <div className="z-10 w-full max-w-md p-12 transition-all duration-500 bg-black rounded-lg shadow-xl opacity-90 backdrop-blur-sm hover:shadow-2xl animate-fadeIn">
-        <h1 className="mb-8 text-3xl font-bold text-center text-white">Welcome Back!</h1>
+        <h1 className="mb-8 text-3xl font-bold text-center text-white">
+          Welcome Back!
+        </h1>
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
           {/* Username Input */}
           <div className="relative">
@@ -58,13 +63,13 @@ const Login = () => {
             />
             <label
               className={`absolute left-5 top-4 text-gray-400 transition-all duration-200 ${
-                formData.username ? 'text-xs -translate-y-3' : ''
+                formData.username ? "text-xs -translate-y-3" : ""
               }`}
             >
               Username
             </label>
           </div>
-          
+
           {/* Password Input */}
           <div className="relative">
             <input
@@ -77,13 +82,13 @@ const Login = () => {
             />
             <label
               className={`absolute left-5 top-4 text-gray-400 transition-all duration-200 ${
-                formData.password ? 'text-xs -translate-y-3' : ''
+                formData.password ? "text-xs -translate-y-3" : ""
               }`}
             >
               Password
             </label>
           </div>
-          
+
           {/* Submit Button */}
           <button
             type="submit"
@@ -92,10 +97,10 @@ const Login = () => {
             Sign In
           </button>
         </form>
-        
+
         {/* Help Link */}
         <div className="mt-3.5 text-center text-gray-400">
-          <button 
+          <button
             onClick={() => setShowHelpModal(true)}
             className="text-white transition-all duration-300 hover:text-red-400 hover:underline focus:outline-none"
           >
@@ -106,37 +111,50 @@ const Login = () => {
 
       {/* Developer Contact Modal */}
       {showHelpModal && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 animate-fadeIn"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowHelpModal(false);
           }}
         >
-          <div 
+          <div
             className="w-full max-w-md p-8 bg-gray-900 border border-gray-700 shadow-2xl rounded-xl opacity-95 backdrop-blur-sm animate-modalSlideIn"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">Contact Developers</h3>
-              <button 
+              <h3 className="text-2xl font-bold text-white">
+                Contact Developers
+              </h3>
+              <button
                 onClick={() => setShowHelpModal(false)}
                 className="text-gray-400 transition-all duration-300 hover:text-white hover:rotate-90 focus:outline-none"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
-            
+
             {/* Developer List */}
             <div className="space-y-4">
               {developers.map((dev, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="p-4 transition-all duration-300 transform bg-gray-800 rounded-lg hover:bg-gray-700 hover:translate-x-2"
                 >
                   <p className="font-medium text-white">{dev.name}</p>
-                  <a 
+                  <a
                     href={`mailto:${dev.email}`}
                     className="text-sm text-blue-400 transition-colors hover:text-blue-300"
                   >
@@ -145,7 +163,7 @@ const Login = () => {
                 </div>
               ))}
             </div>
-            
+
             {/* Close Button */}
             <div className="mt-6 text-center">
               <button

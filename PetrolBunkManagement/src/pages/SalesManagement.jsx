@@ -226,7 +226,7 @@ const SalesManagement = () => {
   );
 
   return (
-    <div className="container px-4 py-8 mx-auto transition-all duration-300 animate-fadeIn">
+    <div className="container px-4 py-4 mx-auto transition-all duration-300 animate-fadeIn">
       {/* Header */}
       <HeaderWithActions
         title="Sales Management"

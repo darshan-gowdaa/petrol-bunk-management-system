@@ -11,53 +11,62 @@ const HeaderWithActions = ({
   exportLabel = "Export",
 }) => {
   return (
-    <div className="px-4 py-4 mb-4 bg-gray-900 rounded-lg shadow-lg">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="flex items-center text-2xl font-bold text-white md:text-3xl">
-          {icon && <span className="mr-2">{icon}</span>}
+    <div className="px-4 sm:px-6 py-4 sm:py-5 mb-4 sm:mb-6 bg-gray-900 rounded-lg sm:rounded-xl shadow-lg">
+      <div className="flex flex-col gap-4 sm:gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="flex items-center text-xl sm:text-2xl font-bold text-white md:text-3xl">
+          {icon && <span className="mr-2 sm:mr-3">{icon}</span>}
           {title}
         </h1>
 
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <button
             onClick={onAdd}
-            className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white 
-              bg-gradient-to-r from-emerald-600 to-emerald-500
-              hover:from-emerald-500 hover:to-emerald-400
-              rounded-lg shadow-lg shadow-emerald-500/20
-              transition-all duration-300 hover:scale-105 active:scale-95
-              focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+            className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-white 
+              bg-blue-600 hover:bg-blue-700
+              rounded-lg shadow-md
+              transition-all duration-200 ease-in-out
+              hover:shadow-lg hover:shadow-blue-500/20
+              active:transform active:scale-95
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900
+              disabled:opacity-50 disabled:cursor-not-allowed
+              w-full sm:w-auto justify-center"
             aria-label={addLabel}
           >
-            <Plus size={18} />
+            <Plus size={16} className="text-blue-100 sm:w-5 sm:h-5" />
             <span>{addLabel}</span>
           </button>
 
           <button
             onClick={onFilter}
-            className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white 
-              bg-gradient-to-r from-indigo-600 to-indigo-500
-              hover:from-indigo-500 hover:to-indigo-400
-              rounded-lg shadow-lg shadow-indigo-500/20
-              transition-all duration-300 hover:scale-105 active:scale-95
-              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+            className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-white 
+              bg-purple-600 hover:bg-purple-700
+              rounded-lg shadow-md
+              transition-all duration-200 ease-in-out
+              hover:shadow-lg hover:shadow-purple-500/20
+              active:transform active:scale-95
+              focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900
+              disabled:opacity-50 disabled:cursor-not-allowed
+              w-full sm:w-auto justify-center"
             aria-label={filterLabel}
           >
-            <Filter size={18} />
+            <Filter size={16} className="text-purple-100 sm:w-5 sm:h-5" />
             <span>{filterLabel}</span>
           </button>
 
           <button
             onClick={onExport}
-            className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white 
-              bg-gradient-to-r from-cyan-600 to-cyan-500
-              hover:from-cyan-500 hover:to-cyan-400
-              rounded-lg shadow-lg shadow-cyan-500/20
-              transition-all duration-300 hover:scale-105 active:scale-95
-              focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+            className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-white 
+              bg-green-600 hover:bg-green-700
+              rounded-lg shadow-md
+              transition-all duration-200 ease-in-out
+              hover:shadow-lg hover:shadow-green-500/20
+              active:transform active:scale-95
+              focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900
+              disabled:opacity-50 disabled:cursor-not-allowed
+              w-full sm:w-auto justify-center"
             aria-label={exportLabel}
           >
-            <Download size={18} />
+            <Download size={16} className="text-green-100 sm:w-5 sm:h-5" />
             <span>{exportLabel}</span>
           </button>
         </div>
