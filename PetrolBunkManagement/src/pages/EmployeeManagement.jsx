@@ -92,7 +92,7 @@ const EmployeeManagement = () => {
       (sum, emp) => sum + Number(emp.salary),
       0
     );
-    
+
     // Average salary
     const average = totalSalary / total;
 
@@ -282,29 +282,27 @@ const EmployeeManagement = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
         <StatsCard
-          icon={<Users size={24} />}
-          iconBgColor="bg-blue-900"
-          iconColor="text-blue-300"
           title="Total Employees"
           value={stats.totalEmployees}
+          icon={Users}
+          color="blue"
+          footer={`Active workforce`}
         />
 
         <StatsCard
-          icon={<DollarSign size={24} />}
-          iconBgColor="bg-green-900"
-          iconColor="text-green-300"
           title="Total Salary"
-          value={parseInt(stats.totalSalary).toLocaleString()}
-          prefix="₹"
+          value={`₹${parseInt(stats.totalSalary).toLocaleString()}`}
+          icon={DollarSign}
+          color="green"
+          footer={`Monthly payout`}
         />
 
         <StatsCard
-          icon={<Calculator size={24} />}
-          iconBgColor="bg-purple-900"
-          iconColor="text-purple-300"
           title="Average Salary"
-          value={parseInt(stats.averageSalary).toLocaleString()}
-          prefix="₹"
+          value={`₹${parseInt(stats.averageSalary).toLocaleString()}`}
+          icon={Calculator}
+          color="purple"
+          footer={`Per employee`}
         />
       </div>
 

@@ -79,7 +79,7 @@ const ExpenseTracking = () => {
       return;
     }
     setCategories((prev) => [...prev, newCategory.trim()]);
-    
+
     // If we're in edit mode, update the currentExpense with the new category
     if (showEditModal && currentExpense) {
       setCurrentExpense((prev) => ({ ...prev, category: newCategory.trim() }));
@@ -87,7 +87,7 @@ const ExpenseTracking = () => {
       // If we're in add mode, update the newExpense with the new category
       setNewExpense((prev) => ({ ...prev, category: newCategory.trim() }));
     }
-    
+
     setNewCategory("");
     setShowNewCategoryInput(false);
     toast.success("New category added successfully");
@@ -123,15 +123,15 @@ const ExpenseTracking = () => {
       toast.error("Please add the new category first");
       return;
     }
-    
+
     setLoading(true);
     try {
       const expenseToAdd = {
         category: newExpense.category,
         amount: newExpense.amount,
-        date: newExpense.date
+        date: newExpense.date,
       };
-      
+
       const response = await axios.post("/api/expenses", expenseToAdd);
       setExpenses((prev) => [...prev, response.data]);
       setFilteredExpenses((prev) => [...prev, response.data]);
@@ -156,15 +156,15 @@ const ExpenseTracking = () => {
       toast.error("Please add the new category first");
       return;
     }
-    
+
     setLoading(true);
     try {
       const expenseToUpdate = {
         category: currentExpense.category,
         amount: currentExpense.amount,
-        date: currentExpense.date
+        date: currentExpense.date,
       };
-      
+
       const response = await axios.put(
         `/api/expenses/${currentExpense._id}`,
         expenseToUpdate
@@ -285,27 +285,25 @@ const ExpenseTracking = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
         <StatsCard
-          icon={<Package size={24} />}
-          iconBgColor="bg-indigo-900"
-          iconColor="text-indigo-300"
           title="Total Expenses"
-          value={totalAmount.toLocaleString()}
-          prefix="₹"
+          value={`₹${totalAmount.toLocaleString()}`}
+          icon={Package}
+          color="indigo"
+          footer={`Total expenditure`}
         />
         <StatsCard
-          icon={<CheckCircle size={24} />}
-          iconBgColor="bg-green-900"
-          iconColor="text-green-300"
           title="Total Entries"
           value={filteredExpenses.length}
+          icon={CheckCircle}
+          color="green"
+          footer={`Number of transactions`}
         />
         <StatsCard
-          icon={<CheckCircle size={24} />}
-          iconBgColor="bg-blue-900"
-          iconColor="text-blue-300"
           title="Average Expense"
-          value={averageAmount.toFixed(2)}
-          prefix="₹"
+          value={`₹${averageAmount.toFixed(2)}`}
+          icon={CheckCircle}
+          color="blue"
+          footer={`Per transaction`}
         />
       </div>
 

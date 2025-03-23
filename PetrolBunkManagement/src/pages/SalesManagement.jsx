@@ -220,7 +220,10 @@ const SalesManagement = () => {
 
   const totalSales = filteredSales.length;
   const totalRevenue = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
-  const totalQuantity = filteredSales.reduce((sum, sale) => sum + sale.quantity, 0);
+  const totalQuantity = filteredSales.reduce(
+    (sum, sale) => sum + sale.quantity,
+    0
+  );
 
   return (
     <div className="container px-4 py-8 mx-auto transition-all duration-300 animate-fadeIn">
@@ -262,29 +265,30 @@ const SalesManagement = () => {
       {/* Interactive Cards */}
       <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
         <StatsCard
-          icon={<BarChart2 size={24} />}
-          iconBgColor="bg-indigo-900"
-          iconColor="text-indigo-300"
           title="Total Sales"
           value={totalSales}
+          icon={BarChart2}
+          color="indigo"
+          footer={`Total transactions`}
         />
 
         <StatsCard
-          icon={<DollarSign size={24} />}
-          iconBgColor="bg-green-900"
-          iconColor="text-green-300"
           title="Total Revenue"
-          value={new Intl.NumberFormat("en-IN").format(totalRevenue)}
-          prefix="₹"
+          value={`₹${new Intl.NumberFormat("en-IN").format(totalRevenue)}`}
+          icon={DollarSign}
+          color="green"
+          footer={`Gross revenue`}
         />
 
         <StatsCard
-          icon={<Package size={24} />}
-          iconBgColor="bg-blue-900"
-          iconColor="text-blue-300"
           title="Total Quantity"
-          value={new Intl.NumberFormat("en-IN", {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(totalQuantity)}
-          suffix=" L"
+          value={`${new Intl.NumberFormat("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }).format(totalQuantity)} L`}
+          icon={Package}
+          color="blue"
+          footer={`Total volume sold`}
         />
       </div>
 
@@ -292,10 +296,26 @@ const SalesManagement = () => {
       <Table
         columns={[
           { key: "product", label: "Product" },
-          { key: "quantity", label: "Quantity", render: (value) => `${value} L` },
-          { key: "price", label: "Price", render: (value) => `₹${Number(value).toLocaleString()}` },
-          { key: "total", label: "Total", render: (value) => `₹${Number(value).toLocaleString()}` },
-          { key: "date", label: "Date", render: (value) => new Date(value).toLocaleDateString() },
+          {
+            key: "quantity",
+            label: "Quantity",
+            render: (value) => `${value} L`,
+          },
+          {
+            key: "price",
+            label: "Price",
+            render: (value) => `₹${Number(value).toLocaleString()}`,
+          },
+          {
+            key: "total",
+            label: "Total",
+            render: (value) => `₹${Number(value).toLocaleString()}`,
+          },
+          {
+            key: "date",
+            label: "Date",
+            render: (value) => new Date(value).toLocaleDateString(),
+          },
         ]}
         data={filteredSales}
         loading={loading}

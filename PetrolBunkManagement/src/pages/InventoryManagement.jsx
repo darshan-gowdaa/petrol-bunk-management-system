@@ -1,6 +1,12 @@
 // src/pages/InventoryManagement.jsx
 import React, { useState, useEffect, useCallback } from "react";
-import { AlertTriangle, Package, AlertCircle, CheckCircle, Filter } from "lucide-react";
+import {
+  AlertTriangle,
+  Package,
+  AlertCircle,
+  CheckCircle,
+  Filter,
+} from "lucide-react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -262,27 +268,27 @@ const InventoryManagement = () => {
       {/* Interactive Cards */}
       <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
         <StatsCard
-          icon={<Package size={24} />}
-          iconBgColor="bg-indigo-900"
-          iconColor="text-indigo-300"
           title="Total Items"
           value={totalItems}
+          icon={Package}
+          color="indigo"
+          footer={`Total inventory items`}
         />
 
         <StatsCard
-          icon={<AlertCircle size={24} />}
-          iconBgColor="bg-red-900"
-          iconColor="text-red-300"
           title="Need to Reorder"
           value={itemsToReorder}
+          icon={AlertCircle}
+          color="red"
+          footer={`Below reorder level`}
         />
 
         <StatsCard
-          icon={<CheckCircle size={24} />}
-          iconBgColor="bg-green-900"
-          iconColor="text-green-300"
           title="In Stock"
           value={inStockItems}
+          icon={CheckCircle}
+          color="green"
+          footer={`Sufficient stock`}
         />
       </div>
 
