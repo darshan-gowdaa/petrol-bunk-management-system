@@ -4,7 +4,7 @@
   "description": "A management system for petrol bunk operations.",
   "main": "backend/index.js",
   "scripts": {
-    "start": "concurrently \"npm run start --prefix backend\" \"npm run dev --prefix PetrolBunkManagement\""
+    "start": "concurrently \"npm run start --prefix backend\" \"npm run dev --prefix frontend\""
   },
   "dependencies": {
     "concurrently": "^6.0.0"
