@@ -73,7 +73,15 @@ export const getFormFields = (type) => {
           name: "category",
           label: "Category",
           type: "select",
-          options: [], // Will be populated dynamically
+          options: [
+            "Utilities",
+            "Rent",
+            "Salaries",
+            "Maintenance",
+            "Supplies",
+            "Other",
+            "Add New Category",
+          ],
         },
         {
           name: "amount",

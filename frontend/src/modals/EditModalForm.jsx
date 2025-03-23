@@ -17,6 +17,7 @@ const EditModalForm = ({
   loading,
   editFunction,
   entityType,
+  fields,
 }) => {
   if (!showEditModal || !currentData) return null;
 
@@ -44,55 +45,6 @@ const EditModalForm = ({
     }
   };
 
-  const entityFields = {
-    Sales: [
-      {
-        label: "Product",
-        type: "select",
-        name: "product",
-        options: ["Petrol", "Diesel"],
-      },
-      {
-        label: "Quantity (L)",
-        type: "number",
-        name: "quantity",
-        step: "0.01",
-        min: "0",
-      },
-      {
-        label: "Price per Liter (₹)",
-        type: "number",
-        name: "price",
-        step: "0.01",
-        min: "0",
-      },
-      { label: "Date", type: "date", name: "date" },
-    ],
-    Inventory: [
-      { label: "Item Name", type: "text", name: "name" },
-      { label: "Current Stock", type: "number", name: "currentStock" },
-      { label: "Reorder Level", type: "number", name: "reorderLevel" },
-      { label: "Date", type: "date", name: "date" },
-    ],
-    Employee: [
-      { label: "Employee Name", type: "text", name: "name" },
-      { label: "Position", type: "text", name: "position" },
-      { label: "Salary", type: "number", name: "salary" },
-      { label: "Date Added", type: "date", name: "date" },
-    ],
-    Expense: [
-      { label: "Category", type: "category", name: "category" },
-      {
-        label: "Amount (₹)",
-        type: "number",
-        name: "amount",
-        step: "0.01",
-        min: "0",
-      },
-      { label: "Date", type: "date", name: "date" },
-    ],
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center animate-modalFadeIn">
       <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm animate-modalFadeIn" />
@@ -108,7 +60,7 @@ const EditModalForm = ({
           </button>
         </div>
         <form onSubmit={editFunction} className="space-y-4">
-          {entityFields[entityType]?.map((field) => (
+          {fields?.map((field) => (
             <div
               key={field.name}
               className="transition-all duration-200 hover:scale-[1.02] group"
@@ -116,7 +68,63 @@ const EditModalForm = ({
               <label className="block mb-1 text-sm font-medium text-gray-300 group-hover:text-blue-400 transition-colors duration-200">
                 {field.label}
               </label>
-              {field.type === "select" ? (
+              {field.type === "select" && field.name === "category" ? (
+                !showNewCategoryInput ? (
+                  <select
+                    name={field.name}
+                    value={currentData[field.name] || ""}
+                    onChange={handleCategorySelect}
+                    className="w-full p-2 text-white bg-gray-700/50 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 hover:border-blue-500/50 backdrop-blur-sm [&>option]:bg-gray-800 [&>option]:text-white"
+                    required
+                  >
+                    <option value="">Select a Category</option>
+                    {field.options
+                      .filter((opt) => opt !== "Add New Category")
+                      .map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    <option value="Add New Category">+ Add New Category</option>
+                  </select>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      value={newCategory}
+                      onChange={handleNewCategoryChange}
+                      placeholder="Enter new category name"
+                      className="w-full p-2 mb-2 text-white bg-gray-700/50 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 hover:border-blue-500/50 backdrop-blur-sm"
+                      autoFocus
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={addNewCategory}
+                        className="flex items-center justify-center px-4 py-2 text-sm text-white bg-green-500 hover:bg-green-600 rounded transition-all duration-200"
+                        disabled={!newCategory.trim()}
+                      >
+                        <Plus size={16} className="mr-1" />
+                        Add Category
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowNewCategoryInput(false);
+                          setNewCategory("");
+                          handleInputChange({
+                            target: { name: "category", value: "" },
+                          });
+                        }}
+                        className="flex items-center justify-center px-4 py-2 text-sm text-white bg-gray-600 hover:bg-gray-700 rounded transition-all duration-200"
+                      >
+                        <X size={16} className="mr-1" />
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                )
+              ) : field.type === "select" ? (
                 <select
                   name={field.name}
                   value={currentData[field.name] || ""}
@@ -131,56 +139,6 @@ const EditModalForm = ({
                     </option>
                   ))}
                 </select>
-              ) : field.type === "category" ? (
-                !showNewCategoryInput ? (
-                  <select
-                    name={field.name}
-                    value={currentData[field.name] || ""}
-                    onChange={handleCategorySelect}
-                    className="w-full p-2 text-white bg-gray-700/50 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 hover:border-blue-500/50 backdrop-blur-sm [&>option]:bg-gray-800 [&>option]:text-white"
-                    required
-                  >
-                    <option value="">Select a Category</option>
-                    {categories.map((category) => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                    <option value="add_new">+ Add New Category</option>
-                  </select>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="text"
-                        value={newCategory}
-                        onChange={handleNewCategoryChange}
-                        placeholder="Enter new category name"
-                        className="flex-1 p-2 text-white bg-gray-700/50 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 hover:border-blue-500/50 backdrop-blur-sm"
-                        autoFocus
-                      />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        type="button"
-                        onClick={addNewCategory}
-                        className="flex items-center px-3 py-1 text-sm text-white bg-gradient-to-r from-green-500 to-green-600 rounded hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-green-500/20"
-                        disabled={!newCategory.trim()}
-                      >
-                        <Plus size={16} className="mr-1" />
-                        Add Category
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShowNewCategoryInput(false)}
-                        className="flex items-center px-3 py-1 text-sm text-white bg-gradient-to-r from-gray-600 to-gray-700 rounded hover:from-gray-700 hover:to-gray-800 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-gray-500/20"
-                      >
-                        <X size={16} className="mr-1" />
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )
               ) : (
                 <input
                   type={field.type}

@@ -24,20 +24,20 @@ axios.interceptors.response.use(
   }
 );
 
+// Fetch all items
 export const fetchData = async (endpoint) => {
   try {
     const response = await axios.get(`/${endpoint}`);
     return response.data;
   } catch (err) {
-    console.error(`Error fetching ${endpoint}:`, err);
-    return [];
+    console.error("Error fetching data:", err);
+    throw err;
   }
 };
 
 export const createItem = async (endpoint, data) => {
   try {
     const response = await axios.post(`/${endpoint}`, data);
-    toast.success("Item added successfully!");
     return response.data;
   } catch (err) {
     console.error("Error adding item:", err);
@@ -48,7 +48,6 @@ export const createItem = async (endpoint, data) => {
 export const updateItem = async (endpoint, id, data) => {
   try {
     const response = await axios.put(`/${endpoint}/${id}`, data);
-    toast.success("Item updated successfully!");
     return response.data;
   } catch (err) {
     console.error("Error updating item:", err);
@@ -59,7 +58,6 @@ export const updateItem = async (endpoint, id, data) => {
 export const deleteItem = async (endpoint, id) => {
   try {
     await axios.delete(`/${endpoint}/${id}`);
-    toast.success("Item deleted successfully!");
     return true;
   } catch (err) {
     console.error("Error deleting item:", err);
@@ -67,16 +65,20 @@ export const deleteItem = async (endpoint, id) => {
   }
 };
 
+// Fetch filtered data
 export const fetchFilteredData = async (endpoint, filters) => {
   try {
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value && value !== "All") params.append(key, value);
-    });
-    const response = await axios.get(`/${endpoint}?${params}`);
+    const queryString = Object.entries(filters)
+      .filter(([_, value]) => value !== "")
+      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+      .join("&");
+
+    const response = await axios.get(
+      `/${endpoint}/filter${queryString ? `?${queryString}` : ""}`
+    );
     return response.data;
   } catch (err) {
-    console.error("Error filtering data:", err);
-    return [];
+    console.error("Error fetching filtered data:", err);
+    throw err;
   }
 };

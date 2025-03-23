@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { format, parse } from "date-fns";
 
@@ -65,18 +65,52 @@ const PageWrapper = ({
   const [newCategory, setNewCategory] = useState("");
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
 
+  // Reset states when modal is closed
+  useEffect(() => {
+    if (!showAddModal) {
+      setShowNewCategoryInput(false);
+      setNewCategory("");
+    }
+  }, [showAddModal]);
+
   // Get configurations
   const formFields = getFormFields(type);
   const filterFields = getFilterFields(type, additionalFields.categories);
   const tableColumns = getTableColumns(type);
 
+  // Update form fields with dynamic categories for expense type
+  const updatedFormFields =
+    type === "expense"
+      ? formFields.map((field) => {
+          if (field.name === "category") {
+            const defaultOptions = field.options.filter(
+              (opt) => opt !== "Add New Category"
+            );
+            const dynamicOptions = additionalFields.categories || [];
+            const uniqueOptions = [
+              ...new Set([...defaultOptions, ...dynamicOptions]),
+            ];
+            return {
+              ...field,
+              options: [...uniqueOptions, "Add New Category"],
+            };
+          }
+          return field;
+        })
+      : formFields;
+
   // Handle category selection
   const handleCategorySelect = (e) => {
     const { value } = e.target;
-    if (value === "add_new") {
+    if (value === "Add New Category") {
       setShowNewCategoryInput(true);
+      setNewCategory("");
     } else {
-      setFormData({ ...formData, category: value });
+      if (showEditModal && currentItem) {
+        setCurrentItem({ ...currentItem, category: value });
+      } else {
+        setFormData({ ...formData, category: value });
+      }
     }
   };
 
@@ -88,15 +122,36 @@ const PageWrapper = ({
   // Handle adding new category
   const addNewCategory = () => {
     if (newCategory.trim()) {
+      // Update the categories in additionalFields
       const updatedCategories = [
-        ...additionalFields.categories,
+        ...(additionalFields.categories || []),
         newCategory.trim(),
       ];
-      additionalFields.categories = updatedCategories;
-      setFormData({ ...formData, category: newCategory.trim() });
+
+      // Update the form data with the new category
+      if (showEditModal && currentItem) {
+        setCurrentItem({ ...currentItem, category: newCategory.trim() });
+      } else {
+        setFormData({ ...formData, category: newCategory.trim() });
+      }
+
+      // Update the categories list
+      onDataUpdate({ ...data, categories: updatedCategories });
+
+      // Reset the new category input
       setNewCategory("");
       setShowNewCategoryInput(false);
-      onDataUpdate(data); // Trigger parent update with new categories
+
+      // Show success message
+      toast.success("New category added successfully!", {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
     }
   };
 
@@ -144,6 +199,8 @@ const PageWrapper = ({
   // Handle add item
   const handleAdd = async (e) => {
     e.preventDefault();
+    if (showNewCategoryInput) return; // Don't submit if we're adding a new category
+
     setLoading(true);
     try {
       const dataToSubmit = { ...formData };
@@ -160,6 +217,28 @@ const PageWrapper = ({
       setFormData(getInitialFormState(type));
       setShowAddModal(false);
       onDataUpdate([...data, newItem]);
+      toast.success(`${title.split(" ")[0]} added successfully!`, {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+    } catch (error) {
+      toast.error(
+        `Failed to add ${title.split(" ")[0].toLowerCase()}: ${error.message}`,
+        {
+          position: "bottom-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "dark",
+        }
+      );
     } finally {
       setLoading(false);
     }
@@ -168,6 +247,8 @@ const PageWrapper = ({
   // Handle edit item
   const handleEdit = async (e) => {
     e.preventDefault();
+    if (showNewCategoryInput) return; // Don't submit if we're adding a new category
+
     setLoading(true);
     try {
       const dataToSubmit = { ...currentItem };
@@ -190,6 +271,30 @@ const PageWrapper = ({
       setFilteredData(updatedData);
       setShowEditModal(false);
       onDataUpdate(updatedData);
+      toast.success(`${title.split(" ")[0]} updated successfully!`, {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+    } catch (error) {
+      toast.error(
+        `Failed to update ${title.split(" ")[0].toLowerCase()}: ${
+          error.message
+        }`,
+        {
+          position: "bottom-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "dark",
+        }
+      );
     } finally {
       setLoading(false);
     }
@@ -205,6 +310,30 @@ const PageWrapper = ({
       setFilteredData(updatedData);
       setShowDeleteModal(false);
       onDataUpdate(updatedData);
+      toast.success(`${title.split(" ")[0]} deleted successfully!`, {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+    } catch (error) {
+      toast.error(
+        `Failed to delete ${title.split(" ")[0].toLowerCase()}: ${
+          error.message
+        }`,
+        {
+          position: "bottom-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "dark",
+        }
+      );
     } finally {
       setLoading(false);
     }
@@ -328,7 +457,7 @@ const PageWrapper = ({
         <AddModalForm
           show={showAddModal}
           title={`Add New ${title.split(" ")[0]}`}
-          fields={formFields}
+          fields={updatedFormFields}
           formData={formData}
           onChange={handleInputChange}
           onSubmit={handleAdd}
@@ -361,6 +490,7 @@ const PageWrapper = ({
           newCategory={newCategory}
           showNewCategoryInput={showNewCategoryInput}
           setShowNewCategoryInput={setShowNewCategoryInput}
+          fields={updatedFormFields}
           {...additionalFields}
         />
 

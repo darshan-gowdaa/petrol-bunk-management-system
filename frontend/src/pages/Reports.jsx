@@ -41,7 +41,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
 
-// Import custom components and services
+// Import custom components
 import DateFilter from "../components/DateFilter";
 import { StatsCard } from "../components/features";
 import ChartContainer from "../components/ChartContainer";
@@ -54,7 +54,7 @@ import {
 } from "../services/api";
 
 const Reports = () => {
-  // States consolidated
+  // Consolidated states
   const [data, setData] = useState({
     sales: [],
     inventory: [],
@@ -62,6 +62,7 @@ const Reports = () => {
     expenses: [],
     salesTrend: [],
   });
+
   const [dateFilter, setDateFilter] = useState({
     range: "all",
     isCustom: false,
@@ -72,24 +73,25 @@ const Reports = () => {
     pickerOpen: false,
     isDirty: false,
   });
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const reportRef = useRef(null);
   const fetchTimeoutRef = useRef(null);
 
-  // Update color palette to be more visible on dark background
+  // Color palette
   const COLORS = [
-    "#60a5fa", // bright blue
-    "#34d399", // bright green
-    "#fbbf24", // bright yellow
-    "#f87171", // bright red
-    "#a78bfa", // bright purple
-    "#f472b6", // bright pink
-    "#22d3ee", // bright cyan
-    "#a3e635", // bright lime
+    "#3b82f6",
+    "#10b981",
+    "#f59e0b",
+    "#ef4444",
+    "#8b5cf6",
+    "#ec4899",
+    "#06b6d4",
+    "#84cc16",
   ];
 
-  // Memoized filter data helper
+  // Filter data by date - memoized
   const filterDataByDate = useCallback(
     (data, dateField = "date") => {
       if (!Array.isArray(data)) return [];
@@ -107,38 +109,20 @@ const Reports = () => {
 
       if (dateFilter.range === "all") return data;
 
+      // Calculate start date based on range
       const now = new Date();
-      let startDate;
-
       const ranges = {
-        today: () => {
-          const d = new Date(now);
-          d.setHours(0, 0, 0, 0);
-          return d;
-        },
-        week: () => {
-          const d = new Date(now);
-          d.setDate(now.getDate() - 7);
-          return d;
-        },
-        month: () => {
-          const d = new Date(now);
-          d.setMonth(now.getMonth() - 1);
-          return d;
-        },
-        quarter: () => {
-          const d = new Date(now);
-          d.setMonth(now.getMonth() - 3);
-          return d;
-        },
-        year: () => {
-          const d = new Date(now);
-          d.setFullYear(now.getFullYear() - 1);
-          return d;
-        },
+        today: () => new Date(now).setHours(0, 0, 0, 0),
+        week: () => new Date(now.setDate(now.getDate() - 7)),
+        month: () => new Date(now.setMonth(now.getMonth() - 1)),
+        quarter: () => new Date(now.setMonth(now.getMonth() - 3)),
+        year: () => new Date(now.setFullYear(now.getFullYear() - 1)),
       };
 
-      startDate = ranges[dateFilter.range] ? ranges[dateFilter.range]() : now;
+      const startDate = ranges[dateFilter.range]
+        ? new Date(ranges[dateFilter.range]())
+        : now;
+
       return data.filter((item) => {
         const itemDate = new Date(item[dateField]);
         return !isNaN(itemDate) && itemDate >= startDate;
@@ -147,7 +131,7 @@ const Reports = () => {
     [dateFilter]
   );
 
-  // Memoized data processing
+  // Process data - memoized
   const processData = useCallback(
     (rawData) => {
       if (!rawData)
@@ -182,7 +166,7 @@ const Reports = () => {
         }, {})
       );
 
-      // Generate sales trend with proper date handling
+      // Generate sales trend
       const salesTrend = Object.values(
         filteredSales.reduce((acc, sale) => {
           const date = new Date(sale.date);
@@ -210,7 +194,7 @@ const Reports = () => {
         }))
         .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-      // Process expenses with validation
+      // Process expenses
       const filteredExpenses = filterDataByDate(rawData.expenses || []);
       const totalExpenses = filteredExpenses.reduce(
         (sum, exp) => sum + (Number(exp.amount) || 0),
@@ -243,7 +227,7 @@ const Reports = () => {
         inventory: Array.isArray(rawData.inventory) ? rawData.inventory : [],
         employees: Array.isArray(rawData.employees) ? rawData.employees : [],
         expenses: expensesByCategory,
-        salesTrend: salesTrend,
+        salesTrend,
       };
     },
     [filterDataByDate]
@@ -286,25 +270,22 @@ const Reports = () => {
     [processData]
   );
 
-  // Initial data fetch on mount
+  // Initial data fetch on mount - only once
   useEffect(() => {
     fetchAllData(false);
-  }, [fetchAllData]);
+  }, []);
 
-  // Update debounced data fetch to only trigger on actual date changes
+  // Updated date filter effect with better controls to prevent unwanted refreshes
   useEffect(() => {
-    // Don't fetch if dates haven't been changed
-    if (!dateFilter.isDirty) return;
+    // FIX: Add conditions to prevent unwanted refreshes
+    if (!dateFilter.isDirty || dateFilter.pickerOpen) return;
 
-    // Don't fetch when picker is just being opened/closed
-    if (dateFilter.pickerOpen) return;
-
-    // Don't fetch if it's a custom date but dates haven't been selected yet
     if (
       dateFilter.isCustom &&
       (!dateFilter.customRange.startDate || !dateFilter.customRange.endDate)
-    )
+    ) {
       return;
+    }
 
     if (fetchTimeoutRef.current) {
       clearTimeout(fetchTimeoutRef.current);
@@ -324,6 +305,9 @@ const Reports = () => {
     dateFilter.isCustom,
     dateFilter.customRange.startDate,
     dateFilter.customRange.endDate,
+    dateFilter.isDirty,
+    dateFilter.pickerOpen,
+    fetchAllData,
   ]);
 
   // Memoized summary statistics
@@ -367,7 +351,10 @@ const Reports = () => {
   }, [data]);
 
   // Generate PDF report - simplified
-  const generatePDFReport = async () => {
+  const generatePDFReport = async (e) => {
+    // FIX: Prevent default to avoid page refresh
+    e?.preventDefault();
+
     if (!reportRef.current) return;
 
     const toastId = toast.info("Generating PDF report...", {
@@ -388,6 +375,7 @@ const Reports = () => {
           unit: "mm",
           format: "a4",
         });
+
         const imgWidth = 210;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
@@ -399,6 +387,7 @@ const Reports = () => {
           imgWidth,
           imgHeight
         );
+
         pdf.save(`business-report-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 
         toast.dismiss(toastId);
@@ -409,6 +398,27 @@ const Reports = () => {
       toast.dismiss(toastId);
       toast.error("Failed to generate PDF. Please try again.");
     }
+  };
+
+  // Utility formatters
+  const formatCurrency = (value) => {
+    if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
+    if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
+    if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
+    return `₹${value}`;
+  };
+
+  const formatQuantity = (value) => {
+    if (value >= 10000000) return `${(value / 10000000).toFixed(1)}Cr`;
+    if (value >= 100000) return `${(value / 100000).toFixed(1)}L`;
+    if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+    return value.toString();
+  };
+
+  // Handle refresh button click with preventDefault
+  const handleRefresh = (e) => {
+    e.preventDefault();
+    fetchAllData(true);
   };
 
   return (
@@ -426,8 +436,9 @@ const Reports = () => {
                 setDateFilter={setDateFilter}
               />
 
+              {/* FIX: Add preventDefault to button handlers */}
               <button
-                onClick={() => fetchAllData(true)}
+                onClick={handleRefresh}
                 className="flex items-center h-10 gap-2 px-4 text-sm text-white rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isLoading}
               >
@@ -452,15 +463,14 @@ const Reports = () => {
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="flex items-center gap-2 text-xl text-blue-400">
-                <RefreshCw className="animate-spin" />
-                Loading data...
+                <RefreshCw className="animate-spin" /> Loading data...
               </div>
             </div>
           ) : error ? (
             <div className="flex flex-col items-center justify-center h-64 gap-4">
               <div className="text-xl text-red-400">{error}</div>
               <button
-                onClick={() => fetchAllData(true)}
+                onClick={handleRefresh}
                 className="flex items-center gap-2 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
               >
                 <RefreshCw size={16} /> Try Again
@@ -548,10 +558,10 @@ const Reports = () => {
                 />
               </div>
 
-              {/* Charts Section */}
+              {/* Charts Section - Simplified */}
               <div className="space-y-6">
                 {/* Sales Analysis */}
-                <div className="p-5 border shadow-lg rounded-xl border-gray-800/40 bg-gray-800/10 backdrop-blur-sm">
+                <div className="p-5 border shadow-lg rounded-xl border-gray-800/40 bg-gradient-to-br from-gray-800/20 via-gray-800/10 to-gray-900/5 backdrop-blur-sm">
                   <h2 className="mb-4 text-xl font-semibold">Sales Analysis</h2>
                   <div className="grid gap-6 md:grid-cols-2">
                     <ChartContainer title="Sales by Product">
@@ -562,14 +572,28 @@ const Reports = () => {
                             stroke="#374151"
                           />
                           <XAxis dataKey="product" stroke="#fff" />
-                          <YAxis yAxisId="left" stroke="#fff" />
+                          <YAxis
+                            yAxisId="left"
+                            stroke="#fff"
+                            tickFormatter={formatCurrency}
+                          />
                           <YAxis
                             yAxisId="right"
                             orientation="right"
                             stroke="#fff"
+                            tickFormatter={formatCurrency}
                           />
                           <Tooltip
                             content={<CustomTooltip />}
+                            formatter={(value, name) => {
+                              if (
+                                name.includes("Revenue") ||
+                                name.includes("Price")
+                              ) {
+                                return [formatCurrency(value), name];
+                              }
+                              return [formatQuantity(value), name];
+                            }}
                             contentStyle={{
                               backgroundColor: "rgba(17, 24, 39, 0.8)",
                               border: "1px solid #374151",
@@ -582,14 +606,14 @@ const Reports = () => {
                             yAxisId="left"
                             dataKey="revenue"
                             name="Revenue (₹)"
-                            fill="#60a5fa"
+                            fill="#3b82f6"
                             radius={[4, 4, 0, 0]}
                           />
                           <Bar
                             yAxisId="left"
                             dataKey="quantity"
                             name="Quantity (L)"
-                            fill="#34d399"
+                            fill="#10b981"
                             radius={[4, 4, 0, 0]}
                           />
                           <Line
@@ -597,9 +621,9 @@ const Reports = () => {
                             type="monotone"
                             dataKey="avgPrice"
                             name="Avg Price (₹/L)"
-                            stroke="#fbbf24"
+                            stroke="#f59e0b"
                             strokeWidth={2}
-                            dot={{ r: 4, fill: "#fbbf24" }}
+                            dot={{ r: 4, fill: "#f59e0b" }}
                           />
                         </ComposedChart>
                       </ResponsiveContainer>
@@ -618,12 +642,12 @@ const Reports = () => {
                             >
                               <stop
                                 offset="5%"
-                                stopColor="#60a5fa"
+                                stopColor="#3b82f6"
                                 stopOpacity={0.3}
                               />
                               <stop
                                 offset="95%"
-                                stopColor="#60a5fa"
+                                stopColor="#3b82f6"
                                 stopOpacity={0}
                               />
                             </linearGradient>
@@ -636,12 +660,12 @@ const Reports = () => {
                             >
                               <stop
                                 offset="5%"
-                                stopColor="#34d399"
+                                stopColor="#10b981"
                                 stopOpacity={0.3}
                               />
                               <stop
                                 offset="95%"
-                                stopColor="#34d399"
+                                stopColor="#10b981"
                                 stopOpacity={0}
                               />
                             </linearGradient>
@@ -666,14 +690,14 @@ const Reports = () => {
                             type="monotone"
                             dataKey="revenue"
                             name="Revenue (₹)"
-                            stroke="#60a5fa"
+                            stroke="#3b82f6"
                             fill="url(#colorRevenue)"
                           />
                           <Area
                             type="monotone"
                             dataKey="quantity"
                             name="Quantity (L)"
-                            stroke="#34d399"
+                            stroke="#10b981"
                             fill="url(#colorQuantity)"
                           />
                         </AreaChart>
@@ -682,98 +706,7 @@ const Reports = () => {
                   </div>
                 </div>
 
-                {/* Advanced Analytics */}
-                <div className="p-5 border shadow-lg rounded-xl border-gray-800/40 bg-gray-800/10 backdrop-blur-sm">
-                  <h2 className="mb-4 text-xl font-semibold">
-                    Advanced Analytics
-                  </h2>
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <ChartContainer title="Transaction Analysis">
-                      <ResponsiveContainer width="100%" height={300}>
-                        <ComposedChart data={data.salesTrend}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                          <XAxis dataKey="date" stroke="#CCC" />
-                          <YAxis yAxisId="left" stroke="#CCC" />
-                          <YAxis
-                            yAxisId="right"
-                            orientation="right"
-                            stroke="#CCC"
-                          />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Legend />
-                          <Bar
-                            yAxisId="left"
-                            dataKey="transactions"
-                            name="Transactions"
-                            fill="#8b5cf6"
-                          />
-                          <Line
-                            yAxisId="right"
-                            type="monotone"
-                            dataKey="avgTransactionValue"
-                            name="Avg Transaction (₹)"
-                            stroke="#ec4899"
-                            strokeWidth={2}
-                            dot={{ r: 4 }}
-                          />
-                        </ComposedChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
-
-                    <ChartContainer title="Expense vs Income">
-                      <ResponsiveContainer width="100%" height={300}>
-                        <BarChart
-                          data={[
-                            {
-                              name: "Revenue",
-                              value: stats.sales,
-                              type: "Income",
-                            },
-                            {
-                              name: "Expenses",
-                              value: stats.expenses,
-                              type: "Expense",
-                            },
-                            {
-                              name: "Salaries",
-                              value: stats.salaries,
-                              type: "Expense",
-                            },
-                            {
-                              name: "Profit",
-                              value:
-                                stats.profitLoss > 0 ? stats.profitLoss : 0,
-                              type: "Income",
-                            },
-                            {
-                              name: "Loss",
-                              value:
-                                stats.profitLoss < 0
-                                  ? Math.abs(stats.profitLoss)
-                                  : 0,
-                              type: "Expense",
-                            },
-                          ]}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                          <XAxis dataKey="name" stroke="#CCC" />
-                          <YAxis stroke="#CCC" />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Legend />
-                          <Bar
-                            dataKey="value"
-                            name="Amount (₹)"
-                            fill={(entry) =>
-                              entry.type === "Income" ? "#10b981" : "#ef4444"
-                            }
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
-                  </div>
-                </div>
-
-                {/* Expense Analysis */}
+                {/* Expense Analysis - Simplified */}
                 <div className="p-5 border shadow-lg rounded-xl border-gray-800/40 bg-gray-800/10 backdrop-blur-sm">
                   <h2 className="mb-4 text-xl font-semibold">
                     Expense Analysis
@@ -818,28 +751,83 @@ const Reports = () => {
                       </ResponsiveContainer>
                     </ChartContainer>
 
-                    <ChartContainer title="Expense Categories">
+                    {/* Expense vs Income - Simplified */}
+                    <ChartContainer title="Expense vs Income">
                       <ResponsiveContainer width="100%" height={300}>
                         <BarChart
-                          data={data.expenses.sort(
-                            (a, b) => b.amount - a.amount
-                          )}
-                          layout="vertical"
+                          data={[
+                            {
+                              name: "Revenue",
+                              value: stats.sales,
+                              type: "Income",
+                            },
+                            {
+                              name: "Expenses",
+                              value: stats.expenses,
+                              type: "Expense",
+                            },
+                            {
+                              name: "Salaries",
+                              value: stats.salaries,
+                              type: "Expense",
+                            },
+                            {
+                              name: "Profit",
+                              value:
+                                stats.profitLoss > 0 ? stats.profitLoss : 0,
+                              type: "Income",
+                            },
+                            {
+                              name: "Loss",
+                              value:
+                                stats.profitLoss < 0
+                                  ? Math.abs(stats.profitLoss)
+                                  : 0,
+                              type: "Expense",
+                            },
+                          ]}
                         >
-                          <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                          <XAxis type="number" stroke="#CCC" />
-                          <YAxis
-                            dataKey="category"
-                            type="category"
-                            stroke="#CCC"
-                            width={100}
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="#374151"
                           />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Legend />
+                          <XAxis
+                            dataKey="name"
+                            stroke="#fff"
+                            tick={{ fill: "#fff" }}
+                          />
+                          <YAxis
+                            stroke="#fff"
+                            tick={{ fill: "#fff" }}
+                            tickFormatter={formatCurrency}
+                          />
+                          <Tooltip
+                            content={<CustomTooltip />}
+                            formatter={(value) => [
+                              formatCurrency(value),
+                              "Amount",
+                            ]}
+                            contentStyle={{
+                              backgroundColor: "rgba(17, 24, 39, 0.8)",
+                              border: "1px solid #374151",
+                              borderRadius: "0.5rem",
+                              backdropFilter: "blur(4px)",
+                            }}
+                          />
+                          <Legend wrapperStyle={{ color: "#fff" }} />
                           <Bar
-                            dataKey="amount"
-                            name="Amount (₹)"
-                            fill="#ef4444"
+                            dataKey="value"
+                            name="Income"
+                            fill="#3b82f6"
+                            radius={[4, 4, 0, 0]}
+                            stackId="stack"
+                          />
+                          <Bar
+                            dataKey="value"
+                            name="Expense"
+                            fill="#f43f5e"
+                            radius={[4, 4, 0, 0]}
+                            stackId="stack"
                           />
                         </BarChart>
                       </ResponsiveContainer>
@@ -847,13 +835,13 @@ const Reports = () => {
                   </div>
                 </div>
 
-                {/* Inventory Status */}
+                {/* Inventory Status - Simplified */}
                 <div className="p-5 border shadow-lg rounded-xl border-gray-800/40 bg-gray-800/10 backdrop-blur-sm">
                   <h2 className="mb-4 text-xl font-semibold">
                     Inventory Status
                   </h2>
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div className="p-4 overflow-auto border rounded-lg bg-gradient-to-br from-gray-800/30 to-gray-900/30 border-gray-700/30 max-h-72 backdrop-blur-sm">
+                  <div className="grid gap-6 md:grid-cols-2 md:items-start">
+                    <div className="w-full p-4 overflow-auto border rounded-lg bg-gradient-to-br from-gray-800/30 to-gray-900/30 border-gray-700/30 max-h-72 backdrop-blur-sm">
                       <h3 className="mb-3 text-lg font-medium text-gray-300">
                         Current Stock
                       </h3>
@@ -911,31 +899,39 @@ const Reports = () => {
                         <BarChart
                           data={data.inventory.map((item) => ({
                             name: item.name,
-                            stock: item.currentStock,
+                            currentStock: item.currentStock,
                             reorderLevel: item.reorderLevel,
-                            buffer: Math.max(
-                              0,
-                              item.currentStock - item.reorderLevel
-                            ),
                           }))}
                           margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
                           barGap={0}
                         >
-                          <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                          <XAxis dataKey="name" stroke="#CCC" />
-                          <YAxis stroke="#CCC" />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Legend />
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="#374151"
+                          />
+                          <XAxis dataKey="name" stroke="#fff" />
+                          <YAxis stroke="#fff" />
+                          <Tooltip
+                            content={<CustomTooltip />}
+                            contentStyle={{
+                              backgroundColor: "rgba(17, 24, 39, 0.8)",
+                              border: "1px solid #374151",
+                              borderRadius: "0.5rem",
+                              backdropFilter: "blur(4px)",
+                            }}
+                          />
+                          <Legend wrapperStyle={{ color: "#fff" }} />
                           <Bar
                             dataKey="reorderLevel"
                             name="Reorder Level"
                             fill="#ef4444"
+                            radius={[4, 4, 0, 0]}
                           />
                           <Bar
-                            dataKey="buffer"
-                            name="Buffer Stock"
+                            dataKey="currentStock"
+                            name="Current Stock"
                             fill="#10b981"
-                            stackId="a"
+                            radius={[4, 4, 0, 0]}
                           />
                         </BarChart>
                       </ResponsiveContainer>
@@ -958,7 +954,6 @@ const Reports = () => {
           pauseOnFocusLoss
           draggable
           pauseOnHover
-          style={{ fontSize: "0.875rem" }}
         />
       </main>
     </div>

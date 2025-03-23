@@ -57,40 +57,40 @@ const AddModalForm = ({
               </label>
 
               {/* Category Handling with improved UI */}
-              {name === "category" ? (
+              {type === "select" && name === "category" ? (
                 !showNewCategoryInput ? (
                   <select
-                    name="category"
-                    value={formData.category}
+                    name={name}
+                    value={formData[name] || ""}
                     onChange={handleCategorySelect}
                     className="w-full p-2 text-white bg-gray-700/50 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 hover:border-blue-500/50 backdrop-blur-sm [&>option]:bg-gray-800 [&>option]:text-white"
                     required
                   >
                     <option value="">Select a Category</option>
-                    {categories.map((category) => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                    <option value="add_new">+ Add New Category</option>
+                    {options
+                      .filter((opt) => opt !== "Add New Category")
+                      .map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    <option value="Add New Category">+ Add New Category</option>
                   </select>
                 ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="text"
-                        value={newCategory}
-                        onChange={handleNewCategoryChange}
-                        placeholder="Enter new category name"
-                        className="flex-1 p-2 text-white bg-gray-700/50 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 hover:border-blue-500/50 backdrop-blur-sm"
-                        autoFocus
-                      />
-                    </div>
-                    <div className="flex items-center space-x-2">
+                  <div>
+                    <input
+                      type="text"
+                      value={newCategory}
+                      onChange={handleNewCategoryChange}
+                      placeholder="Enter new category name"
+                      className="w-full p-2 mb-2 text-white bg-gray-700/50 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 hover:border-blue-500/50 backdrop-blur-sm"
+                      autoFocus
+                    />
+                    <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
                         onClick={addNewCategory}
-                        className="flex items-center px-3 py-1 text-sm text-white bg-gradient-to-r from-green-500 to-green-600 rounded hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-green-500/20"
+                        className="flex items-center justify-center px-4 py-2 text-sm text-white bg-green-500 hover:bg-green-600 rounded transition-all duration-200"
                         disabled={!newCategory.trim()}
                       >
                         <Plus size={16} className="mr-1" />
@@ -98,8 +98,12 @@ const AddModalForm = ({
                       </button>
                       <button
                         type="button"
-                        onClick={() => setShowNewCategoryInput(false)}
-                        className="flex items-center px-3 py-1 text-sm text-white bg-gradient-to-r from-gray-600 to-gray-700 rounded hover:from-gray-700 hover:to-gray-800 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-gray-500/20"
+                        onClick={() => {
+                          setShowNewCategoryInput(false);
+                          setNewCategory("");
+                          onChange({ target: { name: "category", value: "" } });
+                        }}
+                        className="flex items-center justify-center px-4 py-2 text-sm text-white bg-gray-600 hover:bg-gray-700 rounded transition-all duration-200"
                       >
                         <X size={16} className="mr-1" />
                         Cancel
@@ -110,7 +114,7 @@ const AddModalForm = ({
               ) : type === "select" ? (
                 <select
                   name={name}
-                  value={formData[name]}
+                  value={formData[name] || ""}
                   onChange={onChange}
                   className="w-full p-2 text-white bg-gray-700/50 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 hover:border-blue-500/50 backdrop-blur-sm [&>option]:bg-gray-800 [&>option]:text-white"
                   required
