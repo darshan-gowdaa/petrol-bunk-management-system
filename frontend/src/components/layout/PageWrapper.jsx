@@ -106,11 +106,9 @@ const PageWrapper = ({
       setShowNewCategoryInput(true);
       setNewCategory("");
     } else {
-      if (showEditModal && currentItem) {
-        setCurrentItem({ ...currentItem, category: value });
-      } else {
-        setFormData({ ...formData, category: value });
-      }
+      const target = showEditModal ? currentItem : formData;
+      const setTarget = showEditModal ? setCurrentItem : setFormData;
+      setTarget({ ...target, category: value });
     }
   };
 
@@ -122,27 +120,19 @@ const PageWrapper = ({
   // Handle adding new category
   const addNewCategory = () => {
     if (newCategory.trim()) {
-      // Update the categories in additionalFields
       const updatedCategories = [
         ...(additionalFields.categories || []),
         newCategory.trim(),
       ];
 
-      // Update the form data with the new category
-      if (showEditModal && currentItem) {
-        setCurrentItem({ ...currentItem, category: newCategory.trim() });
-      } else {
-        setFormData({ ...formData, category: newCategory.trim() });
-      }
+      const target = showEditModal ? currentItem : formData;
+      const setTarget = showEditModal ? setCurrentItem : setFormData;
+      setTarget({ ...target, category: newCategory.trim() });
 
-      // Update the categories list
       onDataUpdate({ ...data, categories: updatedCategories });
-
-      // Reset the new category input
       setNewCategory("");
       setShowNewCategoryInput(false);
 
-      // Show success message
       toast.success("New category added successfully!", {
         position: "bottom-right",
         autoClose: 3000,
@@ -351,6 +341,25 @@ const PageWrapper = ({
       const filtered = await fetchFilteredData(endpoint, filters);
       setFilteredData(filtered);
       setShowFilters(false);
+      toast.success("Filters applied successfully!", {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+    } catch (error) {
+      toast.error("Failed to apply filters. Please try again.", {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
     } finally {
       setLoading(false);
     }
@@ -360,6 +369,15 @@ const PageWrapper = ({
     setFilters(getInitialFilterState(type));
     setFilteredData(data);
     setShowFilters(false);
+    toast.info("Filters have been reset", {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "dark",
+    });
   };
 
   // Handle export

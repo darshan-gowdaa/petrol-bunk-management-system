@@ -198,7 +198,7 @@ const Table = ({
         ) : data.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="min-w-full">
+          <div key={JSON.stringify(data)} className="min-w-full animate-fadeIn">
             <div
               className="sticky top-0 z-10 grid border-b-2 border-gray-600 shadow-md bg-gradient-to-r from-gray-800 to-gray-700"
               style={{ gridTemplateColumns: getGridTemplate() }}
@@ -283,7 +283,10 @@ const Table = ({
         ) : data.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="divide-y divide-gray-700">
+          <div
+            key={JSON.stringify(data)}
+            className="divide-y divide-gray-700 animate-fadeIn"
+          >
             {sortedData().map((row, rowIndex) => (
               <div
                 key={rowIndex}

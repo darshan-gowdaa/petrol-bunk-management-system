@@ -69,12 +69,12 @@ export const deleteItem = async (endpoint, id) => {
 export const fetchFilteredData = async (endpoint, filters) => {
   try {
     const queryString = Object.entries(filters)
-      .filter(([_, value]) => value !== "")
+      .filter(([_, value]) => value !== "" && value !== "All")
       .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
       .join("&");
 
     const response = await axios.get(
-      `/${endpoint}/filter${queryString ? `?${queryString}` : ""}`
+      `/${endpoint}${queryString ? `?${queryString}` : ""}`
     );
     return response.data;
   } catch (err) {

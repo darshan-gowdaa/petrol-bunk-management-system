@@ -56,19 +56,9 @@ const ExpenseTracking = () => {
   ];
 
   const handleCategoryUpdate = (newData) => {
-    // Extract categories from the data
-    let updatedCategories;
-    if (newData.categories) {
-      // If categories are directly provided (from addNewCategory)
-      updatedCategories = newData.categories;
-    } else {
-      // Extract categories from expense entries
-      updatedCategories = [
-        ...new Set(newData.map((exp) => exp.category)),
-      ].filter(Boolean);
-    }
-
-    // Update the categories state
+    const updatedCategories =
+      newData.categories ||
+      [...new Set(newData.map((exp) => exp.category))].filter(Boolean);
     setCategories(updatedCategories);
   };
 
