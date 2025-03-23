@@ -1,64 +1,75 @@
-import React from 'react';
-
-const FormField = ({ 
-  label, 
-  name, 
-  type = 'text', 
-  value, 
-  onChange, 
-  placeholder = '', 
+const FormField = ({
+  label,
+  name,
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  error,
   required = false,
-  options = null,
-  min = null,
-  max = null
+  options = [],
+  disabled = false,
 }) => {
+  const baseClasses =
+    "w-full rounded-lg border px-4 py-2 focus:border-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100";
+  const errorClasses = error ? "border-red-500" : "border-gray-300";
+
+  const renderField = () => {
+    switch (type) {
+      case "select":
+        return (
+          <select
+            name={name}
+            value={value}
+            onChange={onChange}
+            className={`${baseClasses} ${errorClasses}`}
+            required={required}
+            disabled={disabled}
+          >
+            <option value="">Select {label.toLowerCase()}</option>
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        );
+      case "textarea":
+        return (
+          <textarea
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            className={`${baseClasses} ${errorClasses} min-h-[100px]`}
+            required={required}
+            disabled={disabled}
+          />
+        );
+      default:
+        return (
+          <input
+            type={type}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            className={`${baseClasses} ${errorClasses}`}
+            required={required}
+            disabled={disabled}
+          />
+        );
+    }
+  };
+
   return (
-    <div className="mb-4">
-      <label htmlFor={name} className="block mb-1 text-sm font-medium text-gray-700">
-        {label}{required && <span className="text-red-500">*</span>}
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-medium text-gray-700">
+        {label}
+        {required && <span className="text-red-500">*</span>}
       </label>
-      
-      {type === 'select' ? (
-        <select
-          id={name}
-          name={name}
-          value={value}
-          onChange={onChange}
-          required={required}
-          className="w-full p-2 border border-gray-300 rounded-md"
-        >
-          <option value="">Select {label}</option>
-          {options && options.map(option => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      ) : type === 'textarea' ? (
-        <textarea
-          id={name}
-          name={name}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          required={required}
-          className="w-full p-2 border border-gray-300 rounded-md"
-          rows="3"
-        />
-      ) : (
-        <input
-          id={name}
-          type={type}
-          name={name}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          required={required}
-          min={min}
-          max={max}
-          className="w-full p-2 border border-gray-300 rounded-md"
-        />
-      )}
+      {renderField()}
+      {error && <p className="text-sm text-red-500">{error}</p>}
     </div>
   );
 };

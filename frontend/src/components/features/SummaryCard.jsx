@@ -1,51 +1,54 @@
-import React from "react";
-
 const SummaryCard = ({
   title,
   value,
   icon: Icon,
-  color,
-  subValue1,
-  subValue2,
+  trend,
+  trendValue,
+  trendLabel,
+  onClick,
 }) => {
-  const getGradient = () => {
-    const colors = {
-      blue: "from-blue-500/20 to-blue-900/20 border-blue-500/50 hover:border-blue-400",
-      green:
-        "from-green-500/20 to-green-900/20 border-green-500/50 hover:border-green-400",
-      red: "from-red-500/20 to-red-900/20 border-red-500/50 hover:border-red-400",
-      purple:
-        "from-purple-500/20 to-purple-900/20 border-purple-500/50 hover:border-purple-400",
-    };
-    return colors[color] || colors.blue;
+  const getTrendColor = () => {
+    if (!trend) return "text-gray-500";
+    return trend === "up" ? "text-green-500" : "text-red-500";
+  };
+
+  const getTrendIcon = () => {
+    if (!trend) return null;
+    return trend === "up" ? "↑" : "↓";
   };
 
   return (
     <div
-      className={`p-4 rounded-xl bg-gradient-to-br border backdrop-blur-sm 
-        transition-all duration-300 ease-out
-        hover:scale-[1.02] hover:shadow-lg hover:shadow-${color}-500/10
-        cursor-pointer transform-gpu ${getGradient()}`}
+      className={`rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 ${
+        onClick ? "cursor-pointer hover:border-blue-500" : ""
+      }`}
+      onClick={onClick}
     >
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
-          {title}
-        </span>
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-600">{title}</p>
+          <p className="mt-2 text-2xl font-semibold">{value}</p>
+        </div>
         {Icon && (
-          <Icon
-            className={`w-5 h-5 text-${color}-400 transition-transform duration-300 group-hover:scale-110`}
-          />
+          <div className="rounded-lg bg-blue-50 p-2">
+            <Icon className="h-6 w-6 text-blue-500" />
+          </div>
         )}
       </div>
-      <div className="mb-2 text-2xl font-bold transition-colors">{value}</div>
-      <div className="space-y-1">
-        <div className="text-sm text-gray-300 transition-colors">
-          {subValue1}
+
+      {(trend || trendValue || trendLabel) && (
+        <div className="mt-4 flex items-center gap-2">
+          {trend && (
+            <span className={`flex items-center ${getTrendColor()}`}>
+              {getTrendIcon()}
+              {trendValue}
+            </span>
+          )}
+          {trendLabel && (
+            <span className="text-sm text-gray-500">{trendLabel}</span>
+          )}
         </div>
-        <div className="text-sm text-gray-300 transition-colors">
-          {subValue2}
-        </div>
-      </div>
+      )}
     </div>
   );
 };

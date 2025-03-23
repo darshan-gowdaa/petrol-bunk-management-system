@@ -1,105 +1,89 @@
-import React from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { Calendar } from "lucide-react";
-import { toast } from "react-toastify";
+import { useEffect, useRef } from "react";
+
+const DATE_RANGES = {
+  today: "Today",
+  yesterday: "Yesterday",
+  week: "Last 7 days",
+  month: "Last 30 days",
+  quarter: "Last 90 days",
+  year: "Last 365 days",
+  all: "All time"
+};
 
 const DateFilter = ({ dateFilter, setDateFilter }) => {
-  const handleDateRangeChange = (range) => {
-    setDateFilter((prev) => ({ ...prev, range, isCustom: false }));
-  };
+  const popupRef = useRef(null);
 
-  const applyCustomDateRange = () => {
-    setDateFilter((prev) => ({
-      ...prev,
-      isCustom: true,
-      range: "custom",
-      pickerOpen: false,
-    }));
-    toast.info(
-      `Showing data from ${dateFilter.customRange.startDate.toLocaleDateString()} to ${dateFilter.customRange.endDate.toLocaleDateString()}`
-    );
-  };
+  useEffect(() => {
+    const handleClickOutside = (e) => 
+      popupRef.current && !popupRef.current.contains(e.target) && 
+      setDateFilter(prev => ({ ...prev, pickerOpen: false }));
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [setDateFilter]);
+
+  const { startDate, endDate } = dateFilter.customRange;
+  const today = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="flex items-center gap-3">
-      <select
-        value={dateFilter.range}
-        onChange={(e) => handleDateRangeChange(e.target.value)}
-        className="p-2 text-white bg-gray-700 border border-gray-600 rounded-lg"
-      >
-        <option value="all">All Time</option>
-        <option value="today">Today</option>
-        <option value="week">Last 7 Days</option>
-        <option value="month">Last Month</option>
-        <option value="quarter">Last Quarter</option>
-        <option value="year">Last Year</option>
-        {dateFilter.isCustom && <option value="custom">Custom Range</option>}
-      </select>
-      <button
-        onClick={() =>
-          setDateFilter((prev) => ({ ...prev, pickerOpen: !prev.pickerOpen }))
-        }
-        className="flex items-center gap-2 p-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700"
-      >
-        <Calendar size={16} /> <span>Custom Date</span>
-      </button>
+    <div className="relative" ref={popupRef}>
+      <div className="flex items-center gap-3">
+        <select
+          className="w-48 rounded-lg border border-gray-600 bg-gray-800 px-4 py-2 text-white focus:border-blue-500 focus:outline-none"
+          value={dateFilter.range}
+          onChange={e => setDateFilter(prev => ({ ...prev, range: e.target.value, isCustom: false }))}
+        >
+          {Object.entries(DATE_RANGES).map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+          {dateFilter.isCustom && <option value="custom">Custom Range</option>}
+        </select>
+
+        <button
+          className="flex items-center gap-2 rounded-lg px-4 py-2 text-white bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 border border-gray-600"
+          onClick={() => setDateFilter(prev => ({ ...prev, pickerOpen: !prev.pickerOpen }))}
+        >
+          <Calendar className="h-5 w-5" />
+          <span className="text-sm">
+            {dateFilter.isCustom 
+              ? `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
+              : "Select a date range"}
+          </span>
+        </button>
+      </div>
 
       {dateFilter.pickerOpen && (
-        <div className="absolute z-20 p-4 bg-gray-700 rounded-lg shadow-xl">
-          <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-2 text-sm text-gray-300">
-                  Start Date
-                </label>
-                <DatePicker
-                  selected={dateFilter.customRange.startDate}
-                  onChange={(date) =>
-                    setDateFilter((prev) => ({
-                      ...prev,
-                      customRange: { ...prev.customRange, startDate: date },
-                    }))
+        <div className="absolute top-full right-0 z-50 mt-2 w-[300px] flex flex-col gap-4 rounded-lg border border-gray-600 bg-gray-800 p-4 shadow-xl">
+          {["start", "end"].map((type) => (
+            <div key={type} className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-300">
+                {type === "start" ? "Start Date" : "End Date"}
+              </label>
+              <input
+                type="date"
+                value={type === "start" ? startDate.toISOString().split('T')[0] : endDate.toISOString().split('T')[0]}
+                onChange={e => setDateFilter(prev => ({
+                  ...prev,
+                  range: "custom",
+                  isCustom: true,
+                  customRange: { 
+                    ...prev.customRange,
+                    [`${type}Date`]: new Date(e.target.value)
                   }
-                  className="w-full p-2 text-white bg-gray-800 border border-gray-600 rounded-lg"
-                  dateFormat="dd/MM/yyyy"
-                />
-              </div>
-              <div>
-                <label className="block mb-2 text-sm text-gray-300">
-                  End Date
-                </label>
-                <DatePicker
-                  selected={dateFilter.customRange.endDate}
-                  onChange={(date) =>
-                    setDateFilter((prev) => ({
-                      ...prev,
-                      customRange: { ...prev.customRange, endDate: date },
-                    }))
-                  }
-                  className="w-full p-2 text-white bg-gray-800 border border-gray-600 rounded-lg"
-                  dateFormat="dd/MM/yyyy"
-                  minDate={dateFilter.customRange.startDate}
-                />
-              </div>
+                }))}
+                min={type === "end" ? startDate.toISOString().split('T')[0] : undefined}
+                max={today}
+                className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white focus:border-blue-500 focus:outline-none"
+              />
             </div>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() =>
-                  setDateFilter((prev) => ({ ...prev, pickerOpen: false }))
-                }
-                className="px-3 py-1 text-gray-300 bg-gray-600 rounded hover:bg-gray-500"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={applyCustomDateRange}
-                className="px-3 py-1 text-white bg-blue-600 rounded hover:bg-blue-500"
-              >
-                Apply
-              </button>
-            </div>
-          </div>
+          ))}
+          <button
+            className="mt-2 rounded-lg px-4 py-2 text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+            onClick={() => setDateFilter(prev => ({ ...prev, pickerOpen: false }))}
+          >
+            Apply
+          </button>
         </div>
       )}
     </div>
