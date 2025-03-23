@@ -76,13 +76,14 @@ const Filters = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
-      <div className="w-full max-w-3xl overflow-hidden bg-gray-900 rounded-lg shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center animate-modalFadeIn">
+      <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm animate-modalFadeIn" />
+      <div className="relative w-full max-w-3xl overflow-hidden bg-gray-900 rounded-lg shadow-xl animate-modalSlideIn">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
           <h3 className="text-xl font-medium text-white">{title}</h3>
           <button
             onClick={() => setShowFilters(false)}
-            className="text-gray-400 hover:text-white focus:outline-none"
+            className="text-gray-400 hover:text-white focus:outline-none transition-transform duration-200 hover:rotate-90"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -94,7 +95,9 @@ const Filters = ({
             {fields.map((field) => (
               <div
                 key={field.name}
-                className={field.type === "range" ? "md:col-span-2" : ""}
+                className={`${
+                  field.type === "range" ? "md:col-span-2" : ""
+                } transition-all duration-200 hover:scale-[1.02]`}
               >
                 <label className="block mb-1 text-sm font-medium text-gray-300">
                   {field.label}
@@ -111,7 +114,7 @@ const Filters = ({
               resetFilters();
               setShowFilters(false);
             }}
-            className="px-4 py-2 mr-2 text-gray-300 transition-colors bg-gray-700 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="px-4 py-2 mr-2 text-gray-300 transition-all duration-200 bg-gray-700 rounded-md hover:bg-gray-600 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-gray-500"
           >
             Reset
           </button>
@@ -120,7 +123,7 @@ const Filters = ({
               applyFilters();
               setShowFilters(false);
             }}
-            className="px-4 py-2 text-white transition-colors bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 text-white transition-all duration-200 bg-blue-600 rounded-md hover:bg-blue-700 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Apply Filters
           </button>

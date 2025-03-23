@@ -11,9 +11,12 @@ const HeaderWithActions = ({
   exportLabel = "Export",
 }) => {
   return (
-    <div className="px-4 py-4 mb-4 rounded-lg shadow-lg sm:px-6 sm:py-5 sm:mb-6 sm:rounded-xl">
+    <div className="px-4 py-4 mb-4 rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.2),inset_0_0_15px_rgba(0,0,0,0.2)] sm:px-6 sm:py-5 sm:mb-6 sm:rounded-xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
       <div className="flex flex-col gap-4 sm:gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="flex items-center text-xl font-bold text-white sm:text-2xl md:text-3xl">
+        <h1
+          className="flex items-center text-xl font-bold text-white sm:text-2xl md:text-3xl"
+          style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
+        >
           {icon && <span className="mr-2 sm:mr-3">{icon}</span>}
           {title}
         </h1>
