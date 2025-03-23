@@ -9,9 +9,11 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Typewriter } from "react-simple-typewriter";
+import { useAuth } from "../hooks/useAuth";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const cards = [
     {
@@ -59,7 +61,7 @@ const Dashboard = () => {
       title: "Logout",
       description: "Exit Petrol Bunk Management System?",
       icon: LogOut,
-      path: "/",
+      action: logout,
       color: "red",
     },
   ];
@@ -104,6 +106,15 @@ const Dashboard = () => {
     }
   };
 
+  // Function to handle card click
+  const handleCardClick = (card) => {
+    if (card.action) {
+      card.action();
+    } else {
+      navigate(card.path);
+    }
+  };
+
   return (
     <div className="flex flex-col justify-center min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
       <main className="flex flex-col w-full max-w-6xl p-6 mx-auto">
@@ -119,7 +130,7 @@ const Dashboard = () => {
             {cards.map((card) => (
               <div
                 key={card.id}
-                onClick={() => navigate(card.path)}
+                onClick={() => handleCardClick(card)}
                 className={`flex flex-col items-center justify-center space-y-2 transition-all duration-200 ease-out ${getGradientBackground(
                   card.color
                 )} border shadow-none cursor-pointer px-6 py-4 rounded-xl group hover:shadow-[0_4px_12px] hover:scale-[1.02] backdrop-blur-sm h-[180px]`}

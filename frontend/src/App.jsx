@@ -4,6 +4,7 @@ import {
   Route,
   Routes,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import { Sidebar } from "./components/layout";
 import Dashboard from "./pages/Dashboard";
@@ -15,6 +16,7 @@ import Reports from "./pages/Reports";
 import Login from "./pages/Login";
 import "./styles/App.css";
 import "./styles/toast.css"; // Custom toast styles
+import { useAuth } from "./hooks/useAuth";
 
 const App = () => {
   return (
@@ -26,6 +28,7 @@ const App = () => {
 
 const AppContent = () => {
   const location = useLocation();
+  const { isAuthenticated, loading } = useAuth();
   const isLoginPage = location.pathname === "/";
 
   // Dynamic Title
@@ -42,6 +45,38 @@ const AppContent = () => {
     document.title =
       pageTitles[location.pathname] || "PetrolBunk Management System";
   }, [location.pathname]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // Handle undefined routes
+  const validRoutes = [
+    "/",
+    "/dashboard",
+    "/inventory",
+    "/sales",
+    "/employees",
+    "/expenses",
+    "/reports",
+  ];
+  if (!validRoutes.includes(location.pathname)) {
+    // If user is authenticated, redirect to dashboard
+    if (isAuthenticated()) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    // If user is not authenticated, redirect to login
+    return <Navigate to="/" replace />;
+  }
+
+  // Handle authentication redirects
+  if (!isAuthenticated() && !isLoginPage) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (isAuthenticated() && isLoginPage) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="min-h-screen overflow-hidden bg-gray-900">

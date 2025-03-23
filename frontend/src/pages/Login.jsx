@@ -3,11 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import bgImage from "../assets/bg_image.jpeg";
+import { useAuth } from "../hooks/useAuth";
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   // Handle input changes
   const handleChange = (e) => {
@@ -16,14 +19,25 @@ const Login = () => {
   };
 
   // Handle login form submission
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    if (formData.username === "admin" && formData.password === "admin") {
-      toast.success("Login successful! Redirecting...");
-      setTimeout(() => navigate("/dashboard"), 800);
-    } else {
-      toast.error("Invalid Credentials, Try again!");
+    try {
+      const result = await login(formData);
+      if (result.success) {
+        toast.success("Login successful! Redirecting...");
+        navigate("/dashboard");
+      } else {
+        toast.error(result.error || "Invalid Credentials, Try again!");
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "An error occurred during login. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -93,9 +107,12 @@ const Login = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="px-4 py-3 mt-2 font-semibold text-white transition-all duration-300 transform bg-red-600 rounded hover:bg-red-700 hover:scale-105 active:scale-95"
+              disabled={isSubmitting}
+              className={`px-4 py-3 mt-2 font-semibold text-white transition-all duration-300 transform bg-red-600 rounded hover:bg-red-700 hover:scale-105 active:scale-95 ${
+                isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              Sign In
+              {isSubmitting ? "Signing in..." : "Sign In"}
             </button>
           </form>
 

@@ -16,28 +16,22 @@ export const useAuth = () => {
     setLoading(false);
   }, []);
 
-  const login = useCallback(
-    async (credentials) => {
-      try {
-        const response = await api.post("/auth/login", credentials);
-        const { token, user: userData } = response.data;
+  const login = useCallback(async (credentials) => {
+    try {
+      const response = await api.post("/auth/login", credentials);
+      const { token, user: userData } = response.data;
 
-        localStorage.setItem(STORAGE_KEYS.TOKEN, token);
-        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
-
-        setUser(userData);
-        navigate(ROUTES.DASHBOARD);
-
-        return { success: true };
-      } catch (error) {
-        return {
-          success: false,
-          error: error.response?.data?.message || "Login failed",
-        };
-      }
-    },
-    [navigate]
-  );
+      localStorage.setItem(STORAGE_KEYS.TOKEN, token);
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
+      setUser(userData);
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.message || "Login failed",
+      };
+    }
+  }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEYS.TOKEN);

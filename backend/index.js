@@ -2,7 +2,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 // Import routes
 import salesRoutes from "./routes/sales.js";
@@ -10,6 +10,7 @@ import employeeRoutes from "./routes/employees.js";
 import inventoryRoutes from "./routes/inventoryroutes.js";
 import expenseRoutes from "./routes/expenseRoutes.js";
 import reportsRoutes from "./routes/reports.js";
+import authRoutes from "./routes/auth.js";
 
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -24,6 +25,7 @@ app.use(cors());
 app.use(express.json());
 
 // API Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/sales", salesRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/inventory", inventoryRoutes);
@@ -34,7 +36,8 @@ app.use("/api/reports", reportsRoutes);
 app.use(errorHandler);
 
 // MongoDB Connection - Using environment variable with fallback
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/petrol-bunk";
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/petrol-bunk";
 
 mongoose
   .connect(MONGODB_URI)
@@ -48,8 +51,8 @@ mongoose
   .catch((err) => console.error("Error connecting to MongoDB:", err));
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (error) => {
-  console.error('Unhandled Promise Rejection:', error);
+process.on("unhandledRejection", (error) => {
+  console.error("Unhandled Promise Rejection:", error);
   // In production, you might want to exit the process
   // process.exit(1);
 });
