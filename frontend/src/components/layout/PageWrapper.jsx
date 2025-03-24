@@ -46,7 +46,7 @@ const PageWrapper = ({
   title,
   statsConfig,
   additionalFields = {},
-  onDataUpdate = () => {},
+  onDataUpdate = () => { },
 }) => {
   // Get the correct endpoint
   const endpoint = endpointMap[type] || type;
@@ -82,21 +82,21 @@ const PageWrapper = ({
   const updatedFormFields =
     type === "expense"
       ? formFields.map((field) => {
-          if (field.name === "category") {
-            const defaultOptions = field.options.filter(
-              (opt) => opt !== "Add New Category"
-            );
-            const dynamicOptions = additionalFields.categories || [];
-            const uniqueOptions = [
-              ...new Set([...defaultOptions, ...dynamicOptions]),
-            ];
-            return {
-              ...field,
-              options: [...uniqueOptions, "Add New Category"],
-            };
-          }
-          return field;
-        })
+        if (field.name === "category") {
+          const defaultOptions = field.options.filter(
+            (opt) => opt !== "Add New Category"
+          );
+          const dynamicOptions = additionalFields.categories || [];
+          const uniqueOptions = [
+            ...new Set([...defaultOptions, ...dynamicOptions]),
+          ];
+          return {
+            ...field,
+            options: [...uniqueOptions, "Add New Category"],
+          };
+        }
+        return field;
+      })
       : formFields;
 
   // Handle category selection
@@ -142,6 +142,16 @@ const PageWrapper = ({
         draggable: true,
         theme: "dark",
       });
+    } else {
+      toast.error("Category name cannot be empty", {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
     }
   };
 
@@ -153,6 +163,16 @@ const PageWrapper = ({
       setData(result);
       setFilteredData(result);
       onDataUpdate(result);
+    } catch (error) {
+      toast.error("Failed to refresh data. Please try again.", {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
     } finally {
       setLoading(false);
     }
@@ -272,8 +292,7 @@ const PageWrapper = ({
       });
     } catch (error) {
       toast.error(
-        `Failed to update ${title.split(" ")[0].toLowerCase()}: ${
-          error.message
+        `Failed to update ${title.split(" ")[0].toLowerCase()}: ${error.message
         }`,
         {
           position: "bottom-right",
@@ -311,8 +330,7 @@ const PageWrapper = ({
       });
     } catch (error) {
       toast.error(
-        `Failed to delete ${title.split(" ")[0].toLowerCase()}: ${
-          error.message
+        `Failed to delete ${title.split(" ")[0].toLowerCase()}: ${error.message
         }`,
         {
           position: "bottom-right",

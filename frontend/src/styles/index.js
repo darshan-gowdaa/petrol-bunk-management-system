@@ -1,5 +1,6 @@
 import "./App.css";
 import "./toast.css";
+import "./tooltip.css";
 // Add other style imports here
 
 // Export any style constants or theme configurations if needed

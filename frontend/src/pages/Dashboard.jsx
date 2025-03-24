@@ -10,10 +10,24 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Typewriter } from "react-simple-typewriter";
 import { useAuth } from "../hooks/useAuth";
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+
+  const handleLogout = () => {
+    toast.success("Logged out successfully!", {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "dark",
+    });
+    logout();
+  };
 
   const cards = [
     {
@@ -61,7 +75,7 @@ const Dashboard = () => {
       title: "Logout",
       description: "Exit Petrol Bunk Management System?",
       icon: LogOut,
-      action: logout,
+      action: handleLogout,
       color: "red",
     },
   ];
@@ -118,7 +132,7 @@ const Dashboard = () => {
   return (
     <div className="flex flex-col justify-center min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
       <main className="flex flex-col w-full max-w-6xl p-6 mx-auto">
-        <div className="flex-1 overflow-auto transition-all duration-300 p-3 ml-16 bg-transparent">
+        <div className="flex-1 p-3 ml-16 overflow-auto transition-all duration-300 bg-transparent">
           <h1 className="self-start mb-10 text-4xl font-black leading-tight tracking-tight text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text animate-gradient-flow drop-shadow-[0_0_15px_rgba(147,51,234,0.3)]">
             <Typewriter
               words={["Welcome to Petrol Bunk Management System!"]}

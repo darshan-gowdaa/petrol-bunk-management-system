@@ -1,197 +1,51 @@
 import { format } from "date-fns";
 
-export const getInitialFormState = (type) => {
-  const baseState = {
-    date: format(new Date(), "yyyy-MM-dd"),
-  };
+export const getInitialFormState = (type) => ({
+  date: format(new Date(), "yyyy-MM-dd"),
+  ...(type === "sales" && { product: "Petrol", quantity: "", price: "" }),
+  ...(type === "inventory" && { name: "", currentStock: "", reorderLevel: "" }),
+  ...(type === "employee" && { name: "", position: "", salary: "" }),
+  ...(type === "expense" && { category: "", amount: "" }),
+});
 
-  switch (type) {
-    case "sales":
-      return {
-        ...baseState,
-        product: "Petrol",
-        quantity: "",
-        price: "",
-      };
-    case "inventory":
-      return {
-        ...baseState,
-        name: "",
-        currentStock: "",
-        reorderLevel: "",
-      };
-    case "employee":
-      return {
-        ...baseState,
-        name: "",
-        position: "",
-        salary: "",
-      };
-    case "expense":
-      return {
-        ...baseState,
-        category: "",
-        amount: "",
-      };
-    default:
-      return baseState;
-  }
-};
-
-export const getInitialFilterState = (type) => {
-  const baseState = {
-    dateFrom: "",
-    dateTo: "",
-  };
-
-  switch (type) {
-    case "sales":
-      return {
-        ...baseState,
-        product: "",
-        quantityMin: "",
-        quantityMax: "",
-        priceMin: "",
-        priceMax: "",
-      };
-    case "inventory":
-      return {
-        ...baseState,
-        name: "",
-        stockMin: "",
-        stockMax: "",
-        reorderMin: "",
-        reorderMax: "",
-      };
-    case "employee":
-      return {
-        ...baseState,
-        name: "",
-        position: "",
-        salaryMin: "",
-        salaryMax: "",
-      };
-    case "expense":
-      return {
-        ...baseState,
-        category: "All",
-        amountMin: "",
-        amountMax: "",
-      };
-    default:
-      return baseState;
-  }
-};
+export const getInitialFilterState = (type) => ({
+  dateFrom: "",
+  dateTo: "",
+  ...(type === "sales" && { product: "", quantityMin: "", quantityMax: "", priceMin: "", priceMax: "" }),
+  ...(type === "inventory" && { name: "", stockMin: "", stockMax: "", reorderMin: "", reorderMax: "" }),
+  ...(type === "employee" && { name: "", position: "", salaryMin: "", salaryMax: "" }),
+  ...(type === "expense" && { category: "All", amountMin: "", amountMax: "" }),
+});
 
 export const calculateStats = (data, type) => {
-  if (!data || !data.length) {
-    // Return default values based on type
-    switch (type) {
-      case "sales":
-        return {
-          totalCount: 0,
-          totalRevenue: 0,
-          totalQuantity: 0,
-        };
-      case "inventory":
-        return {
-          totalCount: 0,
-          itemsToReorder: 0,
-          inStockItems: 0,
-        };
-      case "employee":
-        return {
-          totalCount: 0,
-          totalSalary: 0,
-          averageSalary: 0,
-        };
-      case "expense":
-        return {
-          totalCount: 0,
-          totalAmount: 0,
-          averageAmount: 0,
-        };
-      default:
-        return { totalCount: 0 };
-    }
+  if (!data?.length) 
+    return { totalCount: 0, ...(type === "sales" && { totalRevenue: 0, totalQuantity: 0 }), ...(type === "inventory" && { itemsToReorder: 0, inStockItems: 0 }), ...(type === "employee" && { totalSalary: 0, averageSalary: 0 }), ...(type === "expense" && { totalAmount: 0, averageAmount: 0 }) };
+
+  const totalCount = data.length;
+  if (type === "sales") {
+    return {
+      totalCount,
+      totalRevenue: data.reduce((sum, s) => sum + (+s.total || 0), 0),
+      totalQuantity: data.reduce((sum, s) => sum + (+s.quantity || 0), 0),
+    };
   }
-
-  const baseStats = {
-    totalCount: data.length,
-  };
-
-  switch (type) {
-    case "sales":
-      const totalRevenue = data.reduce(
-        (sum, sale) => sum + (Number(sale.total) || 0),
-        0
-      );
-      const totalQuantity = data.reduce(
-        (sum, sale) => sum + (Number(sale.quantity) || 0),
-        0
-      );
-      return {
-        ...baseStats,
-        totalRevenue,
-        totalQuantity,
-      };
-
-    case "inventory":
-      const itemsToReorder = data.filter(
-        (item) => Number(item.currentStock) <= Number(item.reorderLevel)
-      ).length;
-      return {
-        ...baseStats,
-        itemsToReorder,
-        inStockItems: baseStats.totalCount - itemsToReorder,
-      };
-
-    case "employee":
-      const totalSalary = data.reduce(
-        (sum, emp) => sum + (Number(emp.salary) || 0),
-        0
-      );
-      const averageSalary = data.length ? totalSalary / data.length : 0;
-
-      // Ensure each employee has a valid date
-      data.forEach((emp) => {
-        if (!emp.date) {
-          console.warn("Employee missing date:", emp);
-        }
-      });
-
-      return {
-        ...baseStats,
-        totalSalary,
-        averageSalary,
-      };
-
-    case "expense":
-      const totalAmount = data.reduce(
-        (sum, exp) => sum + (Number(exp.amount) || 0),
-        0
-      );
-      return {
-        ...baseStats,
-        totalAmount,
-        averageAmount: totalAmount / baseStats.totalCount,
-      };
-
-    default:
-      return baseStats;
+  if (type === "inventory") {
+    const itemsToReorder = data.filter((i) => +i.currentStock <= +i.reorderLevel).length;
+    return { totalCount, itemsToReorder, inStockItems: totalCount - itemsToReorder };
   }
+  if (type === "employee") {
+    const totalSalary = data.reduce((sum, e) => sum + (+e.salary || 0), 0);
+    return { totalCount, totalSalary, averageSalary: totalSalary / totalCount };
+  }
+  if (type === "expense") {
+    const totalAmount = data.reduce((sum, e) => sum + (+e.amount || 0), 0);
+    return { totalCount, totalAmount, averageAmount: totalAmount / totalCount };
+  }
+  return { totalCount };
 };
 
 export const handleFilterRemoval = (filters, key) => {
   const newFilters = { ...filters };
-
-  if (key.endsWith("Min") || key.endsWith("Max")) {
-    const baseKey = key.slice(0, -3);
-    delete newFilters[`${baseKey}Min`];
-    delete newFilters[`${baseKey}Max`];
-  } else {
-    delete newFilters[key];
-  }
-
+  key.endsWith("Min") || key.endsWith("Max") ? (delete newFilters[key.replace(/(Min|Max)$/, "Min")], delete newFilters[key.replace(/(Min|Max)$/, "Max")]) : delete newFilters[key];
   return newFilters;
 };

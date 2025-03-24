@@ -1,17 +1,18 @@
 import React from "react";
 import { Users, DollarSign, Calculator } from "lucide-react";
 import PageWrapper from "../components/layout/PageWrapper";
+import { formatIndianNumber } from "../utils/formatters";
 
 const EmployeeManagement = () => {
   const formatCurrency = (value) => {
     if (!value && value !== 0) return "₹0";
-    return `₹${parseInt(value).toLocaleString()}`;
+    return `₹${formatIndianNumber(parseInt(value))}`;
   };
 
   const statsConfig = [
     {
       title: "Total Employees",
-      getValue: (stats) => stats.totalCount || 0,
+      getValue: (stats) => formatIndianNumber(stats.totalCount || 0),
       icon: Users,
       color: "blue",
       footer: "Active workforce",

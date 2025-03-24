@@ -2,43 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Dark theme for react-datepicker */
-.react-datepicker {
-  @apply bg-gray-800 border border-gray-600 text-white !important;
-}
-
-.react-datepicker__header {
-  @apply bg-gray-900 border-gray-600 !important;
-}
-
-.react-datepicker__current-month,
-.react-datepicker__day-name,
-.react-datepicker__day {
-  @apply text-white !important;
-}
-
-.react-datepicker__day:hover {
-  @apply bg-gray-700 !important;
-}
-
-.react-datepicker__day--selected,
-.react-datepicker__day--keyboard-selected {
-  @apply bg-blue-500 text-white rounded-full !important;
-}
-
-.react-datepicker__day--disabled {
-  @apply text-gray-500 !important;
-}
-
-.react-datepicker__navigation-icon::before {
-  @apply border-white !important;
-}
-
-.react-datepicker__triangle::before,
-.react-datepicker__triangle::after {
-  @apply border-b-gray-800 !important;
-}
-
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
   @apply w-2;

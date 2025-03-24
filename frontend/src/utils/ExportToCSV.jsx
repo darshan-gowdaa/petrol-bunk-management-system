@@ -4,7 +4,18 @@ import { Info, XCircle } from "lucide-react"; // Import Lucide icons
 import { format } from "date-fns";
 
 export const exportToCSV = (data, headers, filename) => {
-  if (!data || !data.length) return;
+  if (!data || !data.length) {
+    toast.error("Cannot export empty table", {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "dark",
+    });
+    return;
+  }
 
   // Convert data to CSV format
   const csvContent = [
@@ -47,4 +58,15 @@ export const exportToCSV = (data, headers, filename) => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+
+  // Show success toast
+  toast.success("Data exported successfully!", {
+    position: "bottom-right",
+    autoClose: 3000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "dark",
+  });
 };

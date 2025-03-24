@@ -1,26 +1,27 @@
 import React from "react";
 import { DollarSign, BarChart2, Package } from "lucide-react";
 import PageWrapper from "../components/layout/PageWrapper";
+import { formatIndianNumber } from "../utils/formatters";
 
 const SalesManagement = () => {
   const statsConfig = [
     {
       title: "Total Sales",
-      getValue: (stats) => stats.totalCount,
+      getValue: (stats) => formatIndianNumber(stats.totalCount),
       icon: BarChart2,
       color: "blue",
       footer: "Total number of sales",
     },
     {
       title: "Total Revenue",
-      getValue: (stats) => `₹${stats.totalRevenue?.toFixed(2)}`,
+      getValue: (stats) => `₹${formatIndianNumber(stats.totalRevenue)}`,
       icon: DollarSign,
       color: "green",
       footer: "Total revenue generated",
     },
     {
       title: "Total Quantity",
-      getValue: (stats) => `${stats.totalQuantity?.toFixed(2)}L`,
+      getValue: (stats) => `${formatIndianNumber(stats.totalQuantity)}L`,
       icon: Package,
       color: "purple",
       footer: "Total quantity sold",

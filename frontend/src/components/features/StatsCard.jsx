@@ -1,171 +1,82 @@
 import React, { useState } from "react";
 import { Info } from "lucide-react";
-import toWords from "number-to-words";
 
-// Function to format number as per Indian numbering system
-const formatIndianNumber = (num) => {
-  return num.toLocaleString("en-IN");
-};
+// Format number as per Indian numbering system
+const formatIndianNumber = (num) => num.toLocaleString("en-IN");
 
-// Function to convert number to words in the Indian numbering system
+// Convert number to words in Indian numbering system
 const getIndianNumberInWords = (num, prefix, suffix) => {
   const [integer, decimal] = num.toString().replace(/,/g, "").split(".");
-  let words = toWords
-    .toWords(parseInt(integer))
-    .replace(/^\w/, (c) => c.toUpperCase());
+  let numValue = parseInt(integer);
+  const wordsMap = {
+    ones: ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"],
+    tens: ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"],
+    teens: ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"],
+  };
 
-  // Handle Indian number system words
-  const units = ["Thousand", "Lakh", "Crore"];
-  const numValue = parseInt(integer);
-  if (numValue >= 10000000) words = words.replace("million", units[2]); // Crore
-  else if (numValue >= 100000)
-    words = words.replace("hundred thousand", units[1]); // Lakh
-  else if (numValue >= 1000) words = words.replace("thousand", units[0]); // Thousand
+  const convert = (n) =>
+    n < 10 ? wordsMap.ones[n] :
+    n < 20 ? wordsMap.teens[n - 10] :
+    n < 100 ? wordsMap.tens[Math.floor(n / 10)] + (n % 10 ? " " + wordsMap.ones[n % 10] : "") :
+    wordsMap.ones[Math.floor(n / 100)] + " hundred" + (n % 100 ? " and " + convert(n % 100) : "");
 
-  if (decimal)
-    words +=
-      " point " +
-      [...decimal].map((d) => toWords.toWords(parseInt(d))).join(" ");
+  const sections = [{ value: 10000000, label: "crore" }, { value: 100000, label: "lakh" }, { value: 1000, label: "thousand" }];
+  let words = sections.reduce((acc, { value, label }) => {
+    if (numValue >= value) {
+      acc += convert(Math.floor(numValue / value)) + " " + label + " ";
+      numValue %= value;
+    }
+    return acc;
+  }, "");
 
-  // Append relevant unit
-  if (prefix) words += " rupees";
-  else if (suffix) words += " Liters";
-
-  return words;
+  words += convert(numValue);
+  if (decimal) words += " point " + [...decimal].map((d) => convert(parseInt(d))).join(" ");
+  return (words.trim().replace(/^\w/, (c) => c.toUpperCase()) + (prefix ? " rupees" : suffix ? " liters" : ""));
 };
 
-const StatsCard = ({
-  title,
-  value,
-  icon: Icon,
-  color = "blue",
-  footer,
-  subValue1,
-  subValue2,
-}) => {
+const StatsCard = ({ title, value, icon: Icon, color = "blue", footer, subValue1, subValue2 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
+  const colorStyles = {
+    blue: { gradient: "from-blue-500/20 to-blue-900/20", text: "text-blue-400", border: "border-blue-500/50", glow: "hover:border-blue-400" },
+    green: { gradient: "from-green-500/20 to-green-900/20", text: "text-green-400", border: "border-green-500/50", glow: "hover:border-green-400" },
+    red: { gradient: "from-red-500/20 to-red-900/20", text: "text-red-400", border: "border-red-500/50", glow: "hover:border-red-400" },
+    purple: { gradient: "from-purple-500/20 to-purple-900/20", text: "text-purple-400", border: "border-purple-500/50", glow: "hover:border-purple-400" },
+    yellow: { gradient: "from-yellow-500/20 to-yellow-900/20", text: "text-yellow-400", border: "border-yellow-500/50", glow: "hover:border-yellow-400" },
+    indigo: { gradient: "from-indigo-500/20 to-indigo-900/20", text: "text-indigo-400", border: "border-indigo-500/50", glow: "hover:border-indigo-400" },
+  }[color];
 
-  const getGradient = () => {
-    const colors = {
-      blue: "from-blue-500/20 to-blue-900/20 border-blue-500/50 hover:border-blue-400",
-      green:
-        "from-green-500/20 to-green-900/20 border-green-500/50 hover:border-green-400",
-      red: "from-red-500/20 to-red-900/20 border-red-500/50 hover:border-red-400",
-      purple:
-        "from-purple-500/20 to-purple-900/20 border-purple-500/50 hover:border-purple-400",
-      yellow:
-        "from-yellow-500/20 to-yellow-900/20 border-yellow-500/50 hover:border-yellow-400",
-      indigo:
-        "from-indigo-500/20 to-indigo-900/20 border-indigo-500/50 hover:border-indigo-400",
-    };
-    return colors[color] || colors.blue;
-  };
-
-  const getIconColor = () => {
-    const colors = {
-      blue: "text-blue-400",
-      green: "text-green-400",
-      red: "text-red-400",
-      purple: "text-purple-400",
-      yellow: "text-yellow-400",
-      indigo: "text-indigo-400",
-    };
-    return colors[color] || colors.blue;
-  };
-
-  const getIconBackground = () => {
-    const colors = {
-      blue: "bg-blue-500/10 border-blue-500/20",
-      green: "bg-green-500/10 border-green-500/20",
-      red: "bg-red-500/10 border-red-500/20",
-      purple: "bg-purple-500/10 border-purple-500/20",
-      yellow: "bg-yellow-500/10 border-yellow-500/20",
-      indigo: "bg-indigo-500/10 border-indigo-500/20",
-    };
-    return colors[color] || colors.blue;
-  };
-
-  const getShadowColor = () => {
-    const colors = {
-      blue: "hover:shadow-blue-500/10",
-      green: "hover:shadow-green-500/10",
-      red: "hover:shadow-red-500/10",
-      purple: "hover:shadow-purple-500/10",
-      yellow: "hover:shadow-yellow-500/10",
-      indigo: "hover:shadow-indigo-500/10",
-    };
-    return colors[color] || colors.blue;
-  };
-
-  // Extract numeric value and check if it's a currency or quantity
-  const valueStr = String(value);
-  const numericValue = valueStr.replace(/[^0-9.]/g, "");
-  const isCurrency = valueStr.includes("₹");
-  const isQuantity = valueStr.includes("L");
+  const numericValue = String(value).replace(/[^0-9.]/g, "");
+  const isCurrency = String(value).includes("₹");
+  const isQuantity = String(value).includes("L");
 
   return (
-    <div
-      className={`p-4 rounded-xl bg-gradient-to-br border backdrop-blur-sm 
-        transition-all duration-300 ease-out
-        hover:scale-[1.02] hover:shadow-lg ${getShadowColor()}
-        cursor-pointer transform-gpu ${getGradient()}`}
-    >
+    <div className={`p-4 rounded-xl bg-gradient-to-br ${colorStyles.gradient} border ${colorStyles.border} ${colorStyles.glow} transition-all hover:scale-[1.02] hover:shadow-lg`}>
       <div className="flex items-center gap-4">
-        {/* Left side - Icon */}
-        <div
-          className={`p-3 rounded-lg border ${getIconBackground()} 
-          transition-all duration-300 group-hover:scale-110 shadow-lg`}
-        >
-          {Icon && (
-            <Icon
-              className={`w-8 h-8 ${getIconColor()} transition-transform duration-300`}
-            />
-          )}
+        <div className={`p-3 rounded-lg border ${colorStyles.border} transition-all shadow-lg`}>
+          {Icon && <Icon className={`w-8 h-8 ${colorStyles.text}`} />}
         </div>
-
-        {/* Right side - Content */}
         <div className="flex-1">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-300 transition-colors group-hover:text-white">
-              {title}
-            </span>
+            <span className="text-sm text-gray-300">{title}</span>
             {numericValue && (
               <button
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
-                className="relative flex items-center justify-center w-6 h-6 text-gray-400 transition-colors hover:text-white"
+                className="relative flex items-center justify-center w-6 h-6 text-gray-400 hover:text-white"
               >
                 <Info size={16} />
                 {showTooltip && (
-                  <div className="absolute right-0 z-50 p-2 mt-2 text-sm text-white bg-gray-800 border border-gray-700 rounded-lg shadow-xl whitespace-nowrap top-full min-w-max backdrop-blur-sm bg-opacity-95">
-                    {getIndianNumberInWords(
-                      numericValue,
-                      isCurrency,
-                      isQuantity
-                    )}
+                  <div className="absolute right-0 z-50 p-2 mt-2 text-sm text-white bg-gray-800 border border-gray-700 rounded-lg shadow-xl top-full min-w-max">
+                    {getIndianNumberInWords(numericValue, isCurrency, isQuantity)}
                   </div>
                 )}
               </button>
             )}
           </div>
-          <div className="mt-1 text-2xl font-bold text-white transition-colors">
-            {value}
-          </div>
-          {footer && (
-            <div className="mt-1 text-sm text-gray-300 transition-colors">
-              {footer}
-            </div>
-          )}
-          {subValue1 && (
-            <div className="mt-1 text-sm text-gray-300 transition-colors">
-              {subValue1}
-            </div>
-          )}
-          {subValue2 && (
-            <div className="mt-0.5 text-sm text-gray-400 transition-colors">
-              {subValue2}
-            </div>
-          )}
+          <div className="mt-1 text-2xl font-bold text-white">{value}</div>
+          {footer && <div className="mt-1 text-sm text-gray-300">{footer}</div>}
+          {subValue1 && <div className="mt-1 text-sm text-gray-300">{subValue1}</div>}
+          {subValue2 && <div className="mt-0.5 text-sm text-gray-400">{subValue2}</div>}
         </div>
       </div>
     </div>

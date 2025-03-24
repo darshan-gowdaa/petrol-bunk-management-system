@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import bgImage from "../assets/bg_image.jpeg";
+import bgImage from "../assets/bg_image.avif";
 import { useAuth } from "../hooks/useAuth";
 
 const DEVELOPERS = [
@@ -52,18 +52,18 @@ const Login = () => {
   return (
     <div className="flex flex-col justify-center min-h-screen text-gray-100 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
       <main className="flex flex-col items-center justify-center w-full max-w-6xl p-6 mx-auto">
-        <div 
-          className="fixed inset-0 bg-center bg-cover transition-multiple duration-600" 
-          style={{ 
-            backgroundImage: `url(${bgImage})`, 
+        <div
+          className="fixed inset-0 bg-center bg-cover transition-multiple duration-600"
+          style={{
+            backgroundImage: `url(${bgImage})`,
             filter: `brightness(${showHelpModal ? '25%' : '35%'})`,
             transform: showHelpModal ? 'scale(1.05)' : 'scale(1)'
-          }} 
+          }}
         />
 
         <div className="relative z-10 w-full max-w-md p-12 transition-all duration-300 ease-in-out transform bg-black rounded-lg shadow-xl opacity-90 backdrop-blur-sm hover:shadow-2xl hover:-translate-y-1 animate-scaleIn">
           <h1 className="mb-8 text-3xl font-bold text-center text-white animate-fadeInUp">Welcome Back!</h1>
-          
+
           <form onSubmit={handleLogin} className="space-y-4">
             {["username", "password"].map((field) => (
               <div key={field} className="relative mb-4 transition-all duration-300 ease-in-out transform hover:translate-x-1">
@@ -79,13 +79,11 @@ const Login = () => {
                     }
                   }}
                   required
-                  className={`w-full px-5 py-4 text-white bg-gray-800 rounded focus:outline-none focus:ring-2 transition-all duration-300 ease-in-out ${
-                    error ? "border-2 border-red-500 focus:ring-red-500" : "focus:ring-gray-500"
-                  } transform hover:scale-[1.02]`}
+                  className={`w-full px-5 py-4 text-white bg-gray-800 rounded focus:outline-none focus:ring-2 transition-all duration-300 ease-in-out ${error ? "border-2 border-red-500 focus:ring-red-500" : "focus:ring-gray-500"
+                    } transform hover:scale-[1.02]`}
                 />
-                <label className={`absolute left-5 top-4 text-gray-400 transition-all duration-300 ease-in-out ${
-                  (field === "username" ? username : password) ? "text-xs -translate-y-3" : ""
-                }`}>
+                <label className={`absolute left-5 top-4 text-gray-400 transition-all duration-300 ease-in-out ${(field === "username" ? username : password) ? "text-xs -translate-y-3" : ""
+                  }`}>
                   {field.charAt(0).toUpperCase() + field.slice(1)}
                 </label>
               </div>
@@ -94,9 +92,8 @@ const Login = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full px-4 py-3 mt-2 font-semibold text-white bg-red-600 rounded transition-all duration-300 ease-in-out transform hover:bg-red-700 hover:scale-105 active:scale-95 ${
-                isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`w-full px-4 py-3 mt-2 font-semibold text-white bg-red-600 rounded transition-all duration-300 ease-in-out transform hover:bg-red-700 hover:scale-105 active:scale-95 ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                }`}
             >
               {isSubmitting ? "Signing in..." : "Sign In"}
             </button>
@@ -135,14 +132,14 @@ const Login = () => {
 
               <div className="space-y-4">
                 {DEVELOPERS.map((dev, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="p-4 bg-gray-800 rounded-lg transition-all duration-300 ease-in-out transform hover:bg-gray-700 hover:translate-x-2 hover:scale-[1.02] animate-fadeInUp"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <p className="font-medium text-white">{dev.name}</p>
-                    <a 
-                      href={`mailto:${dev.email}`} 
+                    <a
+                      href={`mailto:${dev.email}`}
                       className="text-sm text-blue-400 transition-all duration-300 ease-in-out transform hover:text-blue-300 hover:translate-x-1"
                     >
                       {dev.email}
