@@ -1,3 +1,5 @@
+// frontend/src/components/layout/HeaderWithActions.jsx - Header with actions component
+
 import { Plus, Filter, Download } from "lucide-react";
 
 const HeaderWithActions = ({

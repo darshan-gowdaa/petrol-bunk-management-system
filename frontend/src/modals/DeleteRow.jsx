@@ -1,3 +1,5 @@
+// frontend/src/modals/DeleteRow.jsx - Delete row modal component
+
 import React from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 

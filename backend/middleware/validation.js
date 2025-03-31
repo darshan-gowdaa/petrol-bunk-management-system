@@ -1,76 +1,55 @@
-// backend/middleware/validation.js
-export const validateEmployee = (req, res, next) => {
-  const { name, position, salary, date } = req.body;
+// backend/middleware/validation.js - Request validation middleware
+import { format } from "date-fns";
 
-  if (!name || !position || !salary) {
-    return res
-      .status(400)
-      .json({ message: "Name, position, and salary are required fields" });
-  }
-
-  if (isNaN(salary)) {
-    return res.status(400).json({ message: "Salary must be a number" });
-  }
-
-  // Validate date if provided
-  if (date) {
-    const dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) {
-      return res.status(400).json({ message: "Invalid date format" });
-    }
-  }
-
-  next();
+const validateNumber = (value, fieldName) => {
+  if (value === undefined || value === null) throw new Error(`${fieldName} is required`);
+  if (isNaN(value) || value < 0) throw new Error(`${fieldName} must be a positive number`);
 };
 
-export const validateExpense = (req, res, next) => {
-  const { category, amount, date } = req.body;
-
-  if (!category || !amount || !date) {
-    return res
-      .status(400)
-      .json({ message: "Category, amount, and date are required fields" });
-  }
-
-  if (isNaN(amount)) {
-    return res.status(400).json({ message: "Amount must be a number" });
-  }
-
-  next();
+const validateString = (value, fieldName) => {
+  if (value === undefined || value === null) throw new Error(`${fieldName} is required`);
+  if (!value.trim()) throw new Error(`${fieldName} cannot be empty`);
 };
 
-export const validateInventory = (req, res, next) => {
-  const { name, currentStock, reorderLevel } = req.body;
-
-  if (!name || currentStock === undefined || reorderLevel === undefined) {
-    return res
-      .status(400)
-      .json({
-        message: "Name, current stock, and reorder level are required fields",
-      });
-  }
-
-  if (isNaN(currentStock) || isNaN(reorderLevel)) {
-    return res.status(400).json({ message: "Stock values must be numbers" });
-  }
-
-  next();
+const validateDate = (date, fieldName = 'Date') => {
+  if (date === undefined || date === null) throw new Error(`${fieldName} is required`);
+  const dateObj = new Date(date);
+  if (isNaN(dateObj.getTime())) throw new Error(`${fieldName} must be a valid date`);
 };
 
-export const validateSale = (req, res, next) => {
-  const { product, quantity, price } = req.body;
-
-  if (!product || !quantity || !price) {
-    return res
-      .status(400)
-      .json({ message: "Product, quantity, and price are required fields" });
+const validateFields = (req, res, next, validations) => {
+  try {
+    validations.forEach(({ field, validator }) => validator(req.body[field], field));
+    next();
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
-
-  if (isNaN(quantity) || isNaN(price)) {
-    return res
-      .status(400)
-      .json({ message: "Quantity and price must be numbers" });
-  }
-
-  next();
 };
+
+export const validateEmployee = (req, res, next) =>
+  validateFields(req, res, next, [
+    { field: 'name', validator: validateString },
+    { field: 'position', validator: validateString },
+    { field: 'salary', validator: validateNumber }
+  ]);
+
+export const validateExpense = (req, res, next) =>
+  validateFields(req, res, next, [
+    { field: 'category', validator: validateString },
+    { field: 'amount', validator: validateNumber },
+    { field: 'date', validator: validateDate }
+  ]);
+
+export const validateInventory = (req, res, next) =>
+  validateFields(req, res, next, [
+    { field: 'name', validator: validateString },
+    { field: 'currentStock', validator: validateNumber },
+    { field: 'reorderLevel', validator: validateNumber }
+  ]);
+
+export const validateSale = (req, res, next) =>
+  validateFields(req, res, next, [
+    { field: 'product', validator: validateString },
+    { field: 'quantity', validator: validateNumber },
+    { field: 'price', validator: validateNumber }
+  ]);

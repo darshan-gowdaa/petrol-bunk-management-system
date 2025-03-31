@@ -1,48 +1,35 @@
-// backend/controllers/employeeController.js
+// backend/controllers/employeeController.js - Employee management controller
 import Employee from "../models/Employee.js";
 import { format } from "date-fns";
 
-// Format employee data consistently
-const formatEmployee = (employee) => {
-  const employeeData = employee._doc || employee;
-  return {
-    ...employeeData,
-    date: format(
-      new Date(
-        employeeData.date || employeeData.dateAdded || employeeData.createdAt
-      ),
-      "yyyy-MM-dd"
-    ),
-  };
+const formatEmployee = (employee) => ({
+  ...(employee._doc || employee),
+  date: format(new Date(employee.date || employee.dateAdded || employee.createdAt), "yyyy-MM-dd"),
+});
+
+const buildFilter = (query) => {
+  const filter = {};
+  const { name, position, salaryMin, salaryMax, dateFrom, dateTo } = query;
+
+  if (name) filter.name = { $regex: name, $options: "i" };
+  if (position) filter.position = { $regex: position, $options: "i" };
+  if (salaryMin || salaryMax) {
+    filter.salary = {};
+    if (salaryMin) filter.salary.$gte = parseFloat(salaryMin);
+    if (salaryMax) filter.salary.$lte = parseFloat(salaryMax);
+  }
+  if (dateFrom || dateTo) {
+    filter.dateAdded = {};
+    if (dateFrom) filter.dateAdded.$gte = new Date(dateFrom);
+    if (dateTo) filter.dateAdded.$lte = new Date(dateTo);
+  }
+  return filter;
 };
 
-// Get all employees with filtering options
 export const getEmployees = async (req, res) => {
   try {
-    const { name, position, salaryMin, salaryMax, dateFrom, dateTo } =
-      req.query;
-
-    // Build filter object
-    let filter = {};
-    if (name) filter.name = { $regex: name, $options: "i" };
-    if (position) filter.position = { $regex: position, $options: "i" };
-
-    // Add salary range filter if provided
-    if (salaryMin || salaryMax) {
-      filter.salary = {};
-      if (salaryMin) filter.salary.$gte = parseFloat(salaryMin);
-      if (salaryMax) filter.salary.$lte = parseFloat(salaryMax);
-    }
-
-    // Add date range filter if provided
-    if (dateFrom || dateTo) {
-      filter.dateAdded = {};
-      if (dateFrom) filter.dateAdded.$gte = new Date(dateFrom);
-      if (dateTo) filter.dateAdded.$lte = new Date(dateTo);
-    }
-
-    const employees = await Employee.find(filter);
-    res.status(200).json(employees.map((emp) => formatEmployee(emp)));
+    const employees = await Employee.find(buildFilter(req.query));
+    res.status(200).json(employees.map(formatEmployee));
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -50,13 +37,11 @@ export const getEmployees = async (req, res) => {
 
 export const createEmployee = async (req, res) => {
   try {
-    const employeeData = {
+    const employee = await new Employee({
       ...req.body,
       dateAdded: req.body.date || new Date(),
-    };
-    const employee = new Employee(employeeData);
-    const savedEmployee = await employee.save();
-    res.status(201).json(formatEmployee(savedEmployee));
+    }).save();
+    res.status(201).json(formatEmployee(employee));
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -64,19 +49,13 @@ export const createEmployee = async (req, res) => {
 
 export const updateEmployee = async (req, res) => {
   try {
-    const employeeData = {
-      ...req.body,
-      dateAdded: req.body.date || req.body.dateAdded,
-    };
-    const updatedEmployee = await Employee.findByIdAndUpdate(
+    const employee = await Employee.findByIdAndUpdate(
       req.params.id,
-      employeeData,
+      { ...req.body, dateAdded: req.body.date || req.body.dateAdded },
       { new: true }
     );
-    if (!updatedEmployee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
-    res.status(200).json(formatEmployee(updatedEmployee));
+    if (!employee) return res.status(404).json({ message: "Employee not found" });
+    res.status(200).json(formatEmployee(employee));
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -84,10 +63,8 @@ export const updateEmployee = async (req, res) => {
 
 export const deleteEmployee = async (req, res) => {
   try {
-    const deletedEmployee = await Employee.findByIdAndDelete(req.params.id);
-    if (!deletedEmployee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
+    const employee = await Employee.findByIdAndDelete(req.params.id);
+    if (!employee) return res.status(404).json({ message: "Employee not found" });
     res.status(204).send();
   } catch (err) {
     res.status(400).json({ message: err.message });

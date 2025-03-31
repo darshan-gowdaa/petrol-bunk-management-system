@@ -1,4 +1,5 @@
-import React from "react";
+// frontend/src/pages/Dashboard.jsx - Dashboard page component
+import React, { useState, useEffect } from "react";
 import {
   Package,
   BarChart2,
@@ -10,22 +11,14 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Typewriter } from "react-simple-typewriter";
 import { useAuth } from "../hooks/useAuth";
-import { toast } from "react-toastify";
+import { showToast } from "../utils/toastConfig";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
   const handleLogout = () => {
-    toast.success("Logged out successfully!", {
-      position: "bottom-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "dark",
-    });
+    showToast.success("Logged out successfully!");
     logout();
   };
 
@@ -177,3 +170,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

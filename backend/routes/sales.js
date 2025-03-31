@@ -1,10 +1,10 @@
-// backend/routes/sales.js
+// backend/routes/sales.js - Sales management routes
 import express from 'express';
-import { 
-  getSales, 
-  createSale, 
-  updateSale, 
-  deleteSale 
+import {
+  getSales,
+  createSale,
+  updateSale,
+  deleteSale
 } from '../controllers/salesController.js';
 import { validateSale } from '../middleware/validation.js';
 

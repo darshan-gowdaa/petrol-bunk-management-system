@@ -1,4 +1,4 @@
-// src/pages/InventoryManagement.jsx
+// frontend/src/pages/InventoryManagement.jsx - Inventory management page component for stock control
 import React from "react";
 import { AlertTriangle, Package, CheckCircle } from "lucide-react";
 import PageWrapper from "../components/layout/PageWrapper";

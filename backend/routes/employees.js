@@ -1,10 +1,10 @@
-// backend/routes/employees.js
+// backend/routes/employees.js - Employee management routes
 import express from 'express';
-import { 
-  getEmployees, 
-  createEmployee, 
-  updateEmployee, 
-  deleteEmployee 
+import {
+  getEmployees,
+  createEmployee,
+  updateEmployee,
+  deleteEmployee
 } from '../controllers/employeeController.js';
 import { validateEmployee } from '../middleware/validation.js';
 

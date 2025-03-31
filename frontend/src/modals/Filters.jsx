@@ -1,3 +1,5 @@
+// frontend/src/modals/Filters.jsx - Filter options modal component
+
 import React from "react";
 import { X } from "lucide-react";
 

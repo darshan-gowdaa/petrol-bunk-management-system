@@ -1,3 +1,5 @@
+// frontend/src/utils/formFields.js - Form field configuration
+
 import { format } from "date-fns";
 
 const formatDate = (value) => (value ? format(new Date(value), "dd/MM/yyyy") : "");

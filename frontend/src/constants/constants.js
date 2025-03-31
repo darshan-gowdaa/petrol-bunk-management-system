@@ -1,4 +1,4 @@
-// constants.js - Application-wide constants
+// frontend/src/constants/constants.js - Application-wide constants and configurations
 
 // API endpoints
 export const API_ENDPOINTS = {
@@ -8,23 +8,18 @@ export const API_ENDPOINTS = {
   },
   INVENTORY: {
     BASE: "/inventory",
-    ITEMS: "/inventory/items",
-    STOCK: "/inventory/stock",
   },
   SALES: {
     BASE: "/sales",
-    TRANSACTIONS: "/sales/transactions",
-    REPORTS: "/sales/reports",
   },
   EMPLOYEES: {
     BASE: "/employees",
-    LIST: "/employees/list",
-    ATTENDANCE: "/employees/attendance",
   },
   EXPENSES: {
     BASE: "/expenses",
-    LIST: "/expenses/list",
-    CATEGORIES: "/expenses/categories",
+  },
+  REPORTS: {
+    BASE: "/reports",
   },
 };
 
@@ -50,14 +45,13 @@ export const TOAST_TYPES = {
 // Local storage keys
 export const STORAGE_KEYS = {
   TOKEN: "token",
-  USER: "user",
-  THEME: "theme",
+  USER: "user"
 };
 
 // Table pagination options
 export const PAGINATION = {
   DEFAULT_PAGE_SIZE: 10,
-  PAGE_SIZE_OPTIONS: [10, 20, 50, 100],
+  PAGE_SIZE_OPTIONS: [10, 20, 50]
 };
 
 // Date formats

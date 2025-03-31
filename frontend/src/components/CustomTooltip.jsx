@@ -1,3 +1,5 @@
+// frontend/src/components/CustomTooltip.jsx - Custom tooltip component
+
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload || !payload.length) return null;
 

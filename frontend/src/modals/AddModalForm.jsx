@@ -1,6 +1,8 @@
+// frontend/src/modals/AddModalForm.jsx - Add modal form component
+
 import React from "react";
 import { Plus, X, RefreshCw } from "lucide-react";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 
 const AddModalForm = ({
   show,
@@ -24,8 +26,7 @@ const AddModalForm = ({
   const formatDateForInput = (value) => {
     if (!value) return "";
     try {
-      const date = new Date(value);
-      return format(date, "yyyy-MM-dd");
+      return format(new Date(value), "yyyy-MM-dd");
     } catch (e) {
       console.error("Date formatting error:", e);
       return "";

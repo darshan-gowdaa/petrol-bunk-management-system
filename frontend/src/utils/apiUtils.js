@@ -1,3 +1,5 @@
+// frontend/src/utils/apiUtils.js - API utility functions
+
 import axios from "axios";
 import { toast } from "react-toastify";
 

@@ -1,4 +1,4 @@
-// PetrolBunkManagement/src/pages/ExpenseTracking.jsx
+// frontend/src/pages/ExpenseTracking.jsx - Expense tracking page component for managing costs
 import React, { useState, useEffect } from "react";
 import { CheckCircle, Package, TrendingUp } from "lucide-react";
 import { toast } from "react-toastify";

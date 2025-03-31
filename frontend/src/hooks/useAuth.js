@@ -1,3 +1,4 @@
+// frontend/src/hooks/useAuth.js - Authentication hook
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
@@ -9,38 +10,21 @@ export const useAuth = () => {
 
   const login = useCallback(async (credentials) => {
     setLoading(true);
-
     try {
-      const response = await api.post("/auth/login", credentials);
-
-      if (response.data && response.data.token) {
-        const { user, token } = response.data;
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("token", token);
-        setUser(user);
+      const { data } = await api.post("/auth/login", credentials);
+      if (data?.token) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data.token);
+        setUser(data.user);
         return { success: true };
       }
-
-      return {
-        success: false,
-        message: "Invalid response from server",
-      };
+      return { success: false, message: "Invalid response from server" };
     } catch (error) {
-      if (error.response?.status === 401) {
-        return {
-          success: false,
-          message: "Invalid username or password",
-        };
-      }
-      if (error.response?.status === 400) {
-        return {
-          success: false,
-          message: "Please provide valid credentials",
-        };
-      }
       return {
         success: false,
-        message: "An error occurred during login",
+        message: error.response?.status === 401 ? "Invalid username or password" :
+          error.response?.status === 400 ? "Please provide valid credentials" :
+            "An error occurred during login"
       };
     } finally {
       setLoading(false);
@@ -54,15 +38,6 @@ export const useAuth = () => {
     navigate("/");
   }, [navigate]);
 
-  const isAuthenticated = useCallback(() => {
-    return !!localStorage.getItem("token");
-  }, []);
-
-  return {
-    user,
-    loading,
-    login,
-    logout,
-    isAuthenticated,
-  };
+  return { user, loading, login, logout, isAuthenticated: () => !!localStorage.getItem("token") };
 };
+

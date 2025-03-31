@@ -1,3 +1,5 @@
+// frontend/src/components/FormField.jsx - Form field component
+
 const FormField = ({
   label,
   name,

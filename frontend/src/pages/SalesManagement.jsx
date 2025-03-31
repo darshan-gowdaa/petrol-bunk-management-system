@@ -1,3 +1,4 @@
+// frontend/src/pages/SalesManagement.jsx - Sales management page component for tracking transactions
 import React from "react";
 import { DollarSign, BarChart2, Package } from "lucide-react";
 import PageWrapper from "../components/layout/PageWrapper";
@@ -38,3 +39,4 @@ const SalesManagement = () => {
 };
 
 export default SalesManagement;
+

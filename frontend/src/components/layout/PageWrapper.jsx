@@ -1,39 +1,20 @@
+// frontend/src/components/layout/PageWrapper.jsx
 import React, { useState, useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 
 import HeaderWithActions from "./HeaderWithActions";
-import {
-  Filters,
-  Table,
-  AddModalForm,
-  EditModalForm,
-  DeleteRow,
-} from "../../modals";
+import { Filters, Table, AddModalForm, EditModalForm, DeleteRow } from "../../modals";
 import { StatsCard } from "../features";
 
-import {
-  fetchData,
-  createItem,
-  updateItem,
-  deleteItem,
-  fetchFilteredData,
-} from "../../utils/apiUtils";
-import {
-  getInitialFormState,
-  getInitialFilterState,
-  calculateStats,
-  handleFilterRemoval,
-} from "../../utils/stateUtils";
-import {
-  getFormFields,
-  getFilterFields,
-  getTableColumns,
-} from "../../utils/formFields";
+import { fetchData, createItem, updateItem, deleteItem, fetchFilteredData } from "../../utils/apiUtils";
+import { getInitialFormState, getInitialFilterState, calculateStats, handleFilterRemoval } from "../../utils/stateUtils";
+import { getFormFields, getFilterFields, getTableColumns } from "../../utils/formFields";
 import { exportToCSV } from "../../utils/ExportToCSV";
+import { showToast, toastConfig } from "../../utils/toastConfig";
 
-// Endpoint mapping to ensure we use plural forms
+// Map singular types to plural endpoints
 const endpointMap = {
   employee: "employees",
   expense: "expenses",
@@ -41,14 +22,7 @@ const endpointMap = {
   sales: "sales",
 };
 
-const PageWrapper = ({
-  type,
-  title,
-  statsConfig,
-  additionalFields = {},
-  onDataUpdate = () => { },
-}) => {
-  // Get the correct endpoint
+const PageWrapper = ({ type, title, statsConfig, additionalFields = {}, onDataUpdate = () => { } }) => {
   const endpoint = endpointMap[type] || type;
 
   // State management
@@ -65,7 +39,7 @@ const PageWrapper = ({
   const [newCategory, setNewCategory] = useState("");
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
 
-  // Reset states when modal is closed
+  // Reset category input when add modal closes
   useEffect(() => {
     if (!showAddModal) {
       setShowNewCategoryInput(false);
@@ -73,33 +47,22 @@ const PageWrapper = ({
     }
   }, [showAddModal]);
 
-  // Get configurations
+  // Get configurations for forms and table
   const formFields = getFormFields(type);
   const filterFields = getFilterFields(type, additionalFields.categories);
   const tableColumns = getTableColumns(type);
 
   // Update form fields with dynamic categories for expense type
-  const updatedFormFields =
-    type === "expense"
-      ? formFields.map((field) => {
-        if (field.name === "category") {
-          const defaultOptions = field.options.filter(
-            (opt) => opt !== "Add New Category"
-          );
-          const dynamicOptions = additionalFields.categories || [];
-          const uniqueOptions = [
-            ...new Set([...defaultOptions, ...dynamicOptions]),
-          ];
-          return {
-            ...field,
-            options: [...uniqueOptions, "Add New Category"],
-          };
-        }
-        return field;
-      })
-      : formFields;
+  const updatedFormFields = type === "expense" ? formFields.map(field => {
+    if (field.name === "category") {
+      const defaultOptions = field.options.filter(opt => opt !== "Add New Category");
+      const dynamicOptions = additionalFields.categories || [];
+      return { ...field, options: [...new Set([...defaultOptions, ...dynamicOptions]), "Add New Category"] };
+    }
+    return field;
+  }) : formFields;
 
-  // Handle category selection
+  // Category management handlers
   const handleCategorySelect = (e) => {
     const { value } = e.target;
     if (value === "Add New Category") {
@@ -112,50 +75,24 @@ const PageWrapper = ({
     }
   };
 
-  // Handle new category input change
-  const handleNewCategoryChange = (e) => {
-    setNewCategory(e.target.value);
-  };
+  const handleNewCategoryChange = (e) => setNewCategory(e.target.value);
 
-  // Handle adding new category
   const addNewCategory = () => {
     if (newCategory.trim()) {
-      const updatedCategories = [
-        ...(additionalFields.categories || []),
-        newCategory.trim(),
-      ];
-
+      const updatedCategories = [...(additionalFields.categories || []), newCategory.trim()];
       const target = showEditModal ? currentItem : formData;
       const setTarget = showEditModal ? setCurrentItem : setFormData;
       setTarget({ ...target, category: newCategory.trim() });
-
       onDataUpdate({ ...data, categories: updatedCategories });
       setNewCategory("");
       setShowNewCategoryInput(false);
-
-      toast.success("New category added successfully!", {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
+      showToast.success("New category added successfully!");
     } else {
-      toast.error("Category name cannot be empty", {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
+      showToast.error("Category name cannot be empty");
     }
   };
 
-  // Fetch data
+  // Fetch and refresh data
   const fetchPageData = async () => {
     setLoading(true);
     try {
@@ -164,15 +101,7 @@ const PageWrapper = ({
       setFilteredData(result);
       onDataUpdate(result);
     } catch (error) {
-      toast.error("Failed to refresh data. Please try again.", {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
+      showToast.error("Failed to refresh data. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -182,13 +111,12 @@ const PageWrapper = ({
     fetchPageData();
   }, []);
 
-  // Handle form input changes
+  // Form input handler with date formatting
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let newValue = value;
 
     if (name === "date") {
-      // For date inputs, store as ISO string but format for display
       try {
         const date = new Date(value);
         if (!isNaN(date.getTime())) {
@@ -206,148 +134,92 @@ const PageWrapper = ({
     }
   };
 
-  // Handle add item
+  // CRUD operations with filter-aware updates
   const handleAdd = async (e) => {
     e.preventDefault();
-    if (showNewCategoryInput) return; // Don't submit if we're adding a new category
-
+    if (showNewCategoryInput) return;
     setLoading(true);
     try {
       const dataToSubmit = { ...formData };
       if (dataToSubmit.date) {
-        // Ensure date is in correct format for API
         const date = new Date(dataToSubmit.date);
-        if (!isNaN(date.getTime())) {
-          dataToSubmit.date = format(date, "yyyy-MM-dd");
-        }
+        if (!isNaN(date.getTime())) dataToSubmit.date = format(date, "yyyy-MM-dd");
       }
       const newItem = await createItem(endpoint, dataToSubmit);
-      setData([...data, newItem]);
-      setFilteredData([...filteredData, newItem]);
-      setFormData(getInitialFormState(type));
+      const updatedData = [...data, newItem];
+      setData(updatedData);
+
+      // Refresh filtered data based on active filters
+      const hasActiveFilters = Object.entries(filters).some(([_, value]) => value && value !== "" && value !== "All");
+      if (hasActiveFilters) {
+        const filtered = await fetchFilteredData(endpoint, filters);
+        setFilteredData(filtered);
+      } else {
+        setFilteredData(updatedData);
+      }
+
       setShowAddModal(false);
-      onDataUpdate([...data, newItem]);
-      toast.success(`${title.split(" ")[0]} added successfully!`, {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
+      setFormData(getInitialFormState(type));
+      onDataUpdate(updatedData);
+      showToast.success(`${title.split(" ")[0]} added successfully!`);
     } catch (error) {
-      toast.error(
-        `Failed to add ${title.split(" ")[0].toLowerCase()}: ${error.message}`,
-        {
-          position: "bottom-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "dark",
-        }
-      );
+      showToast.error(`Failed to add ${title.split(" ")[0].toLowerCase()}: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle edit item
   const handleEdit = async (e) => {
     e.preventDefault();
-    if (showNewCategoryInput) return; // Don't submit if we're adding a new category
-
+    if (showNewCategoryInput) return;
     setLoading(true);
     try {
       const dataToSubmit = { ...currentItem };
       if (dataToSubmit.date) {
-        // Ensure date is in correct format for API
         const date = new Date(dataToSubmit.date);
-        if (!isNaN(date.getTime())) {
-          dataToSubmit.date = format(date, "yyyy-MM-dd");
-        }
+        if (!isNaN(date.getTime())) dataToSubmit.date = format(date, "yyyy-MM-dd");
       }
-      const updated = await updateItem(
-        endpoint,
-        dataToSubmit._id,
-        dataToSubmit
-      );
-      const updatedData = data.map((item) =>
-        item._id === currentItem._id ? updated : item
-      );
+      const updated = await updateItem(endpoint, dataToSubmit._id, dataToSubmit);
+      const updatedData = data.map(item => item._id === currentItem._id ? updated : item);
       setData(updatedData);
-      setFilteredData(updatedData);
+
+      // Refresh filtered data based on active filters
+      const hasActiveFilters = Object.entries(filters).some(([_, value]) => value && value !== "" && value !== "All");
+      if (hasActiveFilters) {
+        const filtered = await fetchFilteredData(endpoint, filters);
+        setFilteredData(filtered);
+      } else {
+        setFilteredData(updatedData);
+      }
+
       setShowEditModal(false);
       onDataUpdate(updatedData);
-      toast.success(`${title.split(" ")[0]} updated successfully!`, {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
+      showToast.success(`${title.split(" ")[0]} updated successfully!`);
     } catch (error) {
-      toast.error(
-        `Failed to update ${title.split(" ")[0].toLowerCase()}: ${error.message
-        }`,
-        {
-          position: "bottom-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "dark",
-        }
-      );
+      showToast.error(`Failed to update ${title.split(" ")[0].toLowerCase()}: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle delete item
   const handleDelete = async () => {
     setLoading(true);
     try {
       await deleteItem(endpoint, currentItem._id);
-      const updatedData = data.filter((item) => item._id !== currentItem._id);
+      const updatedData = data.filter(item => item._id !== currentItem._id);
       setData(updatedData);
       setFilteredData(updatedData);
       setShowDeleteModal(false);
       onDataUpdate(updatedData);
-      toast.success(`${title.split(" ")[0]} deleted successfully!`, {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
+      showToast.success(`${title.split(" ")[0]} deleted successfully!`);
     } catch (error) {
-      toast.error(
-        `Failed to delete ${title.split(" ")[0].toLowerCase()}: ${error.message
-        }`,
-        {
-          position: "bottom-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "dark",
-        }
-      );
+      showToast.error(`Failed to delete ${title.split(" ")[0].toLowerCase()}: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle filters
+  // Filter management
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters({ ...filters, [name]: value });
@@ -359,25 +231,9 @@ const PageWrapper = ({
       const filtered = await fetchFilteredData(endpoint, filters);
       setFilteredData(filtered);
       setShowFilters(false);
-      toast.success("Filters applied successfully!", {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
+      showToast.success("Filters applied successfully!");
     } catch (error) {
-      toast.error("Failed to apply filters. Please try again.", {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
+      showToast.error("Failed to apply filters. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -387,23 +243,15 @@ const PageWrapper = ({
     setFilters(getInitialFilterState(type));
     setFilteredData(data);
     setShowFilters(false);
-    toast.info("Filters have been reset", {
-      position: "bottom-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "dark",
-    });
+    showToast.info("Filters have been reset");
   };
 
-  // Handle export
+  // Export functionality
   const handleExport = () => {
     exportToCSV(filteredData, tableColumns, type);
   };
 
-  // Calculate stats
+  // Calculate statistics
   const stats = calculateStats(filteredData, type);
 
   return (
@@ -417,18 +265,7 @@ const PageWrapper = ({
           addLabel={`Add ${title.split(" ")[0]}`}
         />
 
-        <ToastContainer
-          position="bottom-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
-        />
+        <ToastContainer {...toastConfig} />
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
@@ -473,18 +310,13 @@ const PageWrapper = ({
           onRemoveFilter={(key) => {
             const newFilters = handleFilterRemoval(filters, key);
             setFilters(newFilters);
-            // Check if all filters are empty/default
             const hasActiveFilters = Object.entries(newFilters).some(
               ([_, value]) => value && value !== "" && value !== "All"
             );
             if (!hasActiveFilters) {
-              // If no active filters, reset to original data
               setFilteredData(data);
             } else {
-              // Otherwise fetch with remaining filters
-              fetchFilteredData(endpoint, newFilters).then((filtered) => {
-                setFilteredData(filtered);
-              });
+              fetchFilteredData(endpoint, newFilters).then(setFilteredData);
             }
           }}
         />

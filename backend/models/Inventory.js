@@ -1,14 +1,9 @@
-// models/inventory.js
+// backend/models/Inventory.js - Inventory data model
 import mongoose from 'mongoose';
 
-const inventorySchema = new mongoose.Schema({
+export default mongoose.model('Inventory', new mongoose.Schema({
   name: { type: String, required: true },
   currentStock: { type: Number, required: true },
   reorderLevel: { type: Number, required: true },
   date: { type: Date, required: true }
-});
-
-
-const Inventory = mongoose.model('Inventory', inventorySchema);
-
-export default Inventory;
+}));

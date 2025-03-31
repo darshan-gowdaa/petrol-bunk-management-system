@@ -1,3 +1,4 @@
+/* frontend/src/toast.css - Toast notification styles */
 /* Custom styles for React Toastify */
 .Toastify__toast {
     background: linear-gradient(to right, rgba(59, 130, 246, 0.1), rgba(30, 58, 138, 0.1)) !important;
@@ -98,4 +99,5 @@
 
 .Toastify__progress-bar--warning {
     background: rgba(245, 158, 11, 0.3) !important;
+}
 }

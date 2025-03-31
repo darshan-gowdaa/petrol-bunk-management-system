@@ -1,3 +1,4 @@
+// backend/generateHash.js - Password hashing utility
 import bcrypt from "bcryptjs";
 
 const password = "admin";

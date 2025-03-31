@@ -1,4 +1,4 @@
-// backend/index.js
+// backend/index.js - Main server entry point
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -48,11 +48,13 @@ mongoose
       console.log(`Server running on port ${PORT}`);
     });
   })
-  .catch((err) => console.error("Error connecting to MongoDB:", err));
+  .catch((err) => {
+    console.error("Database connection failed:", err);
+    process.exit(1);
+  });
 
 // Handle unhandled promise rejections
 process.on("unhandledRejection", (error) => {
   console.error("Unhandled Promise Rejection:", error);
-  // In production, you might want to exit the process
-  // process.exit(1);
+  process.exit(1);
 });

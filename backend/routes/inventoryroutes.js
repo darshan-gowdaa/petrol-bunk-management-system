@@ -1,10 +1,10 @@
-// backend/routes/inventoryroutes.js
+// backend/routes/inventoryroutes.js - Inventory management routes
 import express from 'express';
-import { 
-  getInventory, 
-  createInventoryItem, 
-  updateInventoryItem, 
-  deleteInventoryItem 
+import {
+  getInventory,
+  createInventoryItem,
+  updateInventoryItem,
+  deleteInventoryItem
 } from '../controllers/inventoryController.js';
 import { validateInventory } from '../middleware/validation.js';
 

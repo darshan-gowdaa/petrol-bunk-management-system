@@ -1,3 +1,5 @@
+// frontend/src/utils/formatters.js - Formatting utilities
+
 // Format currency
 export const formatCurrency = (amount, currency = "INR") => {
   if (!amount && amount !== 0) return "₹0";
@@ -40,7 +42,7 @@ export const formatNumber = (number) => {
 export const formatIndianNumber = (value) => {
   if (!value && value !== 0) return "0";
   const num = typeof value === "string" ? parseFloat(value) : value;
-  
+
   // Convert to string with up to 2 decimal places if needed
   const withDecimals = num.toFixed(2).replace(/\.?0+$/, "");
   // Split into whole and decimal parts
@@ -54,3 +56,4 @@ export const formatIndianNumber = (value) => {
     lastThree;
   return decimal ? `${formatted}.${decimal}` : formatted;
 };
+

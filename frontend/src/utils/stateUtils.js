@@ -1,3 +1,5 @@
+// frontend/src/utils/stateUtils.js - State management utilities
+
 import { format } from "date-fns";
 
 export const getInitialFormState = (type) => ({
@@ -18,7 +20,7 @@ export const getInitialFilterState = (type) => ({
 });
 
 export const calculateStats = (data, type) => {
-  if (!data?.length) 
+  if (!data?.length)
     return { totalCount: 0, ...(type === "sales" && { totalRevenue: 0, totalQuantity: 0 }), ...(type === "inventory" && { itemsToReorder: 0, inStockItems: 0 }), ...(type === "employee" && { totalSalary: 0, averageSalary: 0 }), ...(type === "expense" && { totalAmount: 0, averageAmount: 0 }) };
 
   const totalCount = data.length;

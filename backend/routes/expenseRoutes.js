@@ -1,10 +1,10 @@
-// backend/routes/expenseRoutes.js
+// backend/routes/expenseRoutes.js - Expense management routes
 import express from 'express';
-import { 
-  getExpenses, 
-  createExpense, 
-  updateExpense, 
-  deleteExpense 
+import {
+  getExpenses,
+  createExpense,
+  updateExpense,
+  deleteExpense
 } from '../controllers/expenseController.js';
 import { validateExpense } from '../middleware/validation.js';
 

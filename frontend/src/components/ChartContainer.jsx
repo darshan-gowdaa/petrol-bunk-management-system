@@ -1,3 +1,5 @@
+// frontend/src/components/ChartContainer.jsx - Chart container component
+
 const ChartContainer = ({ title, children }) => {
   return (
     <div className="rounded-lg border border-gray-800/40 bg-gray-800/10 p-4 shadow-sm backdrop-blur-sm">

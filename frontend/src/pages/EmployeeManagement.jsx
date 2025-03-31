@@ -1,3 +1,4 @@
+// frontend/src/pages/EmployeeManagement.jsx - Employee management page component for handling staff records
 import React from "react";
 import { Users, DollarSign, Calculator } from "lucide-react";
 import PageWrapper from "../components/layout/PageWrapper";
@@ -49,3 +50,4 @@ const EmployeeManagement = () => {
 };
 
 export default EmployeeManagement;
+

@@ -1,3 +1,5 @@
+// frontend/src/components/features/StatsCard.jsx - Stats card component
+
 import React, { useState } from "react";
 import { Info } from "lucide-react";
 

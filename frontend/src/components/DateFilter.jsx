@@ -1,3 +1,5 @@
+// frontend/src/components/DateFilter.jsx - Date filter component
+
 import { Calendar } from "lucide-react";
 import { useEffect, useRef } from "react";
 

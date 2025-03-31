@@ -1,3 +1,4 @@
+// frontend/src/components/common/index.js - Common components barrel file
 export { default as Alert } from "./Alert.jsx";
 export { default as FormField } from "./FormField";
 export { default as CustomTooltip } from "./CustomTooltip";

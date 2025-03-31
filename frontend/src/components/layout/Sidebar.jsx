@@ -1,3 +1,5 @@
+// frontend/src/components/layout/Sidebar.jsx - Sidebar component
+
 import React, { useState, useEffect, memo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
