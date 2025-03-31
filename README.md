@@ -76,6 +76,7 @@ It provides a comprehensive solution for managing inventory, sales, employees, e
 
 ### ✅ Prerequisites  
 <p align="center">
+  
 ![Node.js](https://img.shields.io/badge/Node.js-14%2B-43853D?style=for-the-badge&logo=node.js&logoColor=white)  
 ![MongoDB](https://img.shields.io/badge/MongoDB-4.4%2B-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)  
 ![npm](https://img.shields.io/badge/npm-6%2B-CB3837?style=for-the-badge&logo=npm&logoColor=white)  
