@@ -9,9 +9,7 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
-[![GitHub issues](https://img.shields.io/github/issues/darshan-gowdaa/petrol-bunk-management-system)](https://github.com/darshan-gowdaa/petrol-bunk-management-system/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/darshan-gowdaa/petrol-bunk-management-system)](https://github.com/darshan-gowdaa/petrol-bunk-management-system/pulls)
-[![GitHub license](https://img.shields.io/github/license/darshan-gowdaa/petrol-bunk-management-system)](https://github.com/darshan-gowdaa/petrol-bunk-management-system/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/darshan-gowdaa/petrol-bunk-management-system)](https://github.com/darshan-gowdaa/petrol-bunk-management-system/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/darshan-gowdaa/petrol-bunk-management-system)](https://github.com/darshan-gowdaa/petrol-bunk-management-system/network)
 
@@ -187,7 +185,7 @@ petrol-bunk-management-system/
 ```bash
 # Run frontend tests
 cd frontend
-npm test
+npm test[
 
 # Run backend tests
 cd backend
@@ -199,14 +197,9 @@ npm test
 The application can be deployed using various platforms:
 
 ### Frontend Deployment
-- Vercel
-- Netlify
-- GitHub Pages
+- GitHub Pages [https://darshan-gowdaa.github.io/dashboard] (Backend wont work)
 
 ### Backend Deployment
-- Heroku
-- DigitalOcean
-- AWS
 
 ## 🤝 Contributing
 
@@ -221,12 +214,11 @@ The application can be deployed using various platforms:
 - Write meaningful commit messages
 - Add appropriate documentation
 - Include tests for new features
-- Update the README if necessary
 
 
 ## 👥 Authors
 
-- **Darshan Gowda G S** - *Initial work* - [GitHub](https://github.com/darshan-gowdaa)
+- **Darshan Gowda G S** - [GitHub](https://github.com/darshan-gowdaa)
 
 
 ## 📞 Support
