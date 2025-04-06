@@ -17,7 +17,7 @@ const toastConfig = {
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 10000, //10sec
   headers: { "Content-Type": "application/json" },
 });
 
@@ -36,7 +36,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem(STORAGE_KEYS.TOKEN);
       localStorage.removeItem(STORAGE_KEYS.USER);
-      window.location.href = "/";
+      return Promise.reject(error);
     }
 
     const errorMessage = error.code === "ECONNABORTED"
