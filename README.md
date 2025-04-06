@@ -1,4 +1,7 @@
-# 🚗 Petrol Bunk Management System
+#  Petrol Bunk Management System ⛽
+
+The Petrol Bunk Management System is a full-stack web application designed to streamline petrol bunk operations with modern technology.
+It provides a comprehensive solution for managing inventory, sales, employees, expense and reports, ensuring efficient and transparent business processes.
 
 <div align="center">
 
@@ -9,65 +12,25 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
-[![GitHub issues](https://img.shields.io/github/issues/yourusername/petrol-bunk-management-system)](https://github.com/yourusername/petrol-bunk-management-system/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/yourusername/petrol-bunk-management-system)](https://github.com/yourusername/petrol-bunk-management-system/pulls)
-[![GitHub license](https://img.shields.io/github/license/yourusername/petrol-bunk-management-system)](https://github.com/yourusername/petrol-bunk-management-system/blob/main/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/petrol-bunk-management-system)](https://github.com/yourusername/petrol-bunk-management-system/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/petrol-bunk-management-system)](https://github.com/yourusername/petrol-bunk-management-system/network)
+[![GitHub stars](https://img.shields.io/github/stars/darshan-gowdaa/petrol-bunk-management-system)](https://github.com/darshan-gowdaa/petrol-bunk-management-system/stargazers)
 
 </div>
-
-A modern, full-stack web application for managing petrol bunk operations efficiently. This system helps streamline the day-to-day operations of a petrol bunk, from inventory management to sales tracking.
 
 ## 📸 Demo
-
-<div align="center">
-  <img src="demo.gif" alt="Petrol Bunk Management System Demo" width="800px">
-</div>
+...to be updated.
 
 ## 🌟 Features
 
 ### User Management
 - **Role-based Access Control**
   - Admin Dashboard
-  - Manager Interface
   - Staff Portal
+    
 - **Secure Authentication**
   - JWT-based authentication
   - Password hashing with bcrypt
   - Session management
-- **User Profiles**
-  - Personal information management
-  - Activity history
-  - Role-specific views
 
-### Inventory Management
-- **Real-time Stock Tracking**
-  - Fuel level monitoring
-  - Low stock alerts
-  - Stock history
-- **Purchase Management**
-  - Supplier management
-  - Purchase orders
-  - Invoice generation
-- **Stock Analytics**
-  - Consumption patterns
-  - Stock predictions
-  - Cost analysis
-
-### Sales Management
-- **Transaction Processing**
-  - Multiple payment methods
-  - Receipt generation
-  - Transaction history
-- **Sales Analytics**
-  - Daily/weekly/monthly reports
-  - Revenue tracking
-  - Customer insights
-- **Pricing Management**
-  - Dynamic pricing
-  - Special offers
-  - Bulk discounts
 
 ### Reporting & Analytics
 - **Comprehensive Reports**
@@ -80,47 +43,51 @@ A modern, full-stack web application for managing petrol bunk operations efficie
   - Trend analysis
 - **Export Capabilities**
   - PDF reports
-  - Excel exports
-  - Custom report generation
+  - CSV exports
+  - Filtered - Custom report generation
 
-## 🛠️ Tech Stack
+### Frontend  
+<p align="center">
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+  <img src="https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white" />
+  <img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white" />
+  <img src="https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white" />
+  <img src="https://img.shields.io/badge/Lucide_React-000000?style=for-the-badge&logo=lucide&logoColor=white" />
+</p>
 
-### Frontend
-- **React.js** - Modern UI development
-- **Vite** - Fast build tooling
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Router** - Navigation management
-- **Redux Toolkit** - State management
-- **Axios** - HTTP client
-- **Chart.js** - Data visualization
-- **React Icons** - Icon library
-- **Formik & Yup** - Form handling & validation
+### Backend  
+<p align="center">
+  <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" />
+  <img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" />
+  <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" />
+  <img src="https://img.shields.io/badge/Mongoose-880000?style=for-the-badge&logo=mongoose&logoColor=white" />
+  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" />
+  <img src="https://img.shields.io/badge/Bcrypt-00599C?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Cors-FF9933?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Dotenv-008000?style=for-the-badge" />
+</p>
 
-### Backend
-- **Node.js** - Runtime environment
-- **Express.js** - Web framework
-- **MongoDB** - Database
-- **Mongoose** - ODM for MongoDB
-- **JWT** - Authentication
-- **Bcrypt** - Password hashing
-- **Cors** - Cross-origin resource sharing
-- **Dotenv** - Environment variables
-- **Morgan** - HTTP request logger
-- **Helmet** - Security headers
+
+
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Node.js (v14 or higher)
-- MongoDB (v4.4 or higher)
-- npm (v6 or higher) or yarn (v1.22 or higher)
-- Git
+### ✅ Prerequisites  
+<p align="center">
+  
+![Node.js](https://img.shields.io/badge/Node.js-14%2B-43853D?style=for-the-badge&logo=node.js&logoColor=white)  
+![MongoDB](https://img.shields.io/badge/MongoDB-4.4%2B-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)  
+![npm](https://img.shields.io/badge/npm-6%2B-CB3837?style=for-the-badge&logo=npm&logoColor=white)  
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)  
+</p>
 
 ### Installation
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/petrol-bunk-management-system.git
+git clone https://github.com/darshan-gowdaa/petrol-bunk-management-system.git
 cd petrol-bunk-management-system
 ```
 
@@ -148,19 +115,6 @@ NODE_ENV=development
 # MongoDB Configuration
 MONGODB_URI=your_mongodb_connection_string
 
-# JWT Configuration
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=24h
-
-# Email Configuration (Optional)
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=your_email
-SMTP_PASS=your_password
-
-# File Upload Configuration
-MAX_FILE_SIZE=5242880
-UPLOAD_PATH=uploads/
 ```
 
 4. Start the application
@@ -202,7 +156,6 @@ petrol-bunk-management-system/
 
 - **Authentication & Authorization**
   - JWT-based authentication
-  - Role-based access control
   - Session management
   - Password hashing with bcrypt
 
@@ -210,7 +163,6 @@ petrol-bunk-management-system/
   - Rate limiting
   - Request validation
   - CORS configuration
-  - Helmet security headers
 
 - **Data Security**
   - Input sanitization
@@ -223,32 +175,19 @@ petrol-bunk-management-system/
   - Custom error classes
   - Error logging
   - Client-friendly error messages
+  - Appropriate Toasts
 
 ## 🧪 Testing
 
 ```bash
 # Run frontend tests
 cd frontend
-npm test
+npm test[
 
 # Run backend tests
 cd backend
 npm test
 ```
-
-## 📦 Deployment
-
-The application can be deployed using various platforms:
-
-### Frontend Deployment
-- Vercel
-- Netlify
-- GitHub Pages
-
-### Backend Deployment
-- Heroku
-- DigitalOcean
-- AWS
 
 ## 🤝 Contributing
 
@@ -261,38 +200,20 @@ The application can be deployed using various platforms:
 ### Contributing Guidelines
 - Follow the existing code style
 - Write meaningful commit messages
-- Add appropriate documentation
-- Include tests for new features
-- Update the README if necessary
 
-## 📝 License
-
-This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
 
 ## 👥 Authors
 
-- **Darshan Gowda G S** - *Initial work* - [GitHub](https://github.com/yourusername)
+- **Darshan Gowda G S** - [GitHub](https://github.com/darshan-gowdaa)
 
-## 🙏 Acknowledgments
-
-- Thanks to all contributors who have helped shape this project
-- Special thanks to the open-source community for the amazing tools and libraries
-- Icons provided by [React Icons](https://react-icons.github.io/react-icons/)
-- UI components inspired by modern design systems
 
 ## 📞 Support
 
-For support, email support@example.com or join our Slack channel.
+For support, email darshangowdaa223@gmail.com
 
-## 🔄 Updates
-
-- **v1.0.0** - Initial release
-- **v1.1.0** - Added reporting features
-- **v1.2.0** - Enhanced security features
-- **v1.3.0** - Added analytics dashboard
 
 ---
 
 <div align="center">
-Made with ❤️ by Darshan Gowda G S
+Made with ❤️ by DG
 </div> 
