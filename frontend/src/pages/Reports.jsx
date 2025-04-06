@@ -258,19 +258,26 @@ const Reports = () => {
           <ChartContainer title="Expense vs Income">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={[
-                { name: "Revenue", value: stats.sales, type: "Income" },
-                { name: "Expenses", value: stats.expenses, type: "Expense" },
-                { name: "Salaries", value: stats.salaries, type: "Expense" },
-                { name: "Profit", value: stats.profitLoss > 0 ? stats.profitLoss : 0, type: "Income" },
-                { name: "Loss", value: stats.profitLoss < 0 ? Math.abs(stats.profitLoss) : 0, type: "Expense" },
+                { name: "Income", income: stats.sales, expense: 0 },
+                { name: "Expenses", income: 0, expense: stats.expenses + stats.salaries },
+                { name: "Net", income: stats.profitLoss > 0 ? stats.profitLoss : 0, expense: stats.profitLoss < 0 ? Math.abs(stats.profitLoss) : 0 }
               ]}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="name" stroke="#fff" tick={{ fill: "#fff" }} />
-                <YAxis stroke="#fff" tick={{ fill: "#fff" }} tickFormatter={formatCurrency} />
-                <Tooltip content={<CustomTooltip />} formatter={(value) => [formatCurrency(value), "Amount"]} contentStyle={{ backgroundColor: "rgba(17, 24, 39, 0.8)", border: "1px solid #374151", borderRadius: "0.5rem", backdropFilter: "blur(4px)" }} />
+                <XAxis dataKey="name" stroke="#fff" />
+                <YAxis stroke="#fff" tickFormatter={formatCurrency} />
+                <Tooltip
+                  content={<CustomTooltip />}
+                  formatter={(value) => [formatCurrency(value), "Amount"]}
+                  contentStyle={{
+                    backgroundColor: "rgba(17, 24, 39, 0.8)",
+                    border: "1px solid #374151",
+                    borderRadius: "0.5rem",
+                    backdropFilter: "blur(4px)"
+                  }}
+                />
                 <Legend wrapperStyle={{ color: "#fff" }} />
-                <Bar dataKey="value" name="Income" fill="#3b82f6" radius={[4, 4, 0, 0]} stackId="stack" />
-                <Bar dataKey="value" name="Expense" fill="#f43f5e" radius={[4, 4, 0, 0]} stackId="stack" />
+                <Bar dataKey="income" name="Income" fill="#4ade80" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="expense" name="Expense" fill="#ef4444" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
