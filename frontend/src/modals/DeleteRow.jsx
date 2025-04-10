@@ -26,9 +26,7 @@ const DeleteRow = ({
         </h3>
         <p className="mb-6 text-center text-gray-300">
           Are you sure you want to delete{" "}
-          {itemType && <strong>{itemType}</strong>}
-          {itemName && <strong> {itemName}</strong>}? This action cannot be
-          undone.
+          {itemName && <strong> "{itemName}"</strong>}? <br/>This action cannot be undone.
         </p>
         <div className="flex justify-center space-x-4">
           <button
