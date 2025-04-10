@@ -12,10 +12,11 @@ import { getInitialFormState, getInitialFilterState, calculateStats, handleFilte
 import { getFormFields, getFilterFields, getTableColumns } from "../../utils/formFields";
 import { exportToCSV } from "../../utils/ExportToCSV";
 import { showToast, toastConfig } from "../../utils/toastConfig";
+import { ERROR_TYPES, ERROR_MESSAGES } from '../../constants/errorConstants';
 
-const endpointMap = {employee: "employees",expense: "expenses",inventory: "inventory",sales: "sales",};
+const endpointMap = { employee: "employees", expense: "expenses", inventory: "inventory", sales: "sales", };
 
-const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => {} }) => {
+const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => { } }) => {
   const endpoint = endpointMap[type] || type;
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -30,13 +31,14 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
   const formFields = getFormFields(type);
   const filterFields = getFilterFields(type, additionalFields.categories);
   const tableColumns = getTableColumns(type);
-  const updatedFormFields = type === "expense" ? formFields.map(field => 
-    field.name === "category" ? 
-    {...field, 
-      options: 
-        [...new Set([...field.options.filter(opt => opt !== "Add New Category"),
-         ...(additionalFields.categories || []), "Add New Category"])]
-    } : field
+  const updatedFormFields = type === "expense" ? formFields.map(field =>
+    field.name === "category" ?
+      {
+        ...field,
+        options:
+          [...new Set([...field.options.filter(opt => opt !== "Add New Category"),
+          ...(additionalFields.categories || []), "Add New Category"])]
+      } : field
   ) : formFields;
 
   useEffect(() => { if (!modals.add) setShowNewCategoryInput(false); setNewCategory(""); }, [modals.add]);
@@ -50,7 +52,8 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
       setFilteredData(result);
       onDataUpdate(result);
     } catch (error) {
-      showToast.error("Failed to refresh data.");
+      const errorMessage = error.response?.data?.message || ERROR_MESSAGES.NETWORK_ERROR;
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -90,14 +93,17 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
     if (showNewCategoryInput) return;
     setLoading(true);
     try {
-      const dataToSubmit = { ...formData, date: formData.date ? format(new Date(formData.date), "yyyy-MM-dd") : formData.date };
+      const dataToSubmit = { ...formData, date: formData.date ? 
+        format(new Date(formData.date), "yyyy-MM-dd") : formData.date };
       const newItem = await createItem(endpoint, dataToSubmit);
       await updateFilteredData([...data, newItem]);
       setModals(prev => ({ ...prev, add: false }));
       setFormData(getInitialFormState(type));
       showToast.success(`${title.split(" ")[0]} added!`);
     } catch (error) {
-      showToast.error(`Failed to add ${title.split(" ")[0].toLowerCase()}: ${error.message}`);
+      const errorMessage = error.response?.data?.message ||
+        ERROR_MESSAGES.INTERNAL_SERVER_ERROR;
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -108,13 +114,16 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
     if (showNewCategoryInput) return;
     setLoading(true);
     try {
-      const dataToSubmit = { ...currentItem, date: currentItem.date ? format(new Date(currentItem.date), "yyyy-MM-dd") : currentItem.date };
+      const dataToSubmit = { ...currentItem, date: currentItem.date ? 
+        format(new Date(currentItem.date), "yyyy-MM-dd") : currentItem.date };
       const updated = await updateItem(endpoint, dataToSubmit._id, dataToSubmit);
       await updateFilteredData(data.map(item => item._id === currentItem._id ? updated : item));
       setModals(prev => ({ ...prev, edit: false }));
       showToast.success(`${title.split(" ")[0]} updated!`);
     } catch (error) {
-      showToast.error(`Failed to update ${title.split(" ")[0].toLowerCase()}: ${error.message}`);
+      const errorMessage = error.response?.data?.message ||
+        ERROR_MESSAGES.INTERNAL_SERVER_ERROR;
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -128,7 +137,9 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
       setModals(prev => ({ ...prev, delete: false }));
       showToast.success(`${title.split(" ")[0]} deleted!`);
     } catch (error) {
-      showToast.error(`Failed to delete ${title.split(" ")[0].toLowerCase()}: ${error.message}`);
+      const errorMessage = error.response?.data?.message ||
+        ERROR_MESSAGES.INTERNAL_SERVER_ERROR;
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -141,7 +152,9 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
       setModals(prev => ({ ...prev, filters: false }));
       showToast.success("Filters applied!");
     } catch (error) {
-      showToast.error("Failed to apply filters.");
+      const errorMessage = error.response?.data?.message ||
+        ERROR_MESSAGES.NETWORK_ERROR;
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -150,7 +163,7 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
   return (
     <div className="flex flex-col min-h-screen text-gray-100 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
       <main className="container flex flex-col w-full p-6 mx-auto max-w-7xl">
-        
+
         <HeaderWithActions
           title={title}
           onAdd={() => setModals(prev => ({ ...prev, add: true }))}
@@ -158,26 +171,30 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
           onExport={() => exportToCSV(filteredData, tableColumns, type)}
           addLabel={`Add ${title.split(" ")[0]}`}
         />
-        
+
         <ToastContainer {...toastConfig} />
-        
+
         <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
           {statsConfigs[type]?.map((stat, i) => (
             <StatsCard key={i} {...stat} value={stat.getValue(calculateStats(filteredData, type))} />
           ))}
         </div>
-        
+
         <Filters
           showFilters={modals.filters}
           setShowFilters={v => setModals(prev => ({ ...prev, filters: v }))}
           filters={filters}
-          handleFilterChange={({ target: { name, value } }) => setFilters(prev => ({ ...prev, [name]: value }))}
-          resetFilters={() => { setFilters(getInitialFilterState(type)); setFilteredData(data); setModals(prev => ({ ...prev, filters: false })); showToast.info("Filters reset"); }}
+          handleFilterChange={({ target: { name, value } }) => 
+            setFilters(prev => ({ ...prev, [name]: value }))}
+          resetFilters={() => { setFilters(getInitialFilterState(type)); 
+                                setFilteredData(data); 
+                                setModals(prev => ({ ...prev, filters: false })); 
+                                showToast.info("Filters reset"); }}
           applyFilters={applyFilters}
           fields={filterFields}
           title={`Filter ${title}`}
         />
-        
+
         <Table
           columns={tableColumns}
           data={filteredData}
@@ -188,12 +205,12 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
           onRemoveFilter={key => {
             const newFilters = handleFilterRemoval(filters, key);
             setFilters(newFilters);
-            Object.values(newFilters).some(v => v && v !== "" && v !== "All") 
-              ? fetchFilteredData(endpoint, newFilters).then(setFilteredData) 
+            Object.values(newFilters).some(v => v && v !== "" && v !== "All")
+              ? fetchFilteredData(endpoint, newFilters).then(setFilteredData)
               : setFilteredData(data);
           }}
         />
-        
+
         <AddModalForm
           show={modals.add}
           title={`Add New ${title.split(" ")[0]}`}
@@ -211,7 +228,7 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
           setShowNewCategoryInput={setShowNewCategoryInput}
           {...additionalFields}
         />
-        
+
         <EditModalForm
           showEditModal={modals.edit}
           currentData={currentItem}
@@ -229,7 +246,7 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
           fields={updatedFormFields}
           {...additionalFields}
         />
-        
+
         <DeleteRow
           show={modals.delete}
           item={currentItem}

@@ -21,7 +21,11 @@ export const getInitialFilterState = (type) => ({
 
 export const calculateStats = (data, type) => {
   if (!data?.length)
-    return { totalCount: 0, ...(type === "sales" && { totalRevenue: 0, totalQuantity: 0 }), ...(type === "inventory" && { itemsToReorder: 0, inStockItems: 0 }), ...(type === "employee" && { totalSalary: 0, averageSalary: 0 }), ...(type === "expense" && { totalAmount: 0, averageAmount: 0 }) };
+    return { totalCount: 0, 
+              ...(type === "sales" && { totalRevenue: 0, totalQuantity: 0 }), 
+              ...(type === "inventory" && { itemsToReorder: 0, inStockItems: 0 }), 
+              ...(type === "employee" && { totalSalary: 0, averageSalary: 0 }), 
+              ...(type === "expense" && { totalAmount: 0, averageAmount: 0 }) };
 
   const totalCount = data.length;
   if (type === "sales") {
@@ -48,6 +52,9 @@ export const calculateStats = (data, type) => {
 
 export const handleFilterRemoval = (filters, key) => {
   const newFilters = { ...filters };
-  key.endsWith("Min") || key.endsWith("Max") ? (delete newFilters[key.replace(/(Min|Max)$/, "Min")], delete newFilters[key.replace(/(Min|Max)$/, "Max")]) : delete newFilters[key];
+  key.endsWith("Min") || key.endsWith("Max") ? 
+  (delete newFilters[key.replace(/(Min|Max)$/, "Min")], 
+  delete newFilters[key.replace(/(Min|Max)$/, "Max")]) : 
+  delete newFilters[key];
   return newFilters;
 };
