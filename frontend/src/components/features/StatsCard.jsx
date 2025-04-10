@@ -1,10 +1,107 @@
 // frontend/src/components/features/StatsCard.jsx - Stats card component
 
 import React, { useState } from "react";
-import { Info } from "lucide-react";
+import { Info, Package, AlertTriangle, CheckCircle, DollarSign, BarChart2, Users, Calculator, TrendingUp } from "lucide-react";
+import { formatIndianNumber } from "../../utils/formatters";
+
+// Centralized stats configuration
+export const statsConfigs = {
+  inventory: [
+    {
+      title: "Total Items",
+      getValue: (stats) => stats.totalCount,
+      icon: Package,
+      color: "blue",
+      footer: "Total inventory items",
+    },
+    {
+      title: "Items to Reorder",
+      getValue: (stats) => stats.itemsToReorder,
+      icon: AlertTriangle,
+      color: "red",
+      footer: "Items below reorder level",
+    },
+    {
+      title: "In Stock Items",
+      getValue: (stats) => stats.inStockItems,
+      icon: CheckCircle,
+      color: "green",
+      footer: "Items above reorder level",
+    },
+  ],
+  sales: [
+    {
+      title: "Total Sales",
+      getValue: (stats) => formatIndianNumber(stats.totalCount),
+      icon: BarChart2,
+      color: "blue",
+      footer: "Total number of sales",
+    },
+    {
+      title: "Total Revenue",
+      getValue: (stats) => `₹${formatIndianNumber(stats.totalRevenue)}`,
+      icon: DollarSign,
+      color: "green",
+      footer: "Total revenue generated",
+    },
+    {
+      title: "Total Quantity",
+      getValue: (stats) => `${formatIndianNumber(stats.totalQuantity)}L`,
+      icon: Package,
+      color: "purple",
+      footer: "Total quantity sold",
+    },
+  ],
+  employee: [
+    {
+      title: "Total Employees",
+      getValue: (stats) => formatIndianNumber(stats.totalCount || 0),
+      icon: Users,
+      color: "blue",
+      footer: "Active workforce",
+    },
+    {
+      title: "Total Salary",
+      getValue: (stats) => `₹${formatIndianNumber(stats.totalSalary)}`,
+      icon: DollarSign,
+      color: "green",
+      footer: "Monthly payout",
+    },
+    {
+      title: "Average Salary",
+      getValue: (stats) => `₹${formatIndianNumber(stats.averageSalary)}`,
+      icon: Calculator,
+      color: "purple",
+      footer: "Per employee",
+    },
+  ],
+  expense: [
+    {
+      title: "Total Expenses",
+      getValue: (stats) => `₹${stats.totalAmount?.toLocaleString() || "0"}`,
+      icon: Package,
+      color: "indigo",
+      footer: "Total expenditure",
+    },
+    {
+      title: "Total Entries",
+      getValue: (stats) => stats.totalCount || 0,
+      icon: CheckCircle,
+      color: "green",
+      footer: "Number of transactions",
+    },
+    {
+      title: "Average Expense",
+      getValue: (stats) => `₹${stats.averageAmount?.toFixed(2) || "0.00"}`,
+      icon: TrendingUp,
+      color: "blue",
+      footer: "Per transaction",
+    },
+  ],
+};
 
 // Format number as per Indian numbering system
-const formatIndianNumber = (num) => num.toLocaleString("en-IN");
+// const formatIndianNumber = (num) => num.toLocaleString("en-IN");
 
 // Convert number to words in Indian numbering system
 const getIndianNumberInWords = (num, prefix, suffix) => {
@@ -18,9 +115,9 @@ const getIndianNumberInWords = (num, prefix, suffix) => {
 
   const convert = (n) =>
     n < 10 ? wordsMap.ones[n] :
-    n < 20 ? wordsMap.teens[n - 10] :
-    n < 100 ? wordsMap.tens[Math.floor(n / 10)] + (n % 10 ? " " + wordsMap.ones[n % 10] : "") :
-    wordsMap.ones[Math.floor(n / 100)] + " hundred" + (n % 100 ? " and " + convert(n % 100) : "");
+      n < 20 ? wordsMap.teens[n - 10] :
+        n < 100 ? wordsMap.tens[Math.floor(n / 10)] + (n % 10 ? " " + wordsMap.ones[n % 10] : "") :
+          wordsMap.ones[Math.floor(n / 100)] + " hundred" + (n % 100 ? " and " + convert(n % 100) : "");
 
   const sections = [{ value: 10000000, label: "crore" }, { value: 100000, label: "lakh" }, { value: 1000, label: "thousand" }];
   let words = sections.reduce((acc, { value, label }) => {

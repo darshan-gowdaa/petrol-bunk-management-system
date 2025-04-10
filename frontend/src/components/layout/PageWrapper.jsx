@@ -3,96 +3,45 @@ import React, { useState, useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { format } from "date-fns";
-
 import HeaderWithActions from "./HeaderWithActions";
 import { Filters, Table, AddModalForm, EditModalForm, DeleteRow } from "../../modals";
 import { StatsCard } from "../features";
-
+import { statsConfigs } from "../features/StatsCard";
 import { fetchData, createItem, updateItem, deleteItem, fetchFilteredData } from "../../utils/apiUtils";
 import { getInitialFormState, getInitialFilterState, calculateStats, handleFilterRemoval } from "../../utils/stateUtils";
 import { getFormFields, getFilterFields, getTableColumns } from "../../utils/formFields";
 import { exportToCSV } from "../../utils/ExportToCSV";
 import { showToast, toastConfig } from "../../utils/toastConfig";
 
-// Map singular types to plural endpoints
-const endpointMap = {
-  employee: "employees",
-  expense: "expenses",
-  inventory: "inventory",
-  sales: "sales",
-};
+const endpointMap = {employee: "employees",expense: "expenses",inventory: "inventory",sales: "sales",};
 
-const PageWrapper = ({ type, title, statsConfig, additionalFields = {}, onDataUpdate = () => { } }) => {
+const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => {} }) => {
   const endpoint = endpointMap[type] || type;
-
-  // State management
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
+  const [modals, setModals] = useState({ add: false, edit: false, delete: false, filters: false });
   const [currentItem, setCurrentItem] = useState(null);
   const [formData, setFormData] = useState(getInitialFormState(type));
   const [filters, setFilters] = useState(getInitialFilterState(type));
   const [newCategory, setNewCategory] = useState("");
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
 
-  // Reset category input when add modal closes
-  useEffect(() => {
-    if (!showAddModal) {
-      setShowNewCategoryInput(false);
-      setNewCategory("");
-    }
-  }, [showAddModal]);
-
-  // Get configurations for forms and table
   const formFields = getFormFields(type);
   const filterFields = getFilterFields(type, additionalFields.categories);
   const tableColumns = getTableColumns(type);
+  const updatedFormFields = type === "expense" ? formFields.map(field => 
+    field.name === "category" ? 
+    {...field, 
+      options: 
+        [...new Set([...field.options.filter(opt => opt !== "Add New Category"),
+         ...(additionalFields.categories || []), "Add New Category"])]
+    } : field
+  ) : formFields;
 
-  // Update form fields with dynamic categories for expense type
-  const updatedFormFields = type === "expense" ? formFields.map(field => {
-    if (field.name === "category") {
-      const defaultOptions = field.options.filter(opt => opt !== "Add New Category");
-      const dynamicOptions = additionalFields.categories || [];
-      return { ...field, options: [...new Set([...defaultOptions, ...dynamicOptions]), "Add New Category"] };
-    }
-    return field;
-  }) : formFields;
+  useEffect(() => { if (!modals.add) setShowNewCategoryInput(false); setNewCategory(""); }, [modals.add]);
+  useEffect(() => { fetchPageData(); }, []);
 
-  // Category management handlers
-  const handleCategorySelect = (e) => {
-    const { value } = e.target;
-    if (value === "Add New Category") {
-      setShowNewCategoryInput(true);
-      setNewCategory("");
-    } else {
-      const target = showEditModal ? currentItem : formData;
-      const setTarget = showEditModal ? setCurrentItem : setFormData;
-      setTarget({ ...target, category: value });
-    }
-  };
-
-  const handleNewCategoryChange = (e) => setNewCategory(e.target.value);
-
-  const addNewCategory = () => {
-    if (newCategory.trim()) {
-      const updatedCategories = [...(additionalFields.categories || []), newCategory.trim()];
-      const target = showEditModal ? currentItem : formData;
-      const setTarget = showEditModal ? setCurrentItem : setFormData;
-      setTarget({ ...target, category: newCategory.trim() });
-      onDataUpdate({ ...data, categories: updatedCategories });
-      setNewCategory("");
-      setShowNewCategoryInput(false);
-      showToast.success("New category added successfully!");
-    } else {
-      showToast.error("Category name cannot be empty");
-    }
-  };
-
-  // Fetch and refresh data
   const fetchPageData = async () => {
     setLoading(true);
     try {
@@ -101,67 +50,52 @@ const PageWrapper = ({ type, title, statsConfig, additionalFields = {}, onDataUp
       setFilteredData(result);
       onDataUpdate(result);
     } catch (error) {
-      showToast.error("Failed to refresh data. Please try again.");
+      showToast.error("Failed to refresh data.");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchPageData();
-  }, []);
-
-  // Form input handler with date formatting
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    let newValue = value;
-
-    if (name === "date") {
-      try {
-        const date = new Date(value);
-        if (!isNaN(date.getTime())) {
-          newValue = format(date, "yyyy-MM-dd");
-        }
-      } catch (e) {
-        console.error("Date parsing error:", e);
-      }
-    }
-
-    if (showEditModal && currentItem) {
-      setCurrentItem({ ...currentItem, [name]: newValue });
-    } else {
-      setFormData({ ...formData, [name]: newValue });
-    }
+    const newValue = name === "date" && value ? format(new Date(value), "yyyy-MM-dd") : value;
+    (modals.edit && currentItem ? setCurrentItem : setFormData)(prev => ({ ...prev, [name]: newValue }));
   };
 
-  // CRUD operations with filter-aware updates
+  const handleCategorySelect = (e) => {
+    const value = e.target.value;
+    if (value === "Add New Category") setShowNewCategoryInput(true);
+    else (modals.edit ? setCurrentItem : setFormData)(prev => ({ ...prev, category: value }));
+  };
+
+  const addNewCategory = () => {
+    if (!newCategory.trim()) return showToast.error("Category name cannot be empty");
+    const updatedCategories = [...(additionalFields.categories || []), newCategory.trim()];
+    (modals.edit ? setCurrentItem : setFormData)(prev => ({ ...prev, category: newCategory.trim() }));
+    onDataUpdate({ ...data, categories: updatedCategories });
+    setNewCategory("");
+    setShowNewCategoryInput(false);
+    showToast.success("New category added!");
+  };
+
+  const updateFilteredData = async (updatedData) => {
+    setData(updatedData);
+    const hasActiveFilters = Object.values(filters).some(v => v && v !== "" && v !== "All");
+    setFilteredData(hasActiveFilters ? await fetchFilteredData(endpoint, filters) : updatedData);
+    onDataUpdate(updatedData);
+  };
+
   const handleAdd = async (e) => {
     e.preventDefault();
     if (showNewCategoryInput) return;
     setLoading(true);
     try {
-      const dataToSubmit = { ...formData };
-      if (dataToSubmit.date) {
-        const date = new Date(dataToSubmit.date);
-        if (!isNaN(date.getTime())) dataToSubmit.date = format(date, "yyyy-MM-dd");
-      }
+      const dataToSubmit = { ...formData, date: formData.date ? format(new Date(formData.date), "yyyy-MM-dd") : formData.date };
       const newItem = await createItem(endpoint, dataToSubmit);
-      const updatedData = [...data, newItem];
-      setData(updatedData);
-
-      // Refresh filtered data based on active filters
-      const hasActiveFilters = Object.entries(filters).some(([_, value]) => value && value !== "" && value !== "All");
-      if (hasActiveFilters) {
-        const filtered = await fetchFilteredData(endpoint, filters);
-        setFilteredData(filtered);
-      } else {
-        setFilteredData(updatedData);
-      }
-
-      setShowAddModal(false);
+      await updateFilteredData([...data, newItem]);
+      setModals(prev => ({ ...prev, add: false }));
       setFormData(getInitialFormState(type));
-      onDataUpdate(updatedData);
-      showToast.success(`${title.split(" ")[0]} added successfully!`);
+      showToast.success(`${title.split(" ")[0]} added!`);
     } catch (error) {
       showToast.error(`Failed to add ${title.split(" ")[0].toLowerCase()}: ${error.message}`);
     } finally {
@@ -174,27 +108,11 @@ const PageWrapper = ({ type, title, statsConfig, additionalFields = {}, onDataUp
     if (showNewCategoryInput) return;
     setLoading(true);
     try {
-      const dataToSubmit = { ...currentItem };
-      if (dataToSubmit.date) {
-        const date = new Date(dataToSubmit.date);
-        if (!isNaN(date.getTime())) dataToSubmit.date = format(date, "yyyy-MM-dd");
-      }
+      const dataToSubmit = { ...currentItem, date: currentItem.date ? format(new Date(currentItem.date), "yyyy-MM-dd") : currentItem.date };
       const updated = await updateItem(endpoint, dataToSubmit._id, dataToSubmit);
-      const updatedData = data.map(item => item._id === currentItem._id ? updated : item);
-      setData(updatedData);
-
-      // Refresh filtered data based on active filters
-      const hasActiveFilters = Object.entries(filters).some(([_, value]) => value && value !== "" && value !== "All");
-      if (hasActiveFilters) {
-        const filtered = await fetchFilteredData(endpoint, filters);
-        setFilteredData(filtered);
-      } else {
-        setFilteredData(updatedData);
-      }
-
-      setShowEditModal(false);
-      onDataUpdate(updatedData);
-      showToast.success(`${title.split(" ")[0]} updated successfully!`);
+      await updateFilteredData(data.map(item => item._id === currentItem._id ? updated : item));
+      setModals(prev => ({ ...prev, edit: false }));
+      showToast.success(`${title.split(" ")[0]} updated!`);
     } catch (error) {
       showToast.error(`Failed to update ${title.split(" ")[0].toLowerCase()}: ${error.message}`);
     } finally {
@@ -206,12 +124,9 @@ const PageWrapper = ({ type, title, statsConfig, additionalFields = {}, onDataUp
     setLoading(true);
     try {
       await deleteItem(endpoint, currentItem._id);
-      const updatedData = data.filter(item => item._id !== currentItem._id);
-      setData(updatedData);
-      setFilteredData(updatedData);
-      setShowDeleteModal(false);
-      onDataUpdate(updatedData);
-      showToast.success(`${title.split(" ")[0]} deleted successfully!`);
+      await updateFilteredData(data.filter(item => item._id !== currentItem._id));
+      setModals(prev => ({ ...prev, delete: false }));
+      showToast.success(`${title.split(" ")[0]} deleted!`);
     } catch (error) {
       showToast.error(`Failed to delete ${title.split(" ")[0].toLowerCase()}: ${error.message}`);
     } finally {
@@ -219,141 +134,94 @@ const PageWrapper = ({ type, title, statsConfig, additionalFields = {}, onDataUp
     }
   };
 
-  // Filter management
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters({ ...filters, [name]: value });
-  };
-
   const applyFilters = async () => {
     setLoading(true);
     try {
-      const filtered = await fetchFilteredData(endpoint, filters);
-      setFilteredData(filtered);
-      setShowFilters(false);
-      showToast.success("Filters applied successfully!");
+      setFilteredData(await fetchFilteredData(endpoint, filters));
+      setModals(prev => ({ ...prev, filters: false }));
+      showToast.success("Filters applied!");
     } catch (error) {
-      showToast.error("Failed to apply filters. Please try again.");
+      showToast.error("Failed to apply filters.");
     } finally {
       setLoading(false);
     }
   };
 
-  const resetFilters = () => {
-    setFilters(getInitialFilterState(type));
-    setFilteredData(data);
-    setShowFilters(false);
-    showToast.info("Filters have been reset");
-  };
-
-  // Export functionality
-  const handleExport = () => {
-    exportToCSV(filteredData, tableColumns, type);
-  };
-
-  // Calculate statistics
-  const stats = calculateStats(filteredData, type);
-
   return (
-    <div className="flex flex-col min-h-screen text-gray-100 transition-all duration-200 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
+    <div className="flex flex-col min-h-screen text-gray-100 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 animate-fadeIn">
       <main className="container flex flex-col w-full p-6 mx-auto max-w-7xl">
+        
         <HeaderWithActions
           title={title}
-          onAdd={() => setShowAddModal(true)}
-          onFilter={() => setShowFilters(!showFilters)}
-          onExport={handleExport}
+          onAdd={() => setModals(prev => ({ ...prev, add: true }))}
+          onFilter={() => setModals(prev => ({ ...prev, filters: !prev.filters }))}
+          onExport={() => exportToCSV(filteredData, tableColumns, type)}
           addLabel={`Add ${title.split(" ")[0]}`}
         />
-
+        
         <ToastContainer {...toastConfig} />
-
-        {/* Stats Cards */}
+        
         <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
-          {statsConfig.map((stat, index) => (
-            <StatsCard
-              key={index}
-              title={stat.title}
-              value={stat.getValue(stats)}
-              icon={stat.icon}
-              color={stat.color}
-              footer={stat.footer}
-            />
+          {statsConfigs[type]?.map((stat, i) => (
+            <StatsCard key={i} {...stat} value={stat.getValue(calculateStats(filteredData, type))} />
           ))}
         </div>
-
-        {/* Filters */}
+        
         <Filters
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
+          showFilters={modals.filters}
+          setShowFilters={v => setModals(prev => ({ ...prev, filters: v }))}
           filters={filters}
-          handleFilterChange={handleFilterChange}
-          resetFilters={resetFilters}
+          handleFilterChange={({ target: { name, value } }) => setFilters(prev => ({ ...prev, [name]: value }))}
+          resetFilters={() => { setFilters(getInitialFilterState(type)); setFilteredData(data); setModals(prev => ({ ...prev, filters: false })); showToast.info("Filters reset"); }}
           applyFilters={applyFilters}
           fields={filterFields}
           title={`Filter ${title}`}
         />
-
-        {/* Table */}
+        
         <Table
           columns={tableColumns}
           data={filteredData}
           loading={loading}
-          onEdit={(item) => {
-            setCurrentItem(item);
-            setShowEditModal(true);
-          }}
-          onDelete={(item) => {
-            setCurrentItem(item);
-            setShowDeleteModal(true);
-          }}
+          onEdit={item => { setCurrentItem(item); setModals(prev => ({ ...prev, edit: true })); }}
+          onDelete={item => { setCurrentItem(item); setModals(prev => ({ ...prev, delete: true })); }}
           activeFilters={filters}
-          onRemoveFilter={(key) => {
+          onRemoveFilter={key => {
             const newFilters = handleFilterRemoval(filters, key);
             setFilters(newFilters);
-            const hasActiveFilters = Object.entries(newFilters).some(
-              ([_, value]) => value && value !== "" && value !== "All"
-            );
-            if (!hasActiveFilters) {
-              setFilteredData(data);
-            } else {
-              fetchFilteredData(endpoint, newFilters).then(setFilteredData);
-            }
+            Object.values(newFilters).some(v => v && v !== "" && v !== "All") 
+              ? fetchFilteredData(endpoint, newFilters).then(setFilteredData) 
+              : setFilteredData(data);
           }}
         />
-
-        {/* Modals */}
+        
         <AddModalForm
-          show={showAddModal}
+          show={modals.add}
           title={`Add New ${title.split(" ")[0]}`}
           fields={updatedFormFields}
           formData={formData}
           onChange={handleInputChange}
           onSubmit={handleAdd}
-          onCancel={() => {
-            setShowAddModal(false);
-            setShowNewCategoryInput(false);
-            setNewCategory("");
-          }}
+          onCancel={() => setModals(prev => ({ ...prev, add: false }))}
           loading={loading}
           handleCategorySelect={handleCategorySelect}
-          handleNewCategoryChange={handleNewCategoryChange}
+          handleNewCategoryChange={({ target: { value } }) => setNewCategory(value)}
           addNewCategory={addNewCategory}
           newCategory={newCategory}
           showNewCategoryInput={showNewCategoryInput}
           setShowNewCategoryInput={setShowNewCategoryInput}
           {...additionalFields}
         />
-
+        
         <EditModalForm
-          showEditModal={showEditModal}
+          showEditModal={modals.edit}
           currentData={currentItem}
-          setShowEditModal={setShowEditModal}
+          setShowEditModal={v => setModals(prev => ({ ...prev, edit: v }))}
           handleInputChange={handleInputChange}
           loading={loading}
           editFunction={handleEdit}
           entityType={title.split(" ")[0]}
           handleCategorySelect={handleCategorySelect}
-          handleNewCategoryChange={handleNewCategoryChange}
+          handleNewCategoryChange={({ target: { value } }) => setNewCategory(value)}
           addNewCategory={addNewCategory}
           newCategory={newCategory}
           showNewCategoryInput={showNewCategoryInput}
@@ -361,13 +229,13 @@ const PageWrapper = ({ type, title, statsConfig, additionalFields = {}, onDataUp
           fields={updatedFormFields}
           {...additionalFields}
         />
-
+        
         <DeleteRow
-          show={showDeleteModal}
+          show={modals.delete}
           item={currentItem}
           itemType={title.split(" ")[0]}
           itemName={currentItem?.[additionalFields.nameField || "name"]}
-          onCancel={() => setShowDeleteModal(false)}
+          onCancel={() => setModals(prev => ({ ...prev, delete: false }))}
           onDelete={handleDelete}
           loading={loading}
         />

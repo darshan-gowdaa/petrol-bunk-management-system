@@ -1,55 +1,36 @@
 // backend/middleware/validation.js - Request validation middleware
-import { format } from "date-fns";
-
-const validateNumber = (value, fieldName) => {
-  if (value === undefined || value === null) throw new Error(`${fieldName} is required`);
-  if (isNaN(value) || value < 0) throw new Error(`${fieldName} must be a positive number`);
+const validate = {
+  string: (value, fieldName) => { 
+    if (!value?.trim()) throw new Error(`${fieldName} is required and cannot be empty`); 
+  },
+  number: (value, fieldName) => { 
+    if (value == null || isNaN(value) || value < 0) 
+      throw new Error(`${fieldName} is required and must be a positive number`); 
+  },
+  date: (value, fieldName = 'Date') => { 
+    if (value == null || isNaN(new Date(value).getTime())) 
+      throw new Error(`${fieldName} is required and must be a valid date`); 
+  }
 };
 
-const validateString = (value, fieldName) => {
-  if (value === undefined || value === null) throw new Error(`${fieldName} is required`);
-  if (!value.trim()) throw new Error(`${fieldName} cannot be empty`);
-};
-
-const validateDate = (date, fieldName = 'Date') => {
-  if (date === undefined || date === null) throw new Error(`${fieldName} is required`);
-  const dateObj = new Date(date);
-  if (isNaN(dateObj.getTime())) throw new Error(`${fieldName} must be a valid date`);
-};
-
-const validateFields = (req, res, next, validations) => {
+// Applies validation rules to request body fields
+const validateFields = (req, res, next, rules) => {
   try {
-    validations.forEach(({ field, validator }) => validator(req.body[field], field));
+    Object.entries(rules).forEach(([field, type]) => validate[type](req.body[field], field));
     next();
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-export const validateEmployee = (req, res, next) =>
-  validateFields(req, res, next, [
-    { field: 'name', validator: validateString },
-    { field: 'position', validator: validateString },
-    { field: 'salary', validator: validateNumber }
-  ]);
+export const validateEmployee = (req, res, next) => 
+  validateFields(req, res, next, { name: 'string', position: 'string', salary: 'number' });
 
-export const validateExpense = (req, res, next) =>
-  validateFields(req, res, next, [
-    { field: 'category', validator: validateString },
-    { field: 'amount', validator: validateNumber },
-    { field: 'date', validator: validateDate }
-  ]);
+export const validateExpense = (req, res, next) => 
+  validateFields(req, res, next, { category: 'string', amount: 'number', date: 'date' });
 
-export const validateInventory = (req, res, next) =>
-  validateFields(req, res, next, [
-    { field: 'name', validator: validateString },
-    { field: 'currentStock', validator: validateNumber },
-    { field: 'reorderLevel', validator: validateNumber }
-  ]);
+export const validateInventory = (req, res, next) => 
+  validateFields(req, res, next, { name: 'string', currentStock: 'number', reorderLevel: 'number' });
 
-export const validateSale = (req, res, next) =>
-  validateFields(req, res, next, [
-    { field: 'product', validator: validateString },
-    { field: 'quantity', validator: validateNumber },
-    { field: 'price', validator: validateNumber }
-  ]);
+export const validateSale = (req, res, next) => 
+  validateFields(req, res, next, { product: 'string', quantity: 'number', price: 'number' });
