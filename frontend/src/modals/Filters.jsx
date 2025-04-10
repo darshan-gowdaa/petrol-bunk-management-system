@@ -3,12 +3,7 @@ import React from "react";
 import { X } from "lucide-react";
 
 const Filters = ({
-  showFilters,
-  setShowFilters,
-  filters,
-  handleFilterChange,
-  resetFilters,
-  applyFilters,
+  showFilters,setShowFilters,filters,handleFilterChange,resetFilters,applyFilters,
   fields,
   title = "Filter Options",
 }) => {

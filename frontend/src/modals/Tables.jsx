@@ -1,5 +1,5 @@
 import React from "react";
-import { Edit, Eye, Trash2, Loader2, Database } from "lucide-react";
+import { Edit, Trash2, Loader2, Database } from "lucide-react";
 import { formatCurrency, formatNumber } from "../utils/formatters";
 
 // Active Filters Display
@@ -41,7 +41,7 @@ const ActiveFilters = ({ activeFilters, onRemoveFilter }) => {
 
 // Main Table Component
 const Table = ({
-  columns = [], data = [], onEdit, onDelete, onView,
+  columns = [], data = [], onEdit, onDelete,
   isLoading = false, emptyStateMessage = "No records found. Add a new entry to get started.",
   activeFilters = {}, onRemoveFilter
 }) => {
@@ -85,7 +85,6 @@ const Table = ({
         </div>
       ))}
       <div className="flex items-center gap-1 px-4 py-3">
-        {onView && <ActionButton onClick={() => onView(row)} Icon={Eye} colorClass="text-blue-400 hover:text-blue-300 hover:bg-blue-400/20" title="View Details" />}
         {onEdit && <ActionButton onClick={() => onEdit(row)} Icon={Edit} colorClass="text-green-400 hover:text-green-300 hover:bg-green-400/20" title="Edit" />}
         {onDelete && <ActionButton onClick={() => onDelete(row)} Icon={Trash2} colorClass="text-red-400 hover:text-red-300 hover:bg-red-400/20" title="Delete" />}
       </div>
@@ -101,7 +100,6 @@ const Table = ({
         </div>
       ))}
       <div className="flex justify-end gap-2 mt-3">
-        {onView && <ActionButton onClick={() => onView(row)} Icon={Eye} colorClass="text-blue-400 hover:text-blue-300 hover:bg-blue-400/20" title="View Details" />}
         {onEdit && <ActionButton onClick={() => onEdit(row)} Icon={Edit} colorClass="text-green-400 hover:text-green-300 hover:bg-green-400/20" title="Edit" />}
         {onDelete && <ActionButton onClick={() => onDelete(row)} Icon={Trash2} colorClass="text-red-400 hover:text-red-300 hover:bg-red-400/20" title="Delete" />}
       </div>

@@ -14,6 +14,7 @@ import { StatsCard } from "../components/features";
 import ChartContainer from "../components/ChartContainer";
 import CustomTooltip from "../components/CustomTooltip";
 import { fetchSales, fetchInventory, fetchEmployees, fetchExpenses } from "../services/api";
+import { formatCurrency, formatNumber } from "../utils/formatters";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16"];
 
@@ -148,20 +149,6 @@ const Reports = () => {
     };
   }, [data]);
 
-  const formatCurrency = value => {
-    if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
-    if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
-    if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-    return `₹${value}`;
-  };
-
-  const formatQuantity = value => {
-    if (value >= 10000000) return `${(value / 10000000).toFixed(1)}Cr`;
-    if (value >= 100000) return `${(value / 100000).toFixed(1)}L`;
-    if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
-    return value.toString();
-  };
-
   const generatePDFReport = async (e) => {
     e?.preventDefault();
     if (!reportRef.current) return;
@@ -202,7 +189,7 @@ const Reports = () => {
                 <XAxis dataKey="product" stroke="#fff" />
                 <YAxis yAxisId="left" stroke="#fff" tickFormatter={formatCurrency} />
                 <YAxis yAxisId="right" orientation="right" stroke="#fff" tickFormatter={formatCurrency} />
-                <Tooltip content={<CustomTooltip />} formatter={(value, name) => [name.includes("Revenue") || name.includes("Price") ? formatCurrency(value) : formatQuantity(value), name]} contentStyle={{ backgroundColor: "rgba(17, 24, 39, 0.8)", border: "1px solid #374151", borderRadius: "0.5rem", backdropFilter: "blur(4px)" }} />
+                <Tooltip content={<CustomTooltip />} formatter={(value, name) => [name.includes("Revenue") || name.includes("Price") ? formatCurrency(value) : formatNumber(value), name]} contentStyle={{ backgroundColor: "rgba(17, 24, 39, 0.8)", border: "1px solid #374151", borderRadius: "0.5rem", backdropFilter: "blur(4px)" }} />
                 <Legend wrapperStyle={{ color: "#fff" }} />
                 <Bar yAxisId="left" dataKey="revenue" name="Revenue (₹)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 <Bar yAxisId="left" dataKey="quantity" name="Quantity (L)" fill="#10b981" radius={[4, 4, 0, 0]} />
@@ -244,13 +231,26 @@ const Reports = () => {
           <ChartContainer title="Expense Distribution">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
-                <Pie data={data.expenses} cx="50%" cy="50%" labelLine={false} outerRadius={80} fill="#8884d8" dataKey="amount" nameKey="category" label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}>
+                <Pie
+                  data={data.expenses}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="amount"
+                  nameKey="category"
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                >
                   {data.expenses.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => [`₹${value.toLocaleString()}`, "Amount"]} contentStyle={{ backgroundColor: "#333", border: "none", borderRadius: "8px" }} />
-                <Legend />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend
+                  wrapperStyle={{ color: "#fff" }}
+                  formatter={(value) => `${value} (₹)`}
+                />
               </PieChart>
             </ResponsiveContainer>
           </ChartContainer>
@@ -264,10 +264,10 @@ const Reports = () => {
               ]}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis dataKey="name" stroke="#fff" />
-                <YAxis stroke="#fff" tickFormatter={formatCurrency} />
+                <YAxis stroke="#fff" tickFormatter={value => `₹${formatNumber(value)}`} />
                 <Tooltip
                   content={<CustomTooltip />}
-                  formatter={(value) => [formatCurrency(value), "Amount"]}
+                  formatter={(value) => [`₹${formatNumber(value)}`, "Amount"]}
                   contentStyle={{
                     backgroundColor: "rgba(17, 24, 39, 0.8)",
                     border: "1px solid #374151",
@@ -276,8 +276,8 @@ const Reports = () => {
                   }}
                 />
                 <Legend wrapperStyle={{ color: "#fff" }} />
-                <Bar dataKey="income" name="Income" fill="#4ade80" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="expense" name="Expense" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="income" name="Income (₹)" fill="#4ade80" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="expense" name="Expense (₹)" fill="#ef4444" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
@@ -309,8 +309,8 @@ const Reports = () => {
                   return (
                     <tr key={item._id} className="transition-colors border-b border-gray-700/50 hover:bg-gray-800/50">
                       <td className="p-3">{item.name}</td>
-                      <td className="p-3">{item.currentStock}</td>
-                      <td className="p-3">{item.reorderLevel}</td>
+                      <td className="p-3">{formatNumber(item.currentStock)}</td>
+                      <td className="p-3">{formatNumber(item.reorderLevel)}</td>
                       <td className="p-3">
                         <span className={`px-2 py-1 rounded-full text-sm ${stockStatus.class}`}>{stockStatus.text}</span>
                       </td>
@@ -326,8 +326,8 @@ const Reports = () => {
               <BarChart data={data.inventory.map(item => ({ name: item.name, currentStock: item.currentStock, reorderLevel: item.reorderLevel }))} margin={{ top: 5, right: 30, left: 0, bottom: 5 }} barGap={0}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis dataKey="name" stroke="#fff" />
-                <YAxis stroke="#fff" />
-                <Tooltip content={<CustomTooltip />} contentStyle={{ backgroundColor: "rgba(17, 24, 39, 0.8)", border: "1px solid #374151", borderRadius: "0.5rem", backdropFilter: "blur(4px)" }} />
+                <YAxis stroke="#fff" tickFormatter={formatNumber} />
+                <Tooltip content={<CustomTooltip />} formatter={(value) => [formatNumber(value), "Quantity"]} contentStyle={{ backgroundColor: "rgba(17, 24, 39, 0.8)", border: "1px solid #374151", borderRadius: "0.5rem", backdropFilter: "blur(4px)" }} />
                 <Legend wrapperStyle={{ color: "#fff" }} />
                 <Bar dataKey="reorderLevel" name="Reorder Level" fill="#ef4444" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="currentStock" name="Current Stock" fill="#10b981" radius={[4, 4, 0, 0]} />
@@ -378,10 +378,10 @@ const Reports = () => {
           ) : (
             <>
               <div className="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 lg:grid-cols-4">
-                <StatsCard title="Total Sales" value={`₹${stats.sales.toLocaleString()}`} icon={DollarSign} color="blue" subValue1={<span className="flex items-center"><TrendingUp size={16} className="mr-1" />{stats.quantity.toFixed(2)} Liters</span>} subValue2={<span className="flex items-center text-sm"><ArrowUp size={14} className="mr-1" />Avg ₹{stats.avgSaleValue}/sale</span>} />
-                <StatsCard title="Inventory Status" value={`${stats.inventory.toLocaleString()} Units`} icon={Package} color="green" subValue1={<span className="flex items-center"><Zap size={16} className="mr-1" />{stats.lowStockItems} needs reorder</span>} subValue2={<span className="flex items-center text-sm">Turnover: {stats.inventoryTurnover}x</span>} />
-                <StatsCard title="Total Expenses" value={`₹${stats.expenses.toLocaleString()}`} icon={DollarSign} color="red" subValue1={<span className="flex items-center"><RefreshCw size={16} className="mr-1" />{data.expenses.length} records</span>} subValue2={<span className="flex items-center text-sm"><ArrowDown size={14} className="mr-1" />Salaries: ₹{stats.salaries.toLocaleString()}</span>} />
-                <StatsCard title="Net Profit/Loss" value={`₹${stats.profitLoss.toLocaleString()}`} icon={BarChart2} color="purple" subValue1={<span className="flex items-center"><Users size={16} className="mr-1" />{stats.totalEmployees} employees</span>} subValue2={<span className="flex items-center text-sm">Margin: {stats.profitMargin}%</span>} />
+                <StatsCard title="Total Sales" value={formatCurrency(stats.sales)} icon={DollarSign} color="blue" subValue1={<span className="flex items-center"><TrendingUp size={16} className="mr-1" />{formatNumber(stats.quantity)} Liters</span>} subValue2={<span className="flex items-center text-sm"><ArrowUp size={14} className="mr-1" />Avg {formatCurrency(stats.avgSaleValue)}/sale</span>} />
+                <StatsCard title="Inventory Status" value={`${formatNumber(stats.inventory)} Units`} icon={Package} color="green" subValue1={<span className="flex items-center"><Zap size={16} className="mr-1" />{stats.lowStockItems} needs reorder</span>} subValue2={<span className="flex items-center text-sm">Turnover: {stats.inventoryTurnover}x</span>} />
+                <StatsCard title="Total Expenses" value={formatCurrency(stats.expenses)} icon={DollarSign} color="red" subValue1={<span className="flex items-center"><RefreshCw size={16} className="mr-1" />{data.expenses.length} records</span>} subValue2={<span className="flex items-center text-sm"><ArrowDown size={14} className="mr-1" />Salaries: {formatCurrency(stats.salaries)}</span>} />
+                <StatsCard title="Net Profit/Loss" value={formatCurrency(stats.profitLoss)} icon={BarChart2} color="purple" subValue1={<span className="flex items-center"><Users size={16} className="mr-1" />{stats.totalEmployees} employees</span>} subValue2={<span className="flex items-center text-sm">Margin: {stats.profitMargin}%</span>} />
               </div>
               {renderCharts()}
             </>
