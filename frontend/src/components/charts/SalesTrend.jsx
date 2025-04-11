@@ -7,7 +7,7 @@ import { formatLargeCurrency } from "../../utils/formatters";
 const SalesTrend = ({ data }) => {
     return (
         <ChartContainer title="Sales Trend">
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height="100%" minHeight={250}>
                 <AreaChart data={data}>
                     <defs>
                         <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">

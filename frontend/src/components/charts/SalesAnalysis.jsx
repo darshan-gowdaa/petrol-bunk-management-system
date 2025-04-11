@@ -7,7 +7,7 @@ import { formatCurrency, formatLargeCurrency, formatQuantityInKL } from "../../u
 const SalesAnalysis = ({ data }) => {
     return (
         <ChartContainer title="Sales by Product">
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height="100%" minHeight={250}>
                 <ComposedChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                     <XAxis dataKey="product" stroke="#fff" dy={5} />

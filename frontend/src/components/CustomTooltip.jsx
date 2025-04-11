@@ -9,7 +9,17 @@ const CustomTooltip = ({ active, payload, label }) => {
       <p className="mb-2 font-medium text-gray-200">{label}</p>
       {payload.map((item, index) => (
         <p key={index} className="text-sm" style={{ color: item.color }}>
-          {item.name}: {item.name.toLowerCase().includes("revenue") || item.name.toLowerCase().includes("price") ? formatCurrency(item.value) : formatNumber(item.value)}
+          {item.name}: {
+            item.name.toLowerCase().includes("amount") || 
+            item.name.toLowerCase().includes("revenue") || 
+            item.name.toLowerCase().includes("price") || 
+            item.name.toLowerCase().includes("income") || 
+            item.name.toLowerCase().includes("expense") || 
+            item.name.toLowerCase().includes("net") || 
+            item.name.toLowerCase().includes("salary") || 
+            item.name.toLowerCase().includes("₹") ? 
+            formatCurrency(item.value) : formatNumber(item.value)
+          }
         </p>
       ))}
     </div>

@@ -127,20 +127,24 @@ const Reports = () => {
   // Render chart components
   const renderCharts = () => (
     <div className="space-y-6">
-      <div className="p-5 border shadow-lg rounded-xl border-gray-800/40 bg-gradient-to-br from-gray-800/20 via-gray-800/10 to-gray-900/5 backdrop-blur-sm">
+      <div className="p-5 overflow-x-auto border shadow-lg rounded-xl border-gray-800/40 bg-gradient-to-br from-gray-800/20 via-gray-800/10 to-gray-900/5 backdrop-blur-sm">
         <h2 className="mb-4 text-xl font-semibold">Sales Analysis</h2>
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 min-w-[800px]">
           <SalesAnalysis data={data.sales} />
           <SalesTrend data={data.salesTrend} />
         </div>
       </div>
-      <div className="p-5 border shadow-lg rounded-xl border-gray-800/40 bg-gray-800/10 backdrop-blur-sm">
+      <div className="p-5 overflow-x-auto border shadow-lg rounded-xl border-gray-800/40 bg-gray-800/10 backdrop-blur-sm">
         <h2 className="mb-4 text-xl font-semibold">Expense Analysis</h2>
-        <ExpenseAnalysis expenses={data.expenses} stats={stats} />
+        <div className="min-w-[800px]">
+          <ExpenseAnalysis expenses={data.expenses} stats={stats} />
+        </div>
       </div>
-      <div className="p-5 border shadow-lg rounded-xl border-gray-800/40 bg-gray-800/10 backdrop-blur-sm">
+      <div className="p-5 overflow-x-auto border shadow-lg rounded-xl border-gray-800/40 bg-gray-800/10 backdrop-blur-sm">
         <h2 className="mb-4 text-xl font-semibold">Inventory Status</h2>
-        <InventoryStatus inventory={data.inventory} />
+        <div className="min-w-[800px]">
+          <InventoryStatus inventory={data.inventory} />
+        </div>
       </div>
     </div>
   );
