@@ -4,12 +4,15 @@ import { toast } from "react-toastify";
 
 export const toastConfig = {
     position: "bottom-right",
+    theme: "dark",
     autoClose: 3000,
     hideProgressBar: false,
+    newestOnTop: false,
     closeOnClick: true,
-    pauseOnHover: true,
+    rtl: false,
+    pauseOnFocusLoss: true,
     draggable: true,
-    theme: "dark",
+    pauseOnHover: true
 };
 
 export const showToast = {

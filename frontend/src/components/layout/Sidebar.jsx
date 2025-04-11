@@ -1,7 +1,7 @@
 // frontend/src/components/layout/Sidebar.jsx
 import React, { useState, useEffect, memo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import {Home, Package, BarChart2, Users, DollarSign, ChartArea, Menu, ChevronLeft} from "lucide-react";
+import {Home, Package, BarChart2, Users, IndianRupee, ChartArea, Menu, ChevronLeft} from "lucide-react";
 
 // Color mappings for icon highlights
 const COLOR_MAP = {
@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { icon: Package, label: "Inventory", path: "/inventory", color: "blue" },
   { icon: BarChart2, label: "Sales", path: "/sales", color: "green" },
   { icon: Users, label: "Employees", path: "/employees", color: "purple" },
-  { icon: DollarSign, label: "Expenses", path: "/expenses", color: "orange" },
+  { icon: IndianRupee, label: "Expenses", path: "/expenses", color: "orange" },
   { icon: ChartArea, label: "Reports", path: "/reports", color: "teal" },
 ];
 

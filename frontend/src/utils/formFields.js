@@ -28,7 +28,7 @@ export const getFormFields = (type) => ({
     { ...dateField, label: "Date Added" },
   ],
   expense: [
-    { name: "category", label: "Category", type: "select", options: ["Utilities", "Rent", "Salaries", "Maintenance", "Supplies", "Other", "Add New Category"] },
+    { name: "category", label: "Category", type: "select", options: ["Utilities", "Rent", "Maintenance", "Supplies", "Add New Category"] },
     { name: "amount", label: "Amount (₹)", type: "number", min: "0", step: "0.01" },
     dateField,
   ],
