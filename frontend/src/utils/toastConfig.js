@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 export const toastConfig = {
     position: "bottom-right",
     theme: "dark",
-    autoClose: 3000,
+    autoClose: 1800,
     hideProgressBar: false,
     newestOnTop: false,
     closeOnClick: true,

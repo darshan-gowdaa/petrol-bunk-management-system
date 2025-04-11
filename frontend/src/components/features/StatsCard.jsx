@@ -13,10 +13,11 @@ const formatValue = (type, value, unit = "") =>
   : type === "number" ? formatIndianNumber(value)
   : `${formatIndianNumber(value)}${unit}`;
 
-// Dynamic styles
-const getStyles = color => ({
-  grad: `from-${color}-500/20 to-${color}-900/20`, text: `text-${color}-400`, border: `border-${color}-500/50`, hover: `hover:border-${color}-400`
-});
+// Dynamic styles with color validation
+const getStyles = color => {
+  const c = ["blue", "green", "red", "purple", "indigo"].includes(color) ? color : "blue";
+  return { grad: `from-${c}-500/20 to-${c}-900/20`, text: `text-${c}-400`, border: `border-${c}-500/50`, hover: `hover:border-${c}-400` };
+};
 
 export const statsConfigs = {
   inventory: [
@@ -27,7 +28,7 @@ export const statsConfigs = {
   sales: [
     {title:"Total Sales",getValue:s=>formatValue("number",s.totalCount),icon:BarChart2,color:"blue",footer:"Total number of sales"},
     {title:"Total Revenue",getValue:s=>formatValue("currency",s.totalRevenue),icon:DollarSign,color:"green",footer:"Total revenue generated"},
-    {title:"Total Quantity",getValue:s=>formatValue("number",s.totalQuantity,"L"),icon:Package,color:"purple",footer:"Total quantity sold"}
+    {title:"Total Quantity",getValue:s=>formatValue("number",s.totalQuantity,"L"),icon:Package,color:"green",footer:"Total quantity sold"}
   ],
   employee: [
     {title:"Total Employees",getValue:s=>formatValue("number",s.totalCount||0),icon:Users,color:"blue",footer:"Active workforce"},
@@ -35,9 +36,9 @@ export const statsConfigs = {
     {title:"Average Salary",getValue:s=>formatValue("currency",s.averageSalary),icon:TrendingUpDown,color:"purple",footer:"Per employee"}
   ],
   expense: [
-    {title:"Total Expenses",getValue:s=>formatValue("currency",s.totalAmount||0),icon:Package,color:"indigo",footer:"Total expenditure"},
+    {title:"Total Expenses",getValue:s=>formatValue("currency",s.totalAmount||0),icon:Package,color:"blue",footer:"Total expenditure"},
     {title:"Total Entries",getValue:s=>formatValue("number",s.totalCount||0),icon:CheckCircle,color:"green",footer:"Number of transactions"},
-    {title:"Average Expense",getValue:s=>formatValue("currency",s.averageAmount?.toFixed(2)||0),icon:TrendingUpDown,color:"blue",footer:"Per transaction"}
+    {title:"Average Expense",getValue:s=>formatValue("currency",s.averageAmount?.toFixed(2)||0),icon:TrendingUpDown,color:"purple",footer:"Per transaction"}
   ],
   business: [
     {title:"Sales Overview",getValue:s=>formatValue("currency",s.sales),icon:IndianRupee,color:"blue",getFooter:(s,data)=>`${formatIndianNumber(s.quantity)}L • ₹${formatIndianNumber(s.avgSaleValue)}/sale`},

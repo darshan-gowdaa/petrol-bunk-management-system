@@ -65,7 +65,7 @@ const Reports = () => {
   }, [applyDateFilter]);
 
   // Fetch all data from APIs
-  const fetchAllData = useCallback(async (showToast = false) => {
+  const fetchAllData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -73,7 +73,7 @@ const Reports = () => {
         fetchSales(),fetchInventory(),fetchEmployees(),fetchExpenses()
       ]);
       setData(processData({ sales: salesData, inventory: inventoryData, employees: employeesData, expenses: expensesData }));
-      if (showToast) showToast.success("Data refreshed successfully!");
+      showToast.success("Data refreshed successfully!");
     } catch (error) {
       console.error("Error fetching data:", error);
       setError(error.message);
@@ -85,17 +85,22 @@ const Reports = () => {
 
   // Initial data fetch
   useEffect(() => {
-    fetchAllData(false);
+    fetchAllData();
   }, []);
 
-  // Handle date filter changes
+  // Fetch data when date filter changes
   useEffect(() => {
     if (!dateFilter.isDirty || dateFilter.pickerOpen) return;
     if (dateFilter.isCustom && (!dateFilter.customRange.startDate || !dateFilter.customRange.endDate)) return;
-    if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
-    fetchTimeoutRef.current = setTimeout(() => fetchAllData(true), 500);
+    
+    if (fetchTimeoutRef.current) {
+      clearTimeout(fetchTimeoutRef.current);
+    }
+    fetchTimeoutRef.current = setTimeout(() => fetchAllData(), 500);
     return () => {
-      if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
     };
   }, [dateFilter, fetchAllData]);
 
@@ -113,10 +118,10 @@ const Reports = () => {
     }
   };
 
-  // Handle data refresh
+  // Handle refresh button click
   const handleRefresh = (e) => {
     e.preventDefault();
-    fetchAllData(true);
+    fetchAllData();
   };
 
   // Render chart components
