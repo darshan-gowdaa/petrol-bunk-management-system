@@ -1,5 +1,5 @@
-import React from "react";
-import { Edit, Trash2, Loader2, Database } from "lucide-react";
+import React, { useState } from "react";
+import { Edit, Trash2, Loader2, Database, ChevronUp, ChevronDown } from "lucide-react";
 import { formatCurrency, formatNumber } from "../utils/formatters";
 
 // Active Filters Display
@@ -45,15 +45,46 @@ const Table = ({
   isLoading = false, emptyStateMessage = "No records found. Add a new entry to get started.",
   activeFilters = {}, onRemoveFilter
 }) => {
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+
   const getGridTemplate = () =>
     columns.length ? `1.5fr repeat(${columns.length - 1}, 1fr) 100px` : "";
 
-  const formatCellValue = (value, col) =>
-    col.isCurrency ? formatCurrency(value) :
-    col.isNumber ? formatNumber(value) :
-    col.render ? col.render(value) :
-    col.format ? col.format(value) :
-    value?.toString();
+  const formatCellValue = (value, col) => {
+    if (col.key.toLowerCase().includes('quantity')) {
+      return `${formatNumber(value)}L`;
+    }
+    return col.isCurrency ? formatCurrency(value) :
+           col.isNumber ? formatNumber(value) :
+           col.render ? col.render(value) :
+           col.format ? col.format(value) :
+           value?.toString();
+  };
+
+  const handleSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key) {
+      direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedData = React.useMemo(() => {
+    if (!sortConfig.key) return data;
+    
+    return [...data].sort((a, b) => {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+      
+      if (aValue < bValue) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [data, sortConfig]);
 
   const ActionButton = ({ onClick, Icon, colorClass, title }) => (
     <button onClick={onClick} className={`p-1 rounded-lg ${colorClass} hover:scale-110 active:scale-95 transition-all`} title={title}>
@@ -71,7 +102,18 @@ const Table = ({
   const renderTableHeader = () => (
     <div className="sticky top-0 z-10 grid border-b-2 border-gray-600 shadow-md bg-gradient-to-r from-gray-800 to-gray-700" style={{ gridTemplateColumns: getGridTemplate() }}>
       {columns.map(col => (
-        <div key={col.key} className="px-4 py-3 text-xs font-medium tracking-wider text-gray-200 uppercase">{col.label}</div>
+        <div 
+          key={col.key} 
+          className="flex items-center gap-1 px-4 py-3 text-xs font-medium tracking-wider text-gray-200 uppercase cursor-pointer hover:bg-gray-700/50"
+          onClick={() => handleSort(col.key)}
+        >
+          {col.label}
+          {sortConfig.key === col.key && (
+            sortConfig.direction === 'ascending' 
+              ? <ChevronUp size={14} className="text-gray-300" />
+              : <ChevronDown size={14} className="text-gray-300" />
+          )}
+        </div>
       ))}
       <div className="px-4 py-3 text-xs font-medium tracking-wider text-gray-200 uppercase">Actions</div>
     </div>
@@ -111,7 +153,7 @@ const Table = ({
       <div className="flex items-center justify-between px-4 py-3 bg-gray-800 border-b-2 border-gray-600 shadow-md">
         <h2 className="text-lg font-medium text-white">Records</h2>
         <div className="px-3 py-1 text-sm font-medium text-gray-300 rounded-md bg-gray-700/50">
-          Showing {data.length} entries
+          Showing {sortedData.length} entries
         </div>
       </div>
 
@@ -121,12 +163,12 @@ const Table = ({
       <div className="hidden md:block overflow-auto max-h-[calc(100vh-12rem)]">
         {isLoading
           ? renderState(Loader2, "Loading data...")
-          : data.length === 0
+          : sortedData.length === 0
           ? renderState(Database, emptyStateMessage)
           : (
-            <div key={JSON.stringify(data)} className="min-w-full animate-fadeIn">
+            <div key={JSON.stringify(sortedData)} className="min-w-full animate-fadeIn">
               {renderTableHeader()}
-              <div className="divide-y divide-gray-700">{data.map(renderTableRow)}</div>
+              <div className="divide-y divide-gray-700">{sortedData.map(renderTableRow)}</div>
             </div>
           )}
       </div>
@@ -135,11 +177,11 @@ const Table = ({
       <div className="md:hidden">
         {isLoading
           ? renderState(Loader2, "Loading data...")
-          : data.length === 0
+          : sortedData.length === 0
           ? renderState(Database, emptyStateMessage)
           : (
-            <div key={JSON.stringify(data)} className="divide-y divide-gray-700 animate-fadeIn">
-              {data.map(renderMobileRow)}
+            <div key={JSON.stringify(sortedData)} className="divide-y divide-gray-700 animate-fadeIn">
+              {sortedData.map(renderMobileRow)}
             </div>
           )}
       </div>

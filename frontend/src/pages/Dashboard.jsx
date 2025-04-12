@@ -3,13 +3,18 @@ import { Package, BarChart2, Users, IndianRupee, ChartArea, LogOut } from "lucid
 import { useNavigate } from "react-router-dom";
 import { Typewriter } from "react-simple-typewriter";
 import { useAuth } from "../hooks/useAuth";
-import { showToast } from "../utils/toastConfig";
+import { showToast, toastConfig } from "../utils/toastConfig";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
-  const handleLogout = () => { showToast.success("Logged out successfully!"); logout() };
+  const handleLogout = () => {
+    showToast.info("Logged out successfully!");
+    setTimeout(() => logout(), 1000);
+  };
 
   const cards = [
     {id: 1,title: "Inventory",description: "Track and manage product inventory",icon: Package,path: "/inventory",color: "blue"},
@@ -71,6 +76,7 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+      <ToastContainer {...toastConfig} />
     </div>
   );
 };
