@@ -79,22 +79,23 @@ export const getIndianNumberInWords = (number, isRupees = false, isLiters = fals
     return `${words.ones[Math.floor(num / 100)]} hundred${num % 100 ? " and " + toWords(num % 100) : ""}`;
   };
 
-  // Indian number sections
-  const sections = [
-    { value: 1e7, label: "crore" },
-    { value: 1e5, label: "lakh" },
-    { value: 1e3, label: "thousand" }
-  ];
-
-  // Build words for integer part
-  let result = sections.reduce((out, { value, label }) => {
-    if (value <= value) {
-      const sectionValue = Math.floor(value / value);
-      out += `${toWords(sectionValue)} ${label} `;
-      value %= value;
-    }
-    return out;
-  }, "");
+  // Build words for large numbers
+  let result = "";
+  if (value >= 10000000) { // Crores
+    const crores = Math.floor(value / 10000000);
+    result += `${toWords(crores)} crore `;
+    value %= 10000000;
+  }
+  if (value >= 100000) { // Lakhs
+    const lakhs = Math.floor(value / 100000);
+    result += `${toWords(lakhs)} lakh `;
+    value %= 100000;
+  }
+  if (value >= 1000) { // Thousands
+    const thousands = Math.floor(value / 1000);
+    result += `${toWords(thousands)} thousand `;
+    value %= 1000;
+  }
   result += toWords(value);
 
   // Handle decimal part
