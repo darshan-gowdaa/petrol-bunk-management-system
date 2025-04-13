@@ -1,5 +1,5 @@
 // frontend/src/App.jsx - Main application component
-import React from "react";
+import React, { lazy, Suspense, useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -7,17 +7,28 @@ import {
   useLocation,
   Navigate,
 } from "react-router-dom";
-import { Sidebar } from "./components/layout";
-import Dashboard from "./pages/Dashboard";
-import InventoryManagement from "./pages/InventoryManagement";
-import SalesManagement from "./pages/SalesManagement";
-import EmployeeManagement from "./pages/EmployeeManagement";
-import ExpenseTracking from "./pages/ExpenseTracking";
-import Reports from "./pages/Reports";
-import Login from "./pages/Login";
+import { useAuth } from "./hooks/useAuth";
+
+// Import styles directly
 import "./styles/App.css";
 import "./styles/toast.css";
-import { useAuth } from "./hooks/useAuth";
+
+// Lazy load components
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const InventoryManagement = lazy(() => import("./pages/InventoryManagement"));
+const SalesManagement = lazy(() => import("./pages/SalesManagement"));
+const EmployeeManagement = lazy(() => import("./pages/EmployeeManagement"));
+const ExpenseTracking = lazy(() => import("./pages/ExpenseTracking"));
+const Reports = lazy(() => import("./pages/Reports"));
+const Login = lazy(() => import("./pages/Login"));
+const Sidebar = lazy(() => import("./components/layout/Sidebar"));
+
+// Loading component with minimal footprint
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center w-full h-full">
+    <div className="w-8 h-8 border-4 border-gray-200 rounded-full animate-spin border-t-red-600"></div>
+  </div>
+);
 
 const App = () => {
   return (
@@ -31,9 +42,26 @@ const AppContent = () => {
   const location = useLocation();
   const { isAuthenticated, loading } = useAuth();
   const isLoginPage = location.pathname === "/";
+  const [isReady, setIsReady] = useState(false);
+  const [authState, setAuthState] = useState(false);
+
+  // Wait for initial auth check to complete
+  useEffect(() => {
+    if (!loading) {
+      try {
+        const auth = isAuthenticated();
+        setAuthState(auth);
+      } catch (error) {
+        console.error("Authentication check failed:", error);
+        setAuthState(false);
+      } finally {
+        setIsReady(true);
+      }
+    }
+  }, [loading, isAuthenticated]);
 
   // Dynamic Title
-  React.useEffect(() => {
+  useEffect(() => {
     const pageTitles = {
       "/dashboard": "Dashboard",
       "/inventory": "Inventory Management",
@@ -47,8 +75,8 @@ const AppContent = () => {
       pageTitles[location.pathname] || "PetrolBunk Management System";
   }, [location.pathname]);
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (!isReady) {
+    return <LoadingSpinner />;
   }
 
   // Handle undefined routes
@@ -62,54 +90,56 @@ const AppContent = () => {
     "/reports",
   ];
   if (!validRoutes.includes(location.pathname)) {
-    // If user is authenticated, redirect to dashboard
-    if (isAuthenticated()) {
-      return <Navigate to="/dashboard" replace />;
-    }
-    // If user is not authenticated, redirect to login
-    return <Navigate to="/" replace />;
+    return <Navigate to={authState ? "/dashboard" : "/"} replace />;
   }
 
   // Handle authentication redirects
-  if (!isAuthenticated() && !isLoginPage) {
+  if (!authState && !isLoginPage) {
     return <Navigate to="/" replace />;
   }
 
-  if (isAuthenticated() && isLoginPage) {
+  if (authState && isLoginPage) {
     return <Navigate to="/dashboard" replace />;
   }
 
   return (
     <div className="min-h-screen overflow-hidden bg-gray-900">
-      {isLoginPage ? (
-        <div className="h-screen text-gray-100">
-          <Login />
-        </div>
-      ) : (
-        <ProtectedLayout />
-      )}
+      <Suspense fallback={<LoadingSpinner />}>
+        {isLoginPage ? (
+          <div className="h-screen text-gray-100">
+            <Login />
+          </div>
+        ) : (
+          <ProtectedLayout />
+        )}
+      </Suspense>
     </div>
   );
 };
 
 const ProtectedLayout = () => {
-  const [sidebarWidth, setSidebarWidth] = React.useState("w-16");
+  const [sidebarWidth, setSidebarWidth] = useState("w-16");
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar updateSidebarState={setSidebarWidth} />
+      <Suspense fallback={<LoadingSpinner />}>
+        <Sidebar updateSidebarState={setSidebarWidth} />
+      </Suspense>
       <div
-        className={`flex-1 overflow-auto transition-all duration-300 p-3 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 ${sidebarWidth === "w-64" ? "ml-64" : "ml-16"
-          }`}
+        className={`flex-1 overflow-auto transition-all duration-300 p-3 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 ${
+          sidebarWidth === "w-64" ? "ml-64" : "ml-16"
+        }`}
       >
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/inventory" element={<InventoryManagement />} />
-          <Route path="/sales" element={<SalesManagement />} />
-          <Route path="/employees" element={<EmployeeManagement />} />
-          <Route path="/expenses" element={<ExpenseTracking />} />
-          <Route path="/reports" element={<Reports />} />
-        </Routes>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/inventory" element={<InventoryManagement />} />
+            <Route path="/sales" element={<SalesManagement />} />
+            <Route path="/employees" element={<EmployeeManagement />} />
+            <Route path="/expenses" element={<ExpenseTracking />} />
+            <Route path="/reports" element={<Reports />} />
+          </Routes>
+        </Suspense>
       </div>
     </div>
   );
