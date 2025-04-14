@@ -17,7 +17,7 @@ It provides a comprehensive solution for managing inventory, sales, employees, e
 </div>
 
 ## 📸 Demo
-...to be updated.
+[https://drive.google.com/file/d/17Pq3vrNtKKkriepqy_uWykRUAPAh64ey/](https://drive.google.com/file/d/17Pq3vrNtKKkriepqy_uWykRUAPAh64ey/)
 
 ## 🌟 Features
 
