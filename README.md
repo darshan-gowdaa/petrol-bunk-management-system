@@ -1,10 +1,5 @@
-#  Petrol Bunk Management System ⛽
-
-The Petrol Bunk Management System is a full-stack web application designed to streamline petrol bunk operations with modern technology.
-It provides a comprehensive solution for managing inventory, sales, employees, expense and reports, ensuring efficient and transparent business processes.
-
 <div align="center">
-
+  
 ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
@@ -16,35 +11,31 @@ It provides a comprehensive solution for managing inventory, sales, employees, e
 
 </div>
 
-## 📸 Demo
+<h1>Petrol Bunk Management System ⛽</h1>
+
+The Petrol Bunk Management System is a full-stack web application designed to streamline petrol bunk operations with modern technology.
+It provides a comprehensive solution for managing inventory, sales, employees, expense and reports, ensuring efficient and transparent business processes.
+<h2>Images:</h2>
+<h3>Login Page</h3>
+<img width="1919" height="905" alt="image" src="https://github.com/user-attachments/assets/09a072c7-924b-4008-8bda-9847ee3e905d" /> <br>
+
+<h3>ToolTips and Aria Labels where needed for Accessibility.</h3>
+<img width="1577" height="196" alt="image" src="https://github.com/user-attachments/assets/fe872b11-1511-4385-bdd8-b33b3d1661e4" /> <br>
+
+<h3>Dashboard</h3>
+<img width="1912" height="904" alt="image" src="https://github.com/user-attachments/assets/33608454-400e-4474-944c-fde674029cec" /> <br>
+
+<h3>Reports Page</h3>
+<img width="1919" height="887" alt="image" src="https://github.com/user-attachments/assets/ec179ea7-63a3-4da5-a3d0-e5fdce605941" /> <br>
+<img width="1913" height="905" alt="image" src="https://github.com/user-attachments/assets/1c39053e-7f7c-4fbb-946b-d07e5be4c737" /> <br>
+
+<h3> UI Sneak Peak 👀</h3>
+<img width="1908" height="907" alt="image" src="https://github.com/user-attachments/assets/a57cb719-f0cd-4191-94ee-561f1a98b216" />
+<img width="1919" height="915" alt="image" src="https://github.com/user-attachments/assets/d9f224d3-f396-4901-a802-bf46c338fc86" /> 
+
+<h3>📸 Demo</h3>
+
 [https://drive.google.com/file/d/17Pq3vrNtKKkriepqy_uWykRUAPAh64ey/](https://drive.google.com/file/d/17Pq3vrNtKKkriepqy_uWykRUAPAh64ey/)
-
-## 🌟 Features
-
-### User Management
-- **Role-based Access Control**
-  - Admin Dashboard
-  - Staff Portal
-    
-- **Secure Authentication**
-  - JWT-based authentication
-  - Password hashing with bcrypt
-  - Session management
-
-
-### Reporting & Analytics
-- **Comprehensive Reports**
-  - Sales reports
-  - Inventory reports
-  - Financial statements
-- **Data Visualization**
-  - Interactive charts
-  - Performance metrics
-  - Trend analysis
-- **Export Capabilities**
-  - PDF reports
-  - CSV exports
-  - Filtered - Custom report generation
 
 ### Frontend  
 <p align="center">
@@ -70,7 +61,85 @@ It provides a comprehensive solution for managing inventory, sales, employees, e
 </p>
 
 
+# 🌟 Features
 
+## 📊 Reporting & Analytics
+
+### Comprehensive Reports
+- Sales reports  
+- Inventory reports  
+- Financial statements  
+
+### Data Visualization
+- Interactive charts  
+- Performance metrics  
+- Trend analysis  
+
+### Export Capabilities
+- PDF reports (CanvasToHTML, jsPDF)  
+- CSV exports with Custom Date Filter  
+- Filtered - Custom report generation  
+
+---
+
+## 🔐 Security
+
+### Authentication & Authorization
+- JWT-based authentication  
+- Session management  
+- Password hashing with bcrypt  
+
+### API Security
+- Rate limiting  
+- Request validation  
+- CORS configuration  
+
+### Data Security
+- Input sanitization  
+- XSS protection  
+- SQL injection prevention  
+- Data encryption  
+
+---
+
+## 🚨 Error Handling & Notifications
+
+### Error Handling
+- Global error handling  
+- Custom error classes  
+- Error logging  
+- Client-friendly error messages  
+
+### User Notifications
+- Custom redesigned toast notifications  
+- Custom redesigned alerts  
+- Appropriate contextual toasts  
+
+---
+
+## 🎨 User Interface & Experience
+
+### Accessibility
+- ARIA labels for screen readers  
+- Semantic HTML structure  
+- Keyboard navigation support  
+
+### Responsive Design
+- Responsive website for all screen devices  
+- Mobile-first approach  
+- Tablet optimization  
+- Desktop layouts  
+
+### Modern UI
+- Modern sleek UI design  
+- Smooth animations  
+- Consistent design system  
+
+### Interactive Components
+- Custom tooltips  
+- Custom Date Picker  
+- Custom Date Formatter  
+- Enhanced form controls  
 
 ## 🚀 Getting Started
 
@@ -199,30 +268,6 @@ petrol-bunk-management-system/
 └── package-lock.json
 ```
 
-## 🔒 Security Features
-
-- **Authentication & Authorization**
-  - JWT-based authentication
-  - Session management
-  - Password hashing with bcrypt
-
-- **API Security**
-  - Rate limiting
-  - Request validation
-  - CORS configuration
-
-- **Data Security**
-  - Input sanitization
-  - XSS protection
-  - SQL injection prevention
-  - Data encryption
-
-- **Error Handling**
-  - Global error handling
-  - Custom error classes
-  - Error logging
-  - Client-friendly error messages
-  - Appropriate Toasts
 
 
 
