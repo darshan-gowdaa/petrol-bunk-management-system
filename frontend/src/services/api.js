@@ -3,7 +3,8 @@ import axios from "axios";
 import { STORAGE_KEYS } from "../constants/constants";
 import { toast } from "react-toastify";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const toastConfig = {
   position: "bottom-right",
@@ -17,7 +18,7 @@ const toastConfig = {
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000, //10sec
+  timeout: 10000,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -39,21 +40,26 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    const errorMessage = error.code === "ECONNABORTED"
-      ? "Request timed out. Please check your connection."
-      : !error.response
+    const errorMessage =
+      error.code === "ECONNABORTED"
+        ? "Request timed out. Please check your connection."
+        : !error.response
         ? "Network error. Please check if the server is running."
-        : error.response.data?.message || "An error occurred. Please try again.";
+        : error.response.data?.message ||
+          "An error occurred. Please try again.";
 
     toast.error(errorMessage, toastConfig);
     return Promise.reject(error);
   }
 );
 
-export const fetchSales = () => api.get("/sales").then(response => response.data);
-export const fetchInventory = () => api.get("/inventory").then(response => response.data);
-export const fetchEmployees = () => api.get("/employees").then(response => response.data);
-export const fetchExpenses = () => api.get("/expenses").then(response => response.data);
+export const fetchSales = () =>
+  api.get("/sales").then((response) => response.data);
+export const fetchInventory = () =>
+  api.get("/inventory").then((response) => response.data);
+export const fetchEmployees = () =>
+  api.get("/employees").then((response) => response.data);
+export const fetchExpenses = () =>
+  api.get("/expenses").then((response) => response.data);
 
 export default api;
-

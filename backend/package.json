@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node --quiet index.js",
+    "dev": "nodemon --quiet index.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
