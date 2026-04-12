@@ -1,4 +1,4 @@
-// backend/routes/auth.js - Authentication routes
+// Auth routes
 import express from "express";
 import { login } from "../controllers/authController.js";
 

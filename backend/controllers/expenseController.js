@@ -1,8 +1,6 @@
-// backend/controllers/expenseController.js - Expense management controller
+// Expense controller
 import Expense from "../models/Expense.js";
 import { format } from "date-fns";
-
-// Format expense data consistently
 const formatExpense = (expense) => ({
   ...(expense._doc || expense),
   date: format(new Date(expense.date || expense.createdAt), "yyyy-MM-dd"),
@@ -10,10 +8,9 @@ const formatExpense = (expense) => ({
 
 const buildFilter = (query) => {
   const filter = {};
-  const { category, amountMin, amountMax, dateFrom, dateTo, description } = query;
+  const { category, amountMin, amountMax, dateFrom, dateTo } = query;
 
   if (category) filter.category = category;
-  if (description) filter.description = { $regex: description, $options: "i" };
   if (amountMin || amountMax) {
     filter.amount = {};
     if (amountMin) filter.amount.$gte = parseFloat(amountMin);

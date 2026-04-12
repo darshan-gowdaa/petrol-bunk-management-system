@@ -1,8 +1,6 @@
-// backend/controllers/inventoryController.js - Inventory management controller
+// Inventory controller
 import Inventory from "../models/Inventory.js";
 import { format } from "date-fns";
-
-// Format inventory data consistently
 const formatInventory = (item) => ({
   ...(item._doc || item),
   date: format(new Date(item.date || item.createdAt), "yyyy-MM-dd"),

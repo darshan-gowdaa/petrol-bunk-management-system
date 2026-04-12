@@ -1,4 +1,4 @@
-// backend/controllers/authController.js - Authentication controller
+// Auth controller
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -6,37 +6,42 @@ export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
-      return res.status(400).json({ 
-        message: "Please enter both username and password to login." 
+      return res.status(400).json({
+        message: "Please enter both username and password to login."
       });
     }
 
-    const user = {
-      username: process.env.ADMIN_USERNAME || "admin",
-      password: process.env.ADMIN_PASSWORD_HASH || "$2b$10$QFxh8CUdbiz6sMcnxY71guyu9j05IkZpNn3tGMG2JqvcHaUvGGg16",
-      role: "admin"
-    };
+    const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+    const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
+    const JWT_SECRET = process.env.JWT_SECRET;
 
-    if (username !== user.username || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ 
-        message: "Invalid username or password. Please try again." 
+    if (!ADMIN_USERNAME || !ADMIN_PASSWORD_HASH || !JWT_SECRET) {
+      console.error("Missing auth env vars");
+      return res.status(500).json({
+        message: "Authentication system is not properly configured. Please contact admin."
+      });
+    }
+
+    if (username !== ADMIN_USERNAME || !(await bcrypt.compare(password, ADMIN_PASSWORD_HASH))) {
+      return res.status(401).json({
+        message: "Invalid username or password. Please try again."
       });
     }
 
     const token = jwt.sign(
-      { username: user.username, role: user.role },
-      process.env.JWT_SECRET || "your-secret-key",
-      { expiresIn: "1h" }
+      { username: ADMIN_USERNAME, role: "admin" },
+      JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
     );
 
-    res.json({ 
-      token, 
-      user: { username: user.username, role: user.role } 
+    res.json({
+      token,
+      user: { username: ADMIN_USERNAME, role: "admin" }
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ 
-      message: "Login failed. Please try again or contact admin if the problem persists." 
+    res.status(500).json({
+      message: "Login failed. Please try again or contact admin if the problem persists."
     });
   }
 };

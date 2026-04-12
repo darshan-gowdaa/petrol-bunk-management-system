@@ -1,4 +1,4 @@
-// frontend/src/pages/Reports.jsx - Reports and analytics page component
+// Reports page
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { ToastContainer } from "react-toastify";
 import { Download, RefreshCw, IndianRupee, Zap, TrendingUp, Package, Users, BarChart2, ArrowUp, ArrowDown, ChartNoAxesCombined, ChartSpline } from "lucide-react";
@@ -22,7 +22,6 @@ import { calculateSalesByProduct, calculateSalesTrend, calculateExpensesByCatego
 import { showToast, toastConfig } from "../utils/toastConfig";
 import { formatLargeCurrency, formatLargeNumber } from "../utils/formatters";
 
-// Main Reports component
 const Reports = () => {
   // State declarations
   const [data, setData] = useState({ sales: [], inventory: [], employees: [], expenses: [], salesTrend: [] });
@@ -112,9 +111,9 @@ const Reports = () => {
     e?.preventDefault();
     try {
       const success = await generatePDF(reportRef, "business-report");
-      if (success) toast.success("Report downloaded successfully!");
+      if (success) showToast.success("Report downloaded successfully!");
     } catch {
-      toast.error("Failed to generate PDF. Please try again.");
+      showToast.error("Failed to generate PDF. Please try again.");
     }
   };
 

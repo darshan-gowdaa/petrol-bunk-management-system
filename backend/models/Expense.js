@@ -1,4 +1,4 @@
-// backend/models/Expense.js - Expense data model
+// Expense model
 import mongoose from 'mongoose';
 
 const expenseSchema = new mongoose.Schema({

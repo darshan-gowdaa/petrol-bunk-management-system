@@ -1,4 +1,4 @@
-// backend/routes/sales.js - Sales management routes
+// Sales routes
 import express from 'express';
 import {
   getSales,
@@ -7,12 +7,13 @@ import {
   deleteSale
 } from '../controllers/salesController.js';
 import { validateSale } from '../middleware/validation.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.get('/', getSales);
-router.post('/', validateSale, createSale);
-router.put('/:id', validateSale, updateSale);
-router.delete('/:id', deleteSale);
+router.get('/', authenticateToken, getSales);
+router.post('/', authenticateToken, validateSale, createSale);
+router.put('/:id', authenticateToken, validateSale, updateSale);
+router.delete('/:id', authenticateToken, deleteSale);
 
 export default router;

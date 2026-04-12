@@ -10,7 +10,7 @@ import { statsConfigs } from "../features/StatsCard";
 import { fetchData, createItem, updateItem, deleteItem, fetchFilteredData } from "../../utils/apiUtils";
 import { getInitialFormState, getInitialFilterState, calculateStats, handleFilterRemoval } from "../../utils/stateUtils";
 import { getFormFields, getFilterFields, getTableColumns } from "../../utils/formFields";
-import { exportToCSV } from "../../utils/ExportToCSV";
+import { exportToCSV } from "../../utils/ExportToCSV.jsx";
 import { showToast, toastConfig } from "../../utils/toastConfig";
 import { ERROR_TYPES, ERROR_MESSAGES } from '../../constants/errorConstants';
 

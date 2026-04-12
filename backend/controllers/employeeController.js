@@ -1,4 +1,4 @@
-// backend/controllers/employeeController.js - Employee management controller
+// Employee controller
 import Employee from "../models/Employee.js";
 import { format } from "date-fns";
 

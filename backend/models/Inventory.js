@@ -1,4 +1,4 @@
-// backend/models/Inventory.js - Inventory data model
+// Inventory model
 import mongoose from 'mongoose';
 
 export default mongoose.model('Inventory', new mongoose.Schema({

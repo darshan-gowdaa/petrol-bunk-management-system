@@ -1,4 +1,4 @@
-// backend/models/Employee.js - Employee data model
+// Employee model
 import mongoose from 'mongoose';
 
 const employeeSchema = new mongoose.Schema({

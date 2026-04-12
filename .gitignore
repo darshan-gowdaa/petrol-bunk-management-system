@@ -1,12 +1,15 @@
 # Dependencies
 node_modules/
 
-# Environment variables
+# Environment variables - NEVER COMMIT THESE
 .env
 .env.local
 .env.*.local
 .env.prod
 .env.production
+backend/.env
+frontend/.env.local
+frontend/.env.production.local
 
 # Logs
 logs/

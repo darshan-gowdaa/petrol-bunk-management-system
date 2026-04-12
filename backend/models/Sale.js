@@ -1,4 +1,4 @@
-// backend/models/Sale.js - Sales data model
+// Sales model
 import mongoose from 'mongoose';
 
 export default mongoose.model('Sale', new mongoose.Schema({

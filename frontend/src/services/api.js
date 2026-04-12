@@ -1,4 +1,4 @@
-// frontend/src/services/api.js - API service layer
+// API service
 import axios from "axios";
 import { STORAGE_KEYS } from "../constants/constants";
 import { toast } from "react-toastify";

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "echo 'Backend ready'",
+  "buildCommand": "npm install",
   "builds": [
     {
       "src": "index.js",
@@ -12,5 +12,8 @@
       "src": "/(.*)",
       "dest": "index.js"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }

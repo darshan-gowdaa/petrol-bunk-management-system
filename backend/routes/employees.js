@@ -1,4 +1,4 @@
-// backend/routes/employees.js - Employee management routes
+// Employee routes
 import express from 'express';
 import {
   getEmployees,
@@ -7,12 +7,13 @@ import {
   deleteEmployee
 } from '../controllers/employeeController.js';
 import { validateEmployee } from '../middleware/validation.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.get('/', getEmployees);
-router.post('/', validateEmployee, createEmployee);
-router.put('/:id', validateEmployee, updateEmployee);
-router.delete('/:id', deleteEmployee);
+router.get('/', authenticateToken, getEmployees);
+router.post('/', authenticateToken, validateEmployee, createEmployee);
+router.put('/:id', authenticateToken, validateEmployee, updateEmployee);
+router.delete('/:id', authenticateToken, deleteEmployee);
 
 export default router;

@@ -1,4 +1,4 @@
-// backend/controllers/salesController.js - Sales management controller
+// Sales controller
 import Sale from "../models/Sale.js";
 import { format } from "date-fns";
 

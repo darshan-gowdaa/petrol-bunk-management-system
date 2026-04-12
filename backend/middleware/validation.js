@@ -1,18 +1,17 @@
-// backend/middleware/validation.js - Request validation middleware
-import { ERROR_MESSAGES, VALIDATION_SCHEMAS } from '../../frontend/src/constants/errorConstants.js';
+// Request validation middleware
+import { ERROR_MESSAGES, VALIDATION_SCHEMAS } from '../constants/errorConstants.js';
 
 const validate = {
-  string: (value, fieldName) => 
+  string: (value, fieldName) =>
     { if (!value?.trim()) throw new Error(ERROR_MESSAGES.EMPTY_STRING(fieldName)); },
-  number: (value, fieldName) => 
-    { if (value == null || isNaN(value) || value < 0) 
+  number: (value, fieldName) =>
+    { if (value == null || isNaN(value) || value < 0)
       throw new Error(ERROR_MESSAGES.INVALID_NUMBER(fieldName)); },
-  date: (value, fieldName) => 
-    { if (value == null || isNaN(new Date(value).getTime())) 
+  date: (value, fieldName) =>
+    { if (value == null || isNaN(new Date(value).getTime()))
       throw new Error(ERROR_MESSAGES.INVALID_DATE(fieldName)); }
 };
 
-// Applies validation rules to request body fields
 const validateFields = (req, res, next, schema) => {
   try {
     Object.entries(schema).forEach(([field, { type, required, min }]) => {
