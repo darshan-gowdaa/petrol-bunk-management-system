@@ -1,2 +1,2 @@
-import app from '../backend/index.js';
-export default app;
+// Handled by backend/index.js via vercel.json builds config
+export {};
