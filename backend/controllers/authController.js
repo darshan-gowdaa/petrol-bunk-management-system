@@ -5,7 +5,11 @@ import jwt from "jsonwebtoken";
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ message: "Username and password are required" });
+    if (!username || !password) {
+      return res.status(400).json({ 
+        message: "Please enter both username and password to login." 
+      });
+    }
 
     const user = {
       username: process.env.ADMIN_USERNAME || "admin",
@@ -14,7 +18,9 @@ export const login = async (req, res) => {
     };
 
     if (username !== user.username || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ 
+        message: "Invalid username or password. Please try again." 
+      });
     }
 
     const token = jwt.sign(
@@ -23,8 +29,14 @@ export const login = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    res.json({ token, user: { username: user.username, role: user.role } });
+    res.json({ 
+      token, 
+      user: { username: user.username, role: user.role } 
+    });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    console.error('Login error:', error);
+    res.status(500).json({ 
+      message: "Login failed. Please try again or contact admin if the problem persists." 
+    });
   }
 };

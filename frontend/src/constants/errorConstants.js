@@ -9,22 +9,22 @@ export const ERROR_TYPES = {
 
 export const ERROR_MESSAGES = {
     // Validation Errors
-    REQUIRED_FIELD: field => `${field} is required`,
+    REQUIRED_FIELD: field => `Please enter ${field}`,
     INVALID_TYPE: (field, type) => `${field} must be a valid ${type}`,
-    INVALID_DATE: field => `${field} must be a valid date`,
+    INVALID_DATE: field => `Please enter a valid date for ${field}`,
     INVALID_NUMBER: field => `${field} must be a positive number`,
     EMPTY_STRING: field => `${field} cannot be empty`,
     // Auth Errors
-    UNAUTHORIZED: 'You are not authorized to perform this action',
-    INVALID_CREDENTIALS: 'Invalid credentials',
+    UNAUTHORIZED: 'You do not have permission to access this. Please contact admin if you believe this is an error.',
+    INVALID_CREDENTIALS: 'Invalid username or password. Please try again.',
     // Not Found Errors
-    RESOURCE_NOT_FOUND: resource => `${resource} not found`,
+    RESOURCE_NOT_FOUND: resource => `The ${resource} you are looking for could not be found.`,
     // Server Errors
-    INTERNAL_SERVER_ERROR: ' GrokAn unexpected error occurred',
-    DATABASE_ERROR: 'Database operation failed',
+    INTERNAL_SERVER_ERROR: 'Something went wrong on our end. Please try again, or contact admin if the problem persists.',
+    DATABASE_ERROR: 'Database operation failed. Please try again or contact admin.',
     // Network Errors
-    NETWORK_ERROR: 'Network error occurred. Please check your connection',
-    TIMEOUT_ERROR: 'Request timed out'
+    NETWORK_ERROR: 'We could not connect to the server. Please check your internet connection and try again.',
+    TIMEOUT_ERROR: 'The request took too long. Please try again.'
 };
 
 // Validation schemas shared between frontend and backend
