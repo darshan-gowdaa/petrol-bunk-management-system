@@ -1,7 +1,7 @@
 # Dependencies
 node_modules/
 
-# Environment variables (NEVER commit real .env files)
+# Environment variables
 .env
 .env.local
 .env.*.local
@@ -69,6 +69,4 @@ Thumbs.db
 *.tsbuildinfo
 .yarn/install-state.gz
 
-# Auto-generated files
-BUILD_STATUS.md
-DEPLOYMENT_GUIDE.md
+
