@@ -1,13 +1,15 @@
 # Dependencies
 node_modules/
 
-# Environment variables
+# Environment variables (NEVER commit real .env files)
 .env
 .env.local
 .env.*.local
+.env.prod
+.env.production
 
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -18,23 +20,55 @@ lerna-debug.log*
 # Build outputs
 dist/
 build/
+.next/
+out/
 coverage/
+.nyc_output/
 
 # IDE and editor files
 .idea/
-.vscode/*
+.vscode/
 !.vscode/extensions.json
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*~
 
 # OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+desktop.ini
 Thumbs.db
 
 # Temporary files
 *.tmp
 *.temp
 *.cache
+*.bak
+
+# Testing
+.coverage
+.nyc_output
+*.lcov
+
+# Misc
+*.pem
+*.key
+*.jks
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+.yarn/install-state.gz
+
+# Auto-generated files
+BUILD_STATUS.md
+DEPLOYMENT_GUIDE.md
