@@ -6,7 +6,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api"
 
 const toastConfig = {
   position: "bottom-right",
-  autoClose: 3000,
+  autoClose: 4000,
   hideProgressBar: false,
   closeOnClick: true,
   pauseOnHover: true,
@@ -16,7 +16,7 @@ const toastConfig = {
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15000,
+  timeout: 20000,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -29,28 +29,45 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// URLs where we handle errors manually — skip global toast
+const SILENT_URLS = ["/auth/login"];
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem(STORAGE_KEYS.TOKEN);
-      localStorage.removeItem(STORAGE_KEYS.USER);
+    if (axios.isCancel(error)) return Promise.reject(error);
+
+    const url = error.config?.url || "";
+    const isSilent = SILENT_URLS.some((u) => url.includes(u));
+
+    // Auth errors on login — let the login handler show the message
+    if (error.response?.status === 401 && isSilent) {
       return Promise.reject(error);
     }
 
-    // Don't show toast for cancelled requests
-    if (axios.isCancel(error)) return Promise.reject(error);
+    // Session expired on protected routes
+    if (error.response?.status === 401) {
+      localStorage.removeItem(STORAGE_KEYS.TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.USER);
+      toast.error("Your session has expired. Please log in again.", toastConfig);
+      return Promise.reject(error);
+    }
 
-    const errorMessage =
+    // Skip toast for silent routes — they handle their own errors
+    if (isSilent) return Promise.reject(error);
+
+    const msg =
       error.code === "ECONNABORTED"
         ? "Request timed out. Please try again."
         : error.response?.status === 503
-        ? "Server is temporarily unavailable. Please try again shortly."
+        ? "Server is temporarily unavailable. Please try again in a moment."
+        : error.response?.status === 404
+        ? "The requested resource was not found."
         : !error.response
         ? "Network error. Please check your connection."
-        : error.response.data?.message || "An error occurred. Please try again.";
+        : error.response.data?.message || "Something went wrong. Please try again.";
 
-    toast.error(errorMessage, toastConfig);
+    toast.error(msg, toastConfig);
     return Promise.reject(error);
   }
 );
