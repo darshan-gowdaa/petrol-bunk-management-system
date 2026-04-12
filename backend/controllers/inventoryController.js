@@ -1,6 +1,6 @@
-// Inventory controller
 import Inventory from "../models/Inventory.js";
 import { format } from "date-fns";
+
 const formatInventory = (item) => ({
   ...(item._doc || item),
   date: format(new Date(item.date || item.createdAt), "yyyy-MM-dd"),
@@ -29,40 +29,40 @@ const buildFilter = (query) => {
   return filter;
 };
 
-export const getInventory = async (req, res) => {
+export const getInventory = async (req, res, next) => {
   try {
     const inventory = await Inventory.find(buildFilter(req.query));
     res.status(200).json(inventory.map(formatInventory));
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-export const createInventoryItem = async (req, res) => {
+export const createInventoryItem = async (req, res, next) => {
   try {
     const item = await new Inventory(req.body).save();
     res.status(201).json(formatInventory(item));
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
-export const updateInventoryItem = async (req, res) => {
+export const updateInventoryItem = async (req, res, next) => {
   try {
-    const item = await Inventory.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const item = await Inventory.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!item) return res.status(404).json({ message: "Inventory item not found" });
     res.status(200).json(formatInventory(item));
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
-export const deleteInventoryItem = async (req, res) => {
+export const deleteInventoryItem = async (req, res, next) => {
   try {
     const item = await Inventory.findByIdAndDelete(req.params.id);
     if (!item) return res.status(404).json({ message: "Inventory item not found" });
     res.status(204).send();
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };

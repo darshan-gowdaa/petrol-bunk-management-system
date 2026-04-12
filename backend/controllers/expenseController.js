@@ -1,6 +1,6 @@
-// Expense controller
 import Expense from "../models/Expense.js";
 import { format } from "date-fns";
+
 const formatExpense = (expense) => ({
   ...(expense._doc || expense),
   date: format(new Date(expense.date || expense.createdAt), "yyyy-MM-dd"),
@@ -24,40 +24,40 @@ const buildFilter = (query) => {
   return filter;
 };
 
-export const getExpenses = async (req, res) => {
+export const getExpenses = async (req, res, next) => {
   try {
     const expenses = await Expense.find(buildFilter(req.query));
     res.status(200).json(expenses.map(formatExpense));
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-export const createExpense = async (req, res) => {
+export const createExpense = async (req, res, next) => {
   try {
     const expense = await new Expense(req.body).save();
     res.status(201).json(formatExpense(expense));
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
-export const updateExpense = async (req, res) => {
+export const updateExpense = async (req, res, next) => {
   try {
-    const expense = await Expense.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const expense = await Expense.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!expense) return res.status(404).json({ message: "Expense not found" });
     res.status(200).json(formatExpense(expense));
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
-export const deleteExpense = async (req, res) => {
+export const deleteExpense = async (req, res, next) => {
   try {
     const expense = await Expense.findByIdAndDelete(req.params.id);
     if (!expense) return res.status(404).json({ message: "Expense not found" });
     res.status(204).send();
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };

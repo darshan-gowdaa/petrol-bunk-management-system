@@ -1,4 +1,3 @@
-// Employee controller
 import Employee from "../models/Employee.js";
 import { format } from "date-fns";
 
@@ -26,16 +25,16 @@ const buildFilter = (query) => {
   return filter;
 };
 
-export const getEmployees = async (req, res) => {
+export const getEmployees = async (req, res, next) => {
   try {
     const employees = await Employee.find(buildFilter(req.query));
     res.status(200).json(employees.map(formatEmployee));
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-export const createEmployee = async (req, res) => {
+export const createEmployee = async (req, res, next) => {
   try {
     const employee = await new Employee({
       ...req.body,
@@ -43,30 +42,30 @@ export const createEmployee = async (req, res) => {
     }).save();
     res.status(201).json(formatEmployee(employee));
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
-export const updateEmployee = async (req, res) => {
+export const updateEmployee = async (req, res, next) => {
   try {
     const employee = await Employee.findByIdAndUpdate(
       req.params.id,
       { ...req.body, dateAdded: req.body.date || req.body.dateAdded },
-      { new: true }
+      { new: true, runValidators: true }
     );
     if (!employee) return res.status(404).json({ message: "Employee not found" });
     res.status(200).json(formatEmployee(employee));
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
-export const deleteEmployee = async (req, res) => {
+export const deleteEmployee = async (req, res, next) => {
   try {
     const employee = await Employee.findByIdAndDelete(req.params.id);
     if (!employee) return res.status(404).json({ message: "Employee not found" });
     res.status(204).send();
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };

@@ -34,7 +34,15 @@ const humanizeErrorMessage = (err) => {
 };
 
 export const errorHandler = (err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
+  let statusCode = err.statusCode || 500;
+  
+  if (err.name === 'ValidationError' || err.name === 'CastError' || err.code === 11000) {
+    statusCode = 400;
+  }
+  if (err.name === 'JsonWebTokenError' || err.message?.includes('jwt expired')) {
+    statusCode = 401;
+  }
+
   const humanizedMessage = humanizeErrorMessage(err);
   const developerMessage = process.env.NODE_ENV === 'development' ? err.message : undefined;
 

@@ -24,7 +24,7 @@ const getAggregatedData = async (Model, groupBy) => {
     ]);
 };
 
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, async (req, res, next) => {
     try {
         const [monthlySales, yearlySales, monthlyExpenses, yearlyExpenses] = await Promise.all([
             getAggregatedData(Sale, 'month'),
@@ -35,8 +35,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
         res.json({ monthlySales, yearlySales, monthlyExpenses, yearlyExpenses });
     } catch (error) {
-        console.error('Error fetching reports:', error);
-        res.status(500).json({ message: 'Error fetching reports' });
+        next(error);
     }
 });
 

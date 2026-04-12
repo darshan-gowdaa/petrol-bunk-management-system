@@ -1,4 +1,3 @@
-// Sales controller
 import Sale from "../models/Sale.js";
 import { format } from "date-fns";
 
@@ -35,16 +34,16 @@ const buildFilter = (query) => {
   return filter;
 };
 
-export const getSales = async (req, res) => {
+export const getSales = async (req, res, next) => {
   try {
     const sales = await Sale.find(buildFilter(req.query));
     res.status(200).json(sales.map(formatSale));
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-export const createSale = async (req, res) => {
+export const createSale = async (req, res, next) => {
   try {
     if (!req.body.total && req.body.quantity && req.body.price) {
       req.body.total = req.body.quantity * req.body.price;
@@ -52,27 +51,29 @@ export const createSale = async (req, res) => {
     const sale = await new Sale(req.body).save();
     res.status(201).json(formatSale(sale));
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
-export const updateSale = async (req, res) => {
+export const updateSale = async (req, res, next) => {
   try {
     if (!req.body.total && req.body.quantity && req.body.price) {
       req.body.total = req.body.quantity * req.body.price;
     }
-    const sale = await Sale.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const sale = await Sale.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!sale) return res.status(404).json({ message: "Sale not found" });
     res.status(200).json(formatSale(sale));
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
-export const deleteSale = async (req, res) => {
+export const deleteSale = async (req, res, next) => {
   try {
-    await Sale.findByIdAndDelete(req.params.id);
+    const sale = await Sale.findByIdAndDelete(req.params.id);
+    if (!sale) return res.status(404).json({ message: "Sale not found" });
     res.status(204).send();
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
