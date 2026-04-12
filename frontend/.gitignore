@@ -22,7 +22,6 @@ coverage/
 .env.local
 .env.*.local
 .env.prod
-.env.production
 
 # IDE and editor files
 .vscode/*

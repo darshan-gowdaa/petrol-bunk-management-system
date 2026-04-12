@@ -6,10 +6,11 @@ node_modules/
 .env.local
 .env.*.local
 .env.prod
-.env.production
 backend/.env
 frontend/.env.local
 frontend/.env.production.local
+# Allow frontend/.env.production (no secrets, just VITE_API_URL)
+!frontend/.env.production
 
 # Logs
 logs/
