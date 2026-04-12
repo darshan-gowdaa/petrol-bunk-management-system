@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "projectSettings": {
-    "framework": null
-  },
   "buildCommand": "npm run build --prefix frontend",
   "installCommand": "npm install --prefix backend && npm install --prefix frontend",
   "outputDirectory": "frontend/dist",
