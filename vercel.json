@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run build --prefix frontend && npm install --prefix backend",
+  "buildCommand": "npm run build --prefix frontend",
   "installCommand": "npm install --prefix backend && npm install --prefix frontend",
   "outputDirectory": "frontend/dist",
   "functions": {
@@ -9,21 +9,7 @@
       "maxDuration": 10
     }
   },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/backend/index.js"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/backend/index.js" }
   ]
 }
