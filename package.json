@@ -2,13 +2,21 @@
   "name": "petrol-bunk-management-system",
   "version": "1.0.0",
   "description": "A management system for petrol bunk operations.",
+  "type": "module",
   "main": "backend/index.js",
   "scripts": {
-    "start": "set NODE_OPTIONS=--no-deprecation && concurrently --raw \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "start": "concurrently --raw \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
     "build": "npm run build --prefix frontend"
   },
   "dependencies": {
-    "concurrently": "^8.2.2"
+    "bcryptjs": "^3.0.2",
+    "concurrently": "^8.2.2",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.5"
   },
   "author": "Darshan Gowda G S",
   "license": "ISC"
