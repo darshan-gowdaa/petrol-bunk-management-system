@@ -1,15 +1,9 @@
 {
   "version": 2,
+  "outputDirectory": "frontend/dist",
   "buildCommand": "npm run build --prefix frontend",
   "installCommand": "npm install --prefix backend && npm install --prefix frontend",
-  "outputDirectory": "frontend/dist",
-  "functions": {
-    "backend/index.js": {
-      "runtime": "nodejs20.x",
-      "maxDuration": 10
-    }
-  },
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/backend/index.js" }
+    { "source": "/api/:path*", "destination": "/api/index.js" }
   ]
 }
