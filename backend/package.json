@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "start": "node --quiet index.js",
-    "dev": "nodemon --quiet index.js"
+    "dev": "nodemon --quiet index.js",
+    "build": "echo 'Backend ready for deployment'"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

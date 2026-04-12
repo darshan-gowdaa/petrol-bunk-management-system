@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm install",
+  "buildCommand": "echo 'Backend ready'",
   "builds": [
     {
       "src": "index.js",
@@ -12,12 +12,5 @@
       "src": "/(.*)",
       "dest": "index.js"
     }
-  ],
-  "env": {
-    "MONGODB_URI": "@mongodb_uri",
-    "ADMIN_USERNAME": "@admin_username",
-    "ADMIN_PASSWORD_HASH": "@admin_password_hash",
-    "JWT_SECRET": "@jwt_secret",
-    "NODE_ENV": "production"
-  }
+  ]
 }

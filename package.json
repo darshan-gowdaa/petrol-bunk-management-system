@@ -4,8 +4,9 @@
   "description": "A management system for petrol bunk operations.",
   "main": "backend/index.js",
   "scripts": {
-  "start": "set NODE_OPTIONS=--no-deprecation && concurrently --raw \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
-},
+    "start": "set NODE_OPTIONS=--no-deprecation && concurrently --raw \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "build": "npm run build --prefix frontend"
+  },
   "dependencies": {
     "concurrently": "^8.2.2"
   },

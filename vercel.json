@@ -1,19 +1,24 @@
 {
   "version": 2,
   "projectSettings": {
-    "installCommand": "npm install",
-    "buildCommand": "npm run build",
-    "devCommand": "npm run start",
     "framework": null
   },
-  "experimentalServices": {
-    "backend": {
-      "entrypoint": "backend/index.js",
-      "routePrefix": "/_/backend"
-    },
-    "frontend": {
-      "entrypoint": "frontend",
-      "routePrefix": "/"
+  "buildCommand": "npm run build --prefix frontend",
+  "installCommand": "npm install --prefix backend && npm install --prefix frontend",
+  "outputDirectory": "frontend/dist",
+  "functions": {
+    "backend/index.js": {
+      "runtime": "nodejs20.x"
     }
-  }
+  },
+  "routes": [
+    {
+      "src": "/_/backend/(.*)",
+      "dest": "/backend/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/dist/index.html"
+    }
+  ]
 }

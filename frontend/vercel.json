@@ -1,27 +1,11 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "output": "dist",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
+  "outputDirectory": "dist",
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://petrol-bunk-backend.vercel.app/api/$1"
-    },
     {
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "env": {
-    "VITE_API_URL": "https://petrol-bunk-backend.vercel.app/api"
-  }
+  ]
 }
