@@ -8,6 +8,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
+import { SkeletonPageFallback } from "./components/common/Skeleton.jsx";
 
 // Import styles directly
 import "./styles/App.css";
@@ -23,10 +24,10 @@ const Reports = lazy(() => import("./pages/Reports"));
 const Login = lazy(() => import("./pages/Login"));
 const Sidebar = lazy(() => import("./components/layout/Sidebar"));
 
-// Loading component with minimal footprint
+// Thin spinner used only for sidebar (tiny lazy load)
 const LoadingSpinner = () => (
-  <div className="flex items-center justify-center w-full h-full">
-    <div className="w-8 h-8 border-4 border-gray-200 rounded-full animate-spin border-t-red-600"></div>
+  <div className="flex items-center justify-center w-full h-full min-h-[40px]">
+    <div className="w-6 h-6 border-[3px] border-gray-700 rounded-full animate-spin border-t-red-500" />
   </div>
 );
 
@@ -76,7 +77,7 @@ const AppContent = () => {
   }, [location.pathname]);
 
   if (!isReady) {
-    return <LoadingSpinner />;
+    return <SkeletonPageFallback />;
   }
 
   // Handle undefined routes
@@ -104,7 +105,7 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen overflow-hidden bg-gray-900">
-      <Suspense fallback={<LoadingSpinner />}>
+      <Suspense fallback={<SkeletonPageFallback />}>
         {isLoginPage ? (
           <div className="h-screen text-gray-100">
             <Login />
@@ -130,7 +131,7 @@ const ProtectedLayout = () => {
           sidebarWidth === "w-64" ? "ml-64" : "ml-16"
         }`}
       >
-        <Suspense fallback={<LoadingSpinner />}>
+        <Suspense fallback={<SkeletonPageFallback />}>
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/inventory" element={<InventoryManagement />} />

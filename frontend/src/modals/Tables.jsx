@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Edit, Trash2, Loader2, Database, ChevronUp, ChevronDown } from "lucide-react";
 import { formatCurrency, formatNumber } from "../utils/formatters";
+import { SkeletonTableRows } from "../components/common/Skeleton.jsx";
 
 // Active Filters Display
 const ActiveFilters = ({ activeFilters, onRemoveFilter }) => {
@@ -162,7 +163,7 @@ const Table = ({
       {/* Desktop Table */}
       <div className="hidden md:block overflow-auto max-h-[calc(100vh-12rem)]">
         {isLoading
-          ? renderState(Loader2, "Loading data...")
+          ? <SkeletonTableRows rows={7} cols={columns.length} />
           : sortedData.length === 0
           ? renderState(Database, emptyStateMessage)
           : (
@@ -176,7 +177,7 @@ const Table = ({
       {/* Mobile Table */}
       <div className="md:hidden">
         {isLoading
-          ? renderState(Loader2, "Loading data...")
+          ? <SkeletonTableRows rows={5} cols={3} />
           : sortedData.length === 0
           ? renderState(Database, emptyStateMessage)
           : (

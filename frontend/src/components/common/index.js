@@ -4,4 +4,4 @@ export { default as FormField } from "./FormField";
 export { default as CustomTooltip } from "./CustomTooltip";
 export { default as DateFilter } from "./DateFilter.jsx";
 export { default as ChartContainer } from "./ChartContainer";
-// Other common component exports will be added here as we move them
+export { SkeletonBox, SkeletonStatsCard, SkeletonTableRows, SkeletonChartBlock, SkeletonPageFallback } from "./Skeleton.jsx";

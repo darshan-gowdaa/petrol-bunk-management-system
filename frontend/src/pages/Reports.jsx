@@ -21,6 +21,7 @@ import { filterDataByDate as filterDataByDateUtil, getDateRange } from "../utils
 import { calculateSalesByProduct, calculateSalesTrend, calculateExpensesByCategory, calculateBusinessStats } from "../utils/analyticsCalculations";
 import { showToast, toastConfig } from "../utils/toastConfig";
 import { formatLargeCurrency, formatLargeNumber } from "../utils/formatters";
+import { SkeletonStatsCard, SkeletonChartBlock } from "../components/common/Skeleton.jsx";
 
 const Reports = () => {
   // State declarations
@@ -170,9 +171,26 @@ const Reports = () => {
           </div>
           {/* Loading state */}
           {isLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="flex items-center gap-2 text-xl text-blue-400">
-                <RefreshCw className="animate-spin"/> Loading data...
+            <div className="space-y-6 animate-fadeIn">
+              {/* skeleton stats */}
+              <div className="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 lg:grid-cols-4">
+                {[0,1,2,3].map(i => <SkeletonStatsCard key={i} />)}
+              </div>
+              {/* skeleton charts */}
+              <div className="p-5 rounded-xl border border-gray-800/40 bg-gray-800/10">
+                <div className="skeleton h-5 w-40 mb-4" />
+                <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+                  <SkeletonChartBlock height="h-64" />
+                  <SkeletonChartBlock height="h-64" />
+                </div>
+              </div>
+              <div className="p-5 rounded-xl border border-gray-800/40 bg-gray-800/10">
+                <div className="skeleton h-5 w-40 mb-4" />
+                <SkeletonChartBlock height="h-72" />
+              </div>
+              <div className="p-5 rounded-xl border border-gray-800/40 bg-gray-800/10">
+                <div className="skeleton h-5 w-40 mb-4" />
+                <SkeletonChartBlock height="h-64" />
               </div>
             </div>
           ) : error ? (

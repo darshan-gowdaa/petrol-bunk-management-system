@@ -13,6 +13,7 @@ import { getFormFields, getFilterFields, getTableColumns } from "../../utils/for
 import { exportToCSV } from "../../utils/ExportToCSV.jsx";
 import { showToast, toastConfig } from "../../utils/toastConfig";
 import { ERROR_TYPES, ERROR_MESSAGES } from '../../constants/errorConstants';
+import { SkeletonStatsCard } from "../common/Skeleton.jsx";
 
 const endpointMap = { employee: "employees", expense: "expenses", inventory: "inventory", sales: "sales", };
 
@@ -175,9 +176,12 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
         <ToastContainer {...toastConfig} />
 
         <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
-          {statsConfigs[type]?.map((stat, i) => (
-            <StatsCard key={i} {...stat} value={stat.getValue(calculateStats(filteredData, type))} />
-          ))}
+          {loading
+            ? [0, 1, 2].map(i => <SkeletonStatsCard key={i} />)
+            : statsConfigs[type]?.map((stat, i) => (
+                <StatsCard key={i} {...stat} value={stat.getValue(calculateStats(filteredData, type))} />
+              ))
+          }
         </div>
 
         <Filters
