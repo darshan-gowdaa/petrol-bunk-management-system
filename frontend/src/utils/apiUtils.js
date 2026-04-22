@@ -3,7 +3,8 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-axios.defaults.baseURL = "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+axios.defaults.baseURL = API_BASE_URL;
 axios.defaults.timeout = 10000;
 
 axios.interceptors.response.use(
