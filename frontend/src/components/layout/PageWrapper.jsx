@@ -202,7 +202,7 @@ const PageWrapper = ({ type, title, additionalFields = {}, onDataUpdate = () => 
         <Table
           columns={tableColumns}
           data={filteredData}
-          loading={loading}
+          isLoading={loading}
           onEdit={item => { setCurrentItem(item); setModals(prev => ({ ...prev, edit: true })); }}
           onDelete={item => { setCurrentItem(item); setModals(prev => ({ ...prev, delete: true })); }}
           activeFilters={filters}
