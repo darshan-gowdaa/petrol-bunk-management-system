@@ -12,9 +12,16 @@ export const authenticateToken = (req, res, next) => {
       });
     }
 
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET not configured");
+      return res.status(500).json({
+        message: "Authentication system is not properly configured."
+      });
+    }
+
     jwt.verify(
       token,
-      process.env.JWT_SECRET || "your-secret-key",
+      process.env.JWT_SECRET,
       (err, user) => {
         if (err) {
           return res.status(403).json({

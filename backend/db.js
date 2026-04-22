@@ -9,7 +9,7 @@ if (!cached) {
 
 export async function connectDB() {
   const uri = process.env.MONGODB_URI;
-  if (!uri) throw new Error("MONGODB_URI is not defined");
+  if (!uri) throw new Error("MONGODB_URI is not defined in environment variables");
 
   if (cached.conn) return cached.conn;
 
@@ -20,6 +20,13 @@ export async function connectDB() {
     });
   }
 
-  cached.conn = await cached.promise;
-  return cached.conn;
+  try {
+    cached.conn = await cached.promise;
+    return cached.conn;
+  } catch (err) {
+    // reset cache so next request retries instead of reusing failed promise
+    cached.promise = null;
+    cached.conn = null;
+    throw err;
+  }
 }

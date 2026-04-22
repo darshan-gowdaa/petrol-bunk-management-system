@@ -11,7 +11,10 @@ import reportsRoutes from "./routes/reports.js";
 import authRoutes from "./routes/auth.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
-dotenv.config();
+// only load .env file in dev — Vercel injects env vars directly
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
