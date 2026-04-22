@@ -1,5 +1,5 @@
 // frontend/src/components/CustomTooltip.jsx - Custom tooltip component
-import { formatCurrency, formatNumber } from "../utils/formatters";
+import { formatCurrency, formatNumber } from "../../utils/formatters";
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;

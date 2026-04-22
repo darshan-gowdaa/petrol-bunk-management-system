@@ -1,4 +1,4 @@
-import { ERROR_TYPES, ERROR_MESSAGES } from '../constants/errorConstants';
+import { ERROR_TYPES, ERROR_MESSAGES } from '../config/errorConstants';
 import { showToast } from './toastConfig';
 
 // Handles API errors and shows appropriate toast messages

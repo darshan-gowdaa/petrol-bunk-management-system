@@ -1,7 +1,7 @@
 import React from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import ChartContainer from "../ChartContainer";
-import CustomTooltip from "../CustomTooltip";
+import ChartContainer from "./ChartContainer";
+import CustomTooltip from "../common/CustomTooltip";
 import { formatLargeCurrency } from "../../utils/formatters";
 
 const SalesTrend = ({ data }) => {

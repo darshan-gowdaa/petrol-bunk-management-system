@@ -1,7 +1,7 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
-import ChartContainer from "../ChartContainer";
-import CustomTooltip from "../CustomTooltip";
+import ChartContainer from "./ChartContainer";
+import CustomTooltip from "../common/CustomTooltip";
 import { formatCurrency, formatLargeCurrency } from "../../utils/formatters";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16"];

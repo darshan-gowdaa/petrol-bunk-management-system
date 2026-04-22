@@ -6,10 +6,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
-import DateFilter from "../components/DateFilter";
-import { StatsCard, statsConfigs } from "../components/features";
-import ChartContainer from "../components/ChartContainer";
-import CustomTooltip from "../components/CustomTooltip";
+import DateFilter from "../components/forms/DateFilter";
+import StatsCard, { statsConfigs } from "../components/data-display/StatsCard";
+import ChartContainer from "../components/charts/ChartContainer";
+import CustomTooltip from "../components/common/CustomTooltip";
 import { fetchSales, fetchInventory, fetchEmployees, fetchExpenses } from "../services/api";
 import { formatCurrency, formatNumber } from "../utils/formatters";
 import { generatePDF } from "../utils/pdfGenerator";

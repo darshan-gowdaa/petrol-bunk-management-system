@@ -1,5 +1,5 @@
 import axios from "axios";
-import { STORAGE_KEYS } from "../constants/constants";
+import { STORAGE_KEYS } from "../config/constants";
 import { toast } from "react-toastify";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";

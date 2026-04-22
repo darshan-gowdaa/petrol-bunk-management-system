@@ -6,7 +6,7 @@ import { showToast, toastConfig } from "../utils/toastConfig";
 import { useAuth } from "../hooks/useAuth";
 
 // Lazy load non-critical resources
-const HelpModal = lazy(() => import("../components/modals/HelpModal"));
+const HelpModal = lazy(() => import("../components/feedback/HelpModal"));
 
 // Import styles only when needed
 const loadToastStyles = () => import("react-toastify/dist/ReactToastify.css");

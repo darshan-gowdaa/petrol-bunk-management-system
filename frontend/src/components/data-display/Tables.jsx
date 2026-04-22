@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Edit, Trash2, Loader2, Database, ChevronUp, ChevronDown } from "lucide-react";
-import { formatCurrency, formatNumber } from "../utils/formatters";
-import { SkeletonTableRows } from "../components/common/Skeleton.jsx";
+import { formatCurrency, formatNumber } from "../../utils/formatters";
+import { SkeletonTableRows } from "../common/Skeleton.jsx";
 
 // Active Filters Display
 const ActiveFilters = ({ activeFilters, onRemoveFilter }) => {

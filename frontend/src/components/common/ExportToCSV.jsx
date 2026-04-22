@@ -1,6 +1,6 @@
 // frontend/src/utils/ExportToCSV.jsx - CSV export utility
 import { format } from "date-fns";
-import { showToast } from "./toastConfig";
+import { showToast } from "../../utils/toastConfig";
 
 export const exportToCSV = (data, headers, filename) => {
   if (!data?.length) {

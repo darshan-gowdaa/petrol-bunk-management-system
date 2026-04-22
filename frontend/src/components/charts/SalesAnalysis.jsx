@@ -1,7 +1,7 @@
 import React from "react";
 import { ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line, ResponsiveContainer } from "recharts";
-import ChartContainer from "../ChartContainer";
-import CustomTooltip from "../CustomTooltip";
+import ChartContainer from "./ChartContainer";
+import CustomTooltip from "../common/CustomTooltip";
 import { formatCurrency, formatLargeCurrency, formatQuantityInKL } from "../../utils/formatters";
 
 const SalesAnalysis = ({ data }) => {

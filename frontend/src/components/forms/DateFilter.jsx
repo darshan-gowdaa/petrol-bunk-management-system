@@ -2,7 +2,7 @@
 
 import { Calendar } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { DATE_RANGES, formatDateRange } from "../utils/dateUtils";
+import { DATE_RANGES, formatDateRange } from "../../utils/dateUtils";
 
 const DateFilter = ({ dateFilter, setDateFilter }) => {
   const popupRef = useRef(null);

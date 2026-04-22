@@ -1,7 +1,7 @@
 import React from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import ChartContainer from "../ChartContainer";
-import CustomTooltip from "../CustomTooltip";
+import ChartContainer from "./ChartContainer";
+import CustomTooltip from "../common/CustomTooltip";
 import { formatNumber, formatLargeNumber } from "../../utils/formatters";
 
 const InventoryTable = ({ data }) => (

@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import { toast } from "react-toastify";
-import { STORAGE_KEYS } from "../constants/constants";
+import { STORAGE_KEYS } from "../config/constants";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 axios.defaults.baseURL = API_BASE_URL;
